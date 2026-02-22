@@ -391,26 +391,46 @@ function parseCSVRow(line) {
 // ── Load data from Google Sheets CSV
 async function loadData() {
   if (!SHEET_CSV_URL || SHEET_CSV_URL === 'YOUR_GOOGLE_SHEET_CSV_URL_HERE') {
-    showError(); return;
+    showError('URL not configured'); return;
   }
-  try {
-    const res = await fetch(SHEET_CSV_URL);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const text = await res.text();
-    const rows = parseCSV(text);
-    if (!rows.length) throw new Error('No data');
-    ALL_JOBS = rows.map((r, i) => ({ ...r, _id: r.id || String(i), is_new: String(r.is_new).toLowerCase() === 'true' }));
-    initUI();
-  } catch(e) {
-    console.error(e);
-    showError();
+  // Try direct fetch first, then fall back to CORS proxy
+  const attempts = [
+    () => fetch(SHEET_CSV_URL),
+    () => fetch('https://corsproxy.io/?' + encodeURIComponent(SHEET_CSV_URL)),
+    () => fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(SHEET_CSV_URL)),
+  ];
+  let lastError = null;
+  for (const attempt of attempts) {
+    try {
+      const res = await attempt();
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const text = await res.text();
+      // Check if we got HTML instead of CSV (sheet not published correctly)
+      if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
+        throw new Error('Got HTML instead of CSV — sheet may not be published correctly');
+      }
+      const rows = parseCSV(text);
+      if (!rows.length) throw new Error('CSV parsed but no rows found — check Master tab has data in row 2+');
+      ALL_JOBS = rows.map((r, i) => ({ ...r, _id: r.id || String(i), is_new: String(r.is_new).toLowerCase() === 'true' }));
+      initUI();
+      return; // success — stop trying
+    } catch(e) {
+      lastError = e;
+      console.warn('Fetch attempt failed:', e.message);
+    }
   }
+  console.error('All fetch attempts failed. Last error:', lastError);
+  showError(lastError ? lastError.message : 'Unknown error');
 }
 
-function showError() {
+function showError(reason) {
   document.getElementById('loadingState').style.display = 'none';
   document.getElementById('errorState').style.display = 'block';
   document.getElementById('navMeta').textContent = 'Data unavailable';
+  if (reason) {
+    const detail = document.getElementById('errorState').querySelector('p');
+    if (detail) detail.innerHTML += `<br><br><strong>Reason:</strong> <code>${reason}</code>`;
+  }
 }
 
 function initUI() {
