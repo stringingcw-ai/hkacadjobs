@@ -1,0 +1,41 @@
+name: Daily Scraper
+
+on:
+  schedule:
+    - cron: "0 2 * * *"   # 02:00 UTC = 10:00 HKT
+  workflow_dispatch:        # allow manual trigger from GitHub UI
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install requests beautifulsoup4 playwright
+          playwright install chromium --with-deps
+
+      - name: Run scraper
+        run: python scraper/scraper.py
+
+      - name: Commit and push jobs.csv
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add jobs.csv
+          if git diff --cached --quiet; then
+            echo "No changes to jobs.csv — skipping commit"
+          else
+            DATE=$(date -u +"%d %b %Y")
+            NEW=$(git diff --cached jobs.csv | grep "^+" | grep -c ",TRUE," || true)
+            git commit -m "Data refresh: ${DATE} (${NEW} new)"
+            git push
+          fi
