@@ -194,8 +194,8 @@
   // Reads jobs.csv from the same GitHub repo — updated daily by the scraper
   const SHEET_CSV_URL = "./jobs.csv";
 
-  // Update this each time you push new data (for the banner)
-  const LAST_UPDATED = new Date().toLocaleDateString("en-GB", { day:"numeric", month:"short", year:"numeric" });
+  // Set after CSV loads — derived from the date_added field in the data
+  let LAST_UPDATED = "";
 </script>
 
 <!-- NAV -->
@@ -417,6 +417,14 @@ function showError(reason) {
 function initUI() {
   document.getElementById('loadingState').style.display = 'none';
   document.getElementById('jobTable').style.display = 'table';
+
+  // Derive LAST_UPDATED from the date_added field written by the scraper
+  const addedDates = ALL_JOBS.map(j => j.date_added).filter(Boolean).sort();
+  if (addedDates.length) {
+    const d = new Date(addedDates[addedDates.length - 1]);
+    if (!isNaN(d)) LAST_UPDATED = d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+  }
+  if (!LAST_UPDATED) LAST_UPDATED = new Date().toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
 
   // Stats
   const newCount = ALL_JOBS.filter(j => j.is_new).length;
