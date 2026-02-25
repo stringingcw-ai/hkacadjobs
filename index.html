@@ -111,7 +111,7 @@
   .days-left.urgent { color: #c0392b; font-weight: 600; }
   .days-left.soon { color: #e67e22; }
   .days-left.ok { color: #27ae60; }
-  .new-badge { display: inline-block; background: var(--accent); color: white; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: middle; }
+  .new-badge { display: inline-block; background: var(--accent); color: white; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 6px; border-radius: 3px; margin-right: 6px; vertical-align: middle; }
   .bk-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 4px 6px; border-radius: 4px; transition: transform 0.15s; line-height: 1; opacity: 0.3; }
   .bk-btn:hover { transform: scale(1.25); opacity: 1; }
   .bk-btn.saved { opacity: 1; }
@@ -523,7 +523,7 @@ function renderTable() {
         <button class="bk-btn${isBk?' saved':''}" title="${isBk?'Remove':'Save'}" onclick="toggleBookmark('${j._id}',event)">${isBk?'🔖':'🔲'}</button>
       </td>
       <td>
-        <div class="job-title">${j.title}${newB}</div>
+        <div class="job-title">${newB}${j.title}</div>
         <div class="job-sub">${j.rank||''}${j.reference?' · Ref: '+j.reference:''}</div>
       </td>
       <td><div class="uni-badge"><span class="uni-dot" style="background:${col}"></span>${j.university||''}</div></td>
