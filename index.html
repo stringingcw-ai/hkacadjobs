@@ -472,6 +472,8 @@ function filterJobs() {
     const ms = !search || (j.title||'').toLowerCase().includes(search) || (j.department||'').toLowerCase().includes(search) || (j.university||'').toLowerCase().includes(search) || (j.university_full||'').toLowerCase().includes(search);
     return ms && (!uni||j.university===uni) && (!dept||j.department===dept) && (!rank||j.rank===rank);
   });
+  // New jobs always float to the top of the default view
+  filtered.sort((a, b) => (b.is_new ? 1 : 0) - (a.is_new ? 1 : 0));
   currentPage = 1;
   renderTable();
   renderPagination();
