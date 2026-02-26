@@ -235,6 +235,7 @@
     <input type="text" id="searchInput" placeholder="Search roles, keywords…" oninput="filterJobs()">
   </div>
   <select id="uniFilter" onchange="filterJobs()"><option value="">All Universities</option></select>
+  <select id="areaFilter" onchange="onAreaChange()"><option value="">All Areas</option></select>
   <select id="deptFilter" onchange="filterJobs()"><option value="">All Departments</option></select>
   <select id="rankFilter" onchange="filterJobs()">
     <option value="">All Ranks</option>
@@ -318,6 +319,30 @@
 const UNI_COLORS = { HKU:'#005BAB', CUHK:'#6B3A8A', HKUST:'#003D7C', PolyU:'#8B0000', CityU:'#00843D', BU:'#C8102E', LU:'#1B4F72', EdUHK:'#E67E22' };
 function uniColor(code) { return UNI_COLORS[code] || '#555555'; }
 
+// ── Area groups for coarse discipline filter
+const AREA_GROUPS = [
+  { area: 'Medicine & Health',     kw: ['medicine','nursing','pharmacy','dental','dentistry','clinical','surgery','health','paediatric','orthopaedic','rehabilitation','ophthalmol','pathology','anaesthes','psychiatry','oncology','obstetrics','biomedical sciences','jockey club school of public'] },
+  { area: 'Engineering',           kw: ['engineering','aeronautical','aviation'] },
+  { area: 'Computer Science & AI', kw: ['computer','computing','data science','artificial intelligence','information systems','information technology','cybersecurity','software','ai/llm','iot'] },
+  { area: 'Science & Mathematics', kw: ['mathematics','physics','chemistry','biology','ecology','earth','planetary','life science','statistics','marine','genetics','molecular','biochem','mathematical','optometry','science'] },
+  { area: 'Business & Management', kw: ['business','accountancy','accounting','finance','management','marketing','economics','hotel','tourism','decision','insurance','enterprise','operations'] },
+  { area: 'Arts & Humanities',     kw: ['humanities','language','literature','chinese','history','cultural','music','film','creative','visual arts','fine art','philosophy','religion','linguistic','translation','modern languages','english','digital arts','performing'] },
+  { area: 'Social Sciences',       kw: ['social science','sociology','psychology','politics','political','policy','governance','journalism','communication','anthropology','criminology','public affairs','media','asian studies','china studies','area studies'] },
+  { area: 'Education',             kw: ['education','curriculum','instruction','pedagogy','early childhood','learning innovation'] },
+  { area: 'Law',                   kw: ['law','legal'] },
+  { area: 'Architecture & Design', kw: ['architecture','design','urban','fashion','textile','building environment','construction and environment'] },
+  { area: 'Administration',        kw: ['office','registry','library','human resources','services centre','services unit','safety','estates','finance office','admissions','research office','graduate school','knowledge transfer','investment','technology transfer','audit','institutional'] },
+];
+
+function classifyArea(dept) {
+  if (!dept) return 'Other';
+  const d = dept.toLowerCase();
+  for (const {area, kw} of AREA_GROUPS) {
+    if (kw.some(k => d.includes(k))) return area;
+  }
+  return 'Other';
+}
+
 // ── State
 let ALL_JOBS = [];
 let filtered  = [];
@@ -397,7 +422,7 @@ async function loadData() {
     const text = await res.text();
     const rows = parseCSV(text);
     if (!rows.length) throw new Error('jobs.csv is empty');
-    ALL_JOBS = rows.map((r, i) => ({ ...r, _id: r.id || String(i), is_new: String(r.is_new).toLowerCase() === 'true' }));
+    ALL_JOBS = rows.map((r, i) => ({ ...r, _id: r.id || String(i), is_new: String(r.is_new).toLowerCase() === 'true', area: classifyArea(r.department) }));
     initUI();
   } catch (err) {
     showError(err.message);
@@ -444,12 +469,34 @@ function initUI() {
 
   // Populate filter dropdowns
   const uniSel  = document.getElementById('uniFilter');
-  const deptSel = document.getElementById('deptFilter');
   [...unis].sort().forEach(u => { const o = document.createElement('option'); o.value = u; o.textContent = u; uniSel.appendChild(o); });
-  [...depts].sort().forEach(d => { const o = document.createElement('option'); o.value = d; o.textContent = d; deptSel.appendChild(o); });
+
+  // Populate areaFilter with areas that have at least one job
+  const areaFilter = document.getElementById('areaFilter');
+  const presentAreas = AREA_GROUPS.map(g => g.area).filter(a => ALL_JOBS.some(j => j.area === a));
+  if (ALL_JOBS.some(j => j.area === 'Other')) presentAreas.push('Other');
+  presentAreas.forEach(a => { const o = document.createElement('option'); o.value = a; o.textContent = a; areaFilter.appendChild(o); });
+
+  // deptFilter is populated dynamically via updateDeptOptions()
+  updateDeptOptions('');
 
   filterJobs();
   updateBkUI();
+}
+
+// ── Area/Dept cascade
+function onAreaChange() {
+  updateDeptOptions(document.getElementById('areaFilter').value);
+  document.getElementById('deptFilter').value = '';
+  filterJobs();
+}
+
+function updateDeptOptions(area) {
+  const deptSel = document.getElementById('deptFilter');
+  const pool = area ? ALL_JOBS.filter(j => j.area === area) : ALL_JOBS;
+  const depts = [...new Set(pool.map(j => j.department).filter(Boolean))].sort();
+  deptSel.innerHTML = '<option value="">All Departments</option>';
+  depts.forEach(d => { const o = document.createElement('option'); o.value = d; o.textContent = d; deptSel.appendChild(o); });
 }
 
 // ── Filtering
@@ -465,12 +512,13 @@ function switchTab(tab) {
 function filterJobs() {
   const search = document.getElementById('searchInput').value.toLowerCase();
   const uni    = document.getElementById('uniFilter').value;
+  const area   = document.getElementById('areaFilter').value;
   const dept   = document.getElementById('deptFilter').value;
   const rank   = document.getElementById('rankFilter').value;
   const pool   = currentView === 'saved' ? ALL_JOBS.filter(j => bookmarks.has(j._id)) : ALL_JOBS;
   filtered = pool.filter(j => {
     const ms = !search || (j.title||'').toLowerCase().includes(search) || (j.department||'').toLowerCase().includes(search) || (j.university||'').toLowerCase().includes(search) || (j.university_full||'').toLowerCase().includes(search);
-    return ms && (!uni||j.university===uni) && (!dept||j.department===dept) && (!rank||j.rank===rank);
+    return ms && (!uni||j.university===uni) && (!area||j.area===area) && (!dept||j.department===dept) && (!rank||j.rank===rank);
   });
   // New jobs always float to the top of the default view
   filtered.sort((a, b) => (b.is_new ? 1 : 0) - (a.is_new ? 1 : 0));
@@ -588,7 +636,9 @@ function renderChips() {
   const dept = document.getElementById('deptFilter').value;
   const rank = document.getElementById('rankFilter').value;
   const search = document.getElementById('searchInput').value;
+  const area = document.getElementById('areaFilter').value;
   if (uni)    chips.push({label:`University: ${uni}`,   clear:()=>{document.getElementById('uniFilter').value='';filterJobs();}});
+  if (area)   chips.push({label:`Area: ${area}`,        clear:()=>{document.getElementById('areaFilter').value='';updateDeptOptions('');filterJobs();}});
   if (dept)   chips.push({label:`Dept: ${dept}`,        clear:()=>{document.getElementById('deptFilter').value='';filterJobs();}});
   if (rank)   chips.push({label:`Rank: ${rank}`,        clear:()=>{document.getElementById('rankFilter').value='';filterJobs();}});
   if (search) chips.push({label:`"${search}"`,          clear:()=>{document.getElementById('searchInput').value='';filterJobs();}});
