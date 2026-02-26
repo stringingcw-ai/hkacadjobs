@@ -171,6 +171,13 @@
   footer { background: var(--ink); color: #666; text-align: center; padding: 24px 48px; font-size: 0.75rem; letter-spacing: 0.03em; }
   footer a { color: var(--accent); text-decoration: none; }
 
+  /* GROUP CHIPS BAR */
+  .group-chips-bar { background: var(--white); border-bottom: 1px solid var(--border); padding: 8px 48px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .group-bar-label { font-size: 0.72rem; color: var(--muted); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; }
+  .group-chip { display: inline-flex; align-items: center; padding: 5px 13px; border-radius: 16px; font-size: 0.78rem; font-weight: 500; cursor: pointer; border: 1.5px solid var(--border); background: var(--white); color: var(--muted); transition: all 0.15s; user-select: none; }
+  .group-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .group-chip.selected { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); font-weight: 600; }
+
   @media (max-width: 768px) {
     nav { padding: 0 20px; }
     .hero { padding: 32px 20px 28px; }
@@ -179,6 +186,7 @@
     .active-filters { padding: 0 20px 10px; }
     .main-layout { padding: 20px 20px 48px; }
     .nav-meta { display: none; }
+    .group-chips-bar { padding: 8px 20px; }
   }
 </style>
 </head>
@@ -236,7 +244,6 @@
   </div>
   <select id="uniFilter" onchange="filterJobs()"><option value="">All Universities</option></select>
   <select id="areaFilter" onchange="onAreaChange()"><option value="">All Areas</option></select>
-  <select id="deptFilter" onchange="filterJobs()"><option value="">All Departments</option></select>
   <select id="rankFilter" onchange="filterJobs()">
     <option value="">All Ranks</option>
     <option>Professor</option>
@@ -246,6 +253,10 @@
     <option>Lecturer</option>
   </select>
   <div class="result-count" id="resultCount"></div>
+</div>
+<div class="group-chips-bar" id="groupChipsBar" style="display:none;">
+  <span class="group-bar-label">Groups:</span>
+  <div id="groupChips" style="display:contents;"></div>
 </div>
 <div class="active-filters" id="activeFilters" style="display:none;"><span class="filter-label">Filtered by:</span></div>
 
@@ -343,6 +354,91 @@ function classifyArea(dept) {
   return 'Other';
 }
 
+const DEPT_GROUPS = [
+  // Medicine & Health
+  { group: 'Clinical Medicine',      area: 'Medicine & Health',     kw: ['surgery','orthopaedic','anaesthes','obstetrics','ophthalmol','oncology','psychiatry','paediatric','radiology','dermatology','cardiology','neurology','urology'] },
+  { group: 'Nursing',                area: 'Medicine & Health',     kw: ['nursing'] },
+  { group: 'Rehabilitation',         area: 'Medicine & Health',     kw: ['rehabilitation','physiotherapy','occupational therapy','speech'] },
+  { group: 'Pharmacy & Biomedical',  area: 'Medicine & Health',     kw: ['pharmacy','pharmacology','biomedical sciences','biomedical science'] },
+  { group: 'Public Health',          area: 'Medicine & Health',     kw: ['public health','community medicine','epidemiology','jockey club school of public'] },
+  { group: 'Dentistry',              area: 'Medicine & Health',     kw: ['dental','dentistry'] },
+  { group: 'Pathology',              area: 'Medicine & Health',     kw: ['pathology','laboratory medicine'] },
+  // Engineering
+  { group: 'Civil & Environmental',  area: 'Engineering',           kw: ['civil engineering','environmental engineering'] },
+  { group: 'Mechanical & Aerospace', area: 'Engineering',           kw: ['mechanical','aeronautical','aviation','manufacturing','industrial engineering'] },
+  { group: 'Electrical & Electronic',area: 'Engineering',           kw: ['electrical','electronic','photonics'] },
+  { group: 'Chemical & Materials',   area: 'Engineering',           kw: ['chemical engineering','materials'] },
+  { group: 'Biomedical Engineering', area: 'Engineering',           kw: ['biomedical engineering','biomechanics','bioengineering'] },
+  { group: 'Systems Engineering',    area: 'Engineering',           kw: ['systems engineering','industrial and systems'] },
+  // Computer Science & AI
+  { group: 'Computer Science',       area: 'Computer Science & AI', kw: ['computer science','school of computing','department of computing'] },
+  { group: 'AI & Data Science',      area: 'Computer Science & AI', kw: ['artificial intelligence','data science','machine learning','ai/llm','data analytics'] },
+  { group: 'Information Systems',    area: 'Computer Science & AI', kw: ['information systems','information management'] },
+  { group: 'Information Technology', area: 'Computer Science & AI', kw: ['information technology','iot'] },
+  { group: 'Cybersecurity',          area: 'Computer Science & AI', kw: ['cybersecurity','cyber security'] },
+  // Science & Mathematics
+  { group: 'Mathematics & Statistics',area:'Science & Mathematics', kw: ['mathematics','statistics','actuarial','mathematical'] },
+  { group: 'Physics',                area: 'Science & Mathematics', kw: ['physics','astronomy','astrophysics','planetary'] },
+  { group: 'Chemistry',              area: 'Science & Mathematics', kw: ['chemistry'] },
+  { group: 'Biochemistry',           area: 'Science & Mathematics', kw: ['biochem'] },
+  { group: 'Biology & Life Sciences',area: 'Science & Mathematics', kw: ['biology','life science','cell biology','microbiology'] },
+  { group: 'Genetics & Molecular',   area: 'Science & Mathematics', kw: ['genetics','molecular biology','genomics'] },
+  { group: 'Earth & Marine Sciences',area: 'Science & Mathematics', kw: ['earth science','geology','geography','geophysics','marine','ecology','atmospheric'] },
+  { group: 'Optometry',              area: 'Science & Mathematics', kw: ['optometry'] },
+  // Business & Management
+  { group: 'Accounting',             area: 'Business & Management', kw: ['accountancy','accounting'] },
+  { group: 'Finance',                area: 'Business & Management', kw: ['finance','banking','insurance'] },
+  { group: 'Management & Strategy',  area: 'Business & Management', kw: ['management','strategy','enterprise','entrepreneurship'] },
+  { group: 'Marketing',              area: 'Business & Management', kw: ['marketing','advertising'] },
+  { group: 'Economics',              area: 'Business & Management', kw: ['economics'] },
+  { group: 'Operations & Decision',  area: 'Business & Management', kw: ['decision','operations management','supply chain','logistics'] },
+  { group: 'Hospitality & Tourism',  area: 'Business & Management', kw: ['hotel','tourism','hospitality'] },
+  // Arts & Humanities
+  { group: 'Chinese Studies',        area: 'Arts & Humanities',     kw: ['chinese language','chinese literature','chinese studies','department of chinese','school of chinese','putonghua'] },
+  { group: 'English & Linguistics',  area: 'Arts & Humanities',     kw: ['english','linguistics','linguistic'] },
+  { group: 'Translation & Languages',area: 'Arts & Humanities',     kw: ['translation','interpreting','modern languages'] },
+  { group: 'History & Philosophy',   area: 'Arts & Humanities',     kw: ['history','philosophy','religion','theology'] },
+  { group: 'Music',                  area: 'Arts & Humanities',     kw: ['music'] },
+  { group: 'Performing Arts',        area: 'Arts & Humanities',     kw: ['performing','theatre','dance'] },
+  { group: 'Visual Arts & Film',     area: 'Arts & Humanities',     kw: ['visual arts','fine art','film','cinema','digital arts','creative'] },
+  { group: 'Literature & Humanities',area: 'Arts & Humanities',     kw: ['literature','humanities','comparative literature'] },
+  // Social Sciences
+  { group: 'Psychology',             area: 'Social Sciences',       kw: ['psychology'] },
+  { group: 'Sociology & Anthropology',area:'Social Sciences',       kw: ['sociology','anthropology','criminology','social science'] },
+  { group: 'Politics & Policy',      area: 'Social Sciences',       kw: ['politics','political','governance','policy','public affairs'] },
+  { group: 'Journalism & Media',     area: 'Social Sciences',       kw: ['journalism','communication','media'] },
+  { group: 'Social Work',            area: 'Social Sciences',       kw: ['social work','social service'] },
+  { group: 'Asian & Area Studies',   area: 'Social Sciences',       kw: ['asian studies','china studies','area studies'] },
+  // Education
+  { group: 'Teacher Education',      area: 'Education',             kw: ['teacher education','curriculum','instruction','pedagogy'] },
+  { group: 'Educational Policy',     area: 'Education',             kw: ['educational policy','educational administration','higher education'] },
+  { group: 'Early Childhood',        area: 'Education',             kw: ['early childhood'] },
+  { group: 'Learning & Innovation',  area: 'Education',             kw: ['learning innovation','educational technology'] },
+  // Law
+  { group: 'Law',                    area: 'Law',                   kw: ['law','legal'] },
+  // Architecture & Design
+  { group: 'Architecture',           area: 'Architecture & Design', kw: ['architecture'] },
+  { group: 'Urban Planning',         area: 'Architecture & Design', kw: ['urban planning','urban design','town planning'] },
+  { group: 'Design',                 area: 'Architecture & Design', kw: ['design','fashion','textile'] },
+  { group: 'Construction & Environment',area:'Architecture & Design',kw:['building environment','construction and environment','construction management','real estate','quantity surveying'] },
+  // Administration
+  { group: 'Academic Services',      area: 'Administration',        kw: ['registry','admissions','registrar'] },
+  { group: 'Research & KT',          area: 'Administration',        kw: ['research office','knowledge transfer','technology transfer'] },
+  { group: 'Library',                area: 'Administration',        kw: ['library'] },
+  { group: 'HR & Finance',           area: 'Administration',        kw: ['human resources','finance office'] },
+  { group: 'Estates & Safety',       area: 'Administration',        kw: ['estates','safety','facilities'] },
+  { group: 'Graduate Studies',       area: 'Administration',        kw: ['graduate school','postgraduate'] },
+];
+
+function classifyDeptGroup(dept) {
+  if (!dept) return 'Other';
+  const d = dept.toLowerCase();
+  for (const {group, kw} of DEPT_GROUPS) {
+    if (kw.some(k => d.includes(k))) return group;
+  }
+  return 'Other';
+}
+
 // ── State
 let ALL_JOBS = [];
 let filtered  = [];
@@ -351,6 +447,7 @@ let openJobId   = null;
 let sortDir     = {};
 let currentPage = 1;
 const PAGE_SIZE = 20;
+let selectedDeptGroups = new Set();
 
 // ── Bookmarks (localStorage)
 let bookmarks = new Set(JSON.parse(localStorage.getItem('hkacad_bk') || '[]'));
@@ -422,7 +519,7 @@ async function loadData() {
     const text = await res.text();
     const rows = parseCSV(text);
     if (!rows.length) throw new Error('jobs.csv is empty');
-    ALL_JOBS = rows.map((r, i) => ({ ...r, _id: r.id || String(i), is_new: String(r.is_new).toLowerCase() === 'true', area: classifyArea(r.department) }));
+    ALL_JOBS = rows.map((r, i) => ({ ...r, _id: r.id || String(i), is_new: String(r.is_new).toLowerCase() === 'true', area: classifyArea(r.department), deptGroup: classifyDeptGroup(r.department) }));
     initUI();
   } catch (err) {
     showError(err.message);
@@ -477,26 +574,41 @@ function initUI() {
   if (ALL_JOBS.some(j => j.area === 'Other')) presentAreas.push('Other');
   presentAreas.forEach(a => { const o = document.createElement('option'); o.value = a; o.textContent = a; areaFilter.appendChild(o); });
 
-  // deptFilter is populated dynamically via updateDeptOptions()
-  updateDeptOptions('');
-
   filterJobs();
   updateBkUI();
 }
 
-// ── Area/Dept cascade
+// ── Area/Group cascade
 function onAreaChange() {
-  updateDeptOptions(document.getElementById('areaFilter').value);
-  document.getElementById('deptFilter').value = '';
+  selectedDeptGroups.clear();
+  const area = document.getElementById('areaFilter').value;
+  renderGroupChips(area);
   filterJobs();
 }
 
-function updateDeptOptions(area) {
-  const deptSel = document.getElementById('deptFilter');
-  const pool = area ? ALL_JOBS.filter(j => j.area === area) : ALL_JOBS;
-  const depts = [...new Set(pool.map(j => j.department).filter(Boolean))].sort();
-  deptSel.innerHTML = '<option value="">All Departments</option>';
-  depts.forEach(d => { const o = document.createElement('option'); o.value = d; o.textContent = d; deptSel.appendChild(o); });
+function renderGroupChips(area) {
+  const bar = document.getElementById('groupChipsBar');
+  const container = document.getElementById('groupChips');
+  if (!area) { bar.style.display = 'none'; container.innerHTML = ''; return; }
+  const groups = DEPT_GROUPS
+    .filter(g => g.area === area && ALL_JOBS.some(j => j.area === area && j.deptGroup === g.group));
+  if (!groups.length) { bar.style.display = 'none'; return; }
+  bar.style.display = 'flex';
+  container.innerHTML = '';
+  groups.forEach(g => {
+    const chip = document.createElement('span');
+    chip.className = 'group-chip' + (selectedDeptGroups.has(g.group) ? ' selected' : '');
+    chip.textContent = g.group;
+    chip.onclick = () => toggleDeptGroup(g.group);
+    container.appendChild(chip);
+  });
+}
+
+function toggleDeptGroup(group) {
+  if (selectedDeptGroups.has(group)) selectedDeptGroups.delete(group);
+  else selectedDeptGroups.add(group);
+  renderGroupChips(document.getElementById('areaFilter').value);
+  filterJobs();
 }
 
 // ── Filtering
@@ -513,12 +625,11 @@ function filterJobs() {
   const search = document.getElementById('searchInput').value.toLowerCase();
   const uni    = document.getElementById('uniFilter').value;
   const area   = document.getElementById('areaFilter').value;
-  const dept   = document.getElementById('deptFilter').value;
   const rank   = document.getElementById('rankFilter').value;
   const pool   = currentView === 'saved' ? ALL_JOBS.filter(j => bookmarks.has(j._id)) : ALL_JOBS;
   filtered = pool.filter(j => {
     const ms = !search || (j.title||'').toLowerCase().includes(search) || (j.department||'').toLowerCase().includes(search) || (j.university||'').toLowerCase().includes(search) || (j.university_full||'').toLowerCase().includes(search);
-    return ms && (!uni||j.university===uni) && (!area||j.area===area) && (!dept||j.department===dept) && (!rank||j.rank===rank);
+    return ms && (!uni||j.university===uni) && (!area||j.area===area) && (!selectedDeptGroups.size||selectedDeptGroups.has(j.deptGroup)) && (!rank||j.rank===rank);
   });
   // New jobs always float to the top of the default view
   filtered.sort((a, b) => (b.is_new ? 1 : 0) - (a.is_new ? 1 : 0));
@@ -633,13 +744,11 @@ function renderChips() {
   const bar = document.getElementById('activeFilters');
   const chips = [];
   const uni = document.getElementById('uniFilter').value;
-  const dept = document.getElementById('deptFilter').value;
   const rank = document.getElementById('rankFilter').value;
   const search = document.getElementById('searchInput').value;
   const area = document.getElementById('areaFilter').value;
   if (uni)    chips.push({label:`University: ${uni}`,   clear:()=>{document.getElementById('uniFilter').value='';filterJobs();}});
-  if (area)   chips.push({label:`Area: ${area}`,        clear:()=>{document.getElementById('areaFilter').value='';updateDeptOptions('');filterJobs();}});
-  if (dept)   chips.push({label:`Dept: ${dept}`,        clear:()=>{document.getElementById('deptFilter').value='';filterJobs();}});
+  if (area)   chips.push({label:`Area: ${area}`,        clear:()=>{document.getElementById('areaFilter').value='';selectedDeptGroups.clear();renderGroupChips('');filterJobs();}});
   if (rank)   chips.push({label:`Rank: ${rank}`,        clear:()=>{document.getElementById('rankFilter').value='';filterJobs();}});
   if (search) chips.push({label:`"${search}"`,          clear:()=>{document.getElementById('searchInput').value='';filterJobs();}});
   if (!chips.length) { bar.style.display='none'; return; }
