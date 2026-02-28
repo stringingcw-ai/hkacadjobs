@@ -63,12 +63,12 @@
   .result-count strong { color: var(--ink); }
 
   /* ACTIVE FILTERS */
-  .active-filters { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 0 48px 12px; background: var(--white); border-bottom: 1px solid var(--border); }
+  .active-filters { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 10px 48px 12px; background: var(--white); border-bottom: 1px solid var(--border); }
   .filter-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-soft); color: var(--accent); border: 1px solid #d9b5a8; border-radius: 20px; padding: 4px 10px; font-size: 0.75rem; font-weight: 500; cursor: pointer; }
   .filter-label { font-size: 0.75rem; color: var(--muted); }
 
   /* MAIN */
-  .main-layout { max-width: 1100px; margin: 0 auto; padding: 28px 48px 64px; }
+  .main-layout { max-width: 100%; padding: 28px 48px 64px; }
 
   /* LOADING STATE */
   .loading-state { text-align: center; padding: 80px 20px; }
@@ -101,12 +101,14 @@
   tbody tr.highlighted { background: #fffcf8; }
   tbody tr.row-selected { background: #fff4f1 !important; box-shadow: inset 3px 0 0 var(--accent); }
   td { padding: 13px 16px; vertical-align: middle; }
+  th:nth-child(5), td:nth-child(5),
+  th:nth-child(6), td:nth-child(6) { text-align: center; }
   .job-title { font-weight: 600; font-size: 0.88rem; color: var(--ink); margin-bottom: 3px; }
   .job-sub { font-size: 0.74rem; color: var(--muted); }
   .uni-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 500; }
   .uni-logo { width: 20px; height: 20px; object-fit: contain; border-radius: 2px; flex-shrink: 0; }
   .dept-tag { display: inline-block; background: var(--tag-bg); border-radius: 4px; padding: 3px 9px; font-size: 0.75rem; color: var(--muted); font-weight: 500; }
-  .deadline-cell { font-size: 0.83rem; }
+  .deadline-cell { font-size: 0.83rem; white-space: nowrap; }
   .days-left { display: block; font-size: 0.7rem; margin-top: 2px; }
   .days-left.urgent { color: #c0392b; font-weight: 600; }
   .days-left.soon { color: #e67e22; }
@@ -183,10 +185,27 @@
     .hero { padding: 32px 20px 28px; }
     .hero h1 { font-size: 1.9rem; }
     .filter-bar { padding: 12px 20px; }
-    .active-filters { padding: 0 20px 10px; }
-    .main-layout { padding: 20px 20px 48px; }
+    .active-filters { padding: 10px 20px 10px; }
+    .main-layout { padding: 20px 16px 48px; }
     .nav-meta { display: none; }
     .group-chips-bar { padding: 8px 20px; }
+
+    /* TABLE → CARD LAYOUT on mobile */
+    .job-table-wrap { border-radius: 0; border-left: none; border-right: none; background: transparent; box-shadow: none; }
+    table { display: block; }
+    thead { display: none; }
+    tbody { display: flex; flex-direction: column; gap: 10px; }
+    tbody tr { display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto auto auto; border: 1px solid var(--border); border-radius: 10px; background: var(--white); padding: 12px 14px; gap: 2px 8px; }
+    tbody tr:last-child { border-bottom: 1px solid var(--border); }
+    tbody tr.row-selected { box-shadow: inset 3px 0 0 var(--accent); }
+    td { display: block; padding: 0; border: none; }
+    td:nth-child(1) { display: none; }
+    td:nth-child(2) { grid-column: 1; grid-row: 1; padding-right: 8px; }
+    td:nth-child(3) { grid-column: 2; grid-row: 1; display: flex; align-items: flex-start; justify-content: flex-end; }
+    td:nth-child(4) { grid-column: 1; grid-row: 2; padding-top: 6px; }
+    td:nth-child(5) { grid-column: 1; grid-row: 3; padding-top: 6px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    td:nth-child(5) > div { margin-top: 0 !important; }
+    td:nth-child(6) { grid-column: 2; grid-row: 2 / span 2; display: flex; align-items: center; justify-content: flex-end; }
   }
 </style>
 </head>
@@ -225,7 +244,6 @@
     <div class="stat-item"><div class="stat-num" id="statTotal">—</div><div class="stat-label">Open Positions</div></div>
     <div class="stat-item"><div class="stat-num" id="statUnis">8</div><div class="stat-label">Universities</div></div>
     <div class="stat-item"><div class="stat-num" id="statNew">—</div><div class="stat-label">New Today</div></div>
-    <div class="stat-item"><div class="stat-num" id="statDepts">—</div><div class="stat-label">Departments</div></div>
   </div>
 </div>
 
@@ -281,11 +299,11 @@
       <thead>
         <tr>
           <th style="width:36px;"></th>
-          <th class="sortable" onclick="sortTable('title')">Job Title <span class="sort-icon">↕</span></th>
-          <th class="sortable" onclick="sortTable('university')">University <span class="sort-icon">↕</span></th>
-          <th class="sortable" onclick="sortTable('department')">Department <span class="sort-icon">↕</span></th>
-          <th class="sortable" onclick="sortTable('deadline')">Deadline <span class="sort-icon">↕</span></th>
-          <th>Apply</th>
+          <th>Job Title</th>
+          <th>University</th>
+          <th>Department</th>
+          <th class="sortable" style="min-width:140px;" onclick="sortTable('deadline')">Deadline <span class="sort-icon">↕</span></th>
+          <th></th>
         </tr>
       </thead>
       <tbody id="jobBody"></tbody>
@@ -499,15 +517,17 @@ function updatePanelSaveBtn(id) {
 // ── Helpers
 function daysLeft(s) { return Math.round((new Date(s) - new Date()) / 86400000); }
 function daysLabel(d) {
-  if (d < 0) return {text:'Closed',cls:'urgent'};
+  if (isNaN(d)) return {text:'',cls:''};
+  if (d < 0)  return {text:'Closed',cls:'urgent'};
   if (d === 0) return {text:'Today!',cls:'urgent'};
-  if (d <= 7) return {text:`${d}d left`,cls:'urgent'};
-  if (d <= 21) return {text:`${d}d left`,cls:'soon'};
-  return {text:`${d}d left`,cls:'ok'};
+  if (d <= 7)  return {text:`${d} days left`,cls:'urgent'};
+  if (d <= 15) return {text:`${d} days left`,cls:'soon'};
+  return {text:'',cls:''};
 }
 function fmtDate(s) {
+  if (!s) return 'N/A';
   const d = new Date(s);
-  return isNaN(d) ? s : d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  return isNaN(d) ? 'N/A' : d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
 }
 
 // ── CSV Parser (handles quoted fields with commas)
@@ -576,7 +596,6 @@ function initUI() {
   const unis  = new Set(ALL_JOBS.map(j => j.university).filter(Boolean));
   document.getElementById('statTotal').textContent = ALL_JOBS.length;
   document.getElementById('statNew').textContent   = newCount;
-  document.getElementById('statDepts').textContent = depts.size;
   document.getElementById('statUnis').textContent  = unis.size;
   document.getElementById('navMeta').textContent   = `UPDATED · ${LAST_UPDATED}`;
 
@@ -665,7 +684,15 @@ function filterJobs() {
 // ── Sorting
 function sortTable(key) {
   sortDir[key] = !sortDir[key];
-  filtered.sort((a,b) => {
+  filtered.sort((a, b) => {
+    if (key === 'deadline') {
+      const da = new Date(a.deadline), db = new Date(b.deadline);
+      const va = !isNaN(da), vb = !isNaN(db);
+      if (!va && !vb) return 0;
+      if (!va) return 1;
+      if (!vb) return -1;
+      return sortDir[key] ? da - db : db - da;
+    }
     const va = String(a[key]||''), vb = String(b[key]||'');
     return sortDir[key] ? va.localeCompare(vb) : vb.localeCompare(va);
   });
@@ -705,11 +732,13 @@ function renderTable() {
       </td>
       <td>
         <div class="job-title">${newB}${j.title}</div>
-        <div class="job-sub">${j.rank||''}${j.reference?' · Ref: '+j.reference:''}</div>
       </td>
       <td><div class="uni-badge">${uniLogoHtml(j.university,'uni-logo')}${uniDisplay(j.university)||''}</div></td>
-      <td><span class="dept-tag">${j.department||''}</span></td>
-      <td><div class="deadline-cell">${fmtDate(j.deadline)}<span class="days-left ${dl.cls}">${dl.text}</span></div></td>
+      <td><span class="dept-tag">${j.department||'N/A'}</span></td>
+      <td>
+        <div class="deadline-cell">${fmtDate(j.deadline)}</div>
+        <div style="margin-top:6px;min-height:1.6rem;">${dl.text?`<span class="ptag ${dl.cls}">⏱ ${dl.text}</span>`:''}</div>
+      </td>
       <td onclick="event.stopPropagation()">
         <a class="apply-btn" href="${j.apply_url||'#'}" target="_blank" rel="noopener">
           Apply
@@ -801,7 +830,7 @@ function openPanel(id) {
   document.getElementById('panelTags').innerHTML = `
     <span class="ptag dept">${j.department||''}</span>
     ${j.rank ? `<span class="ptag rank">${j.rank}</span>` : ''}
-    <span class="ptag ${dl.cls}">⏱ ${fmtDate(j.deadline)} · ${dl.text}</span>`;
+    <span class="ptag ${dl.cls||'ok'}">⏱ ${fmtDate(j.deadline)}${dl.text?` · ${dl.text}`:''}</span>`;
 
   const descHtml = (j.description||'No description provided.')
     .split('\n\n').map(p=>`<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
