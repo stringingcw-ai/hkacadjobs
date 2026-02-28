@@ -1014,14 +1014,9 @@ def scrape_hkbu():
 
     try:
         while True:
-            params = {
-                "onlyData": "true",
-                "finder":   FINDER,
-                "limit":    "25",
-                "offset":   str(offset),
-                "sortBy":   "POSTING_DATES_DESC",
-            }
-            resp = requests.get(API, params=params, headers=HKBU_HEADERS, timeout=20)
+            # Build URL directly to avoid requests double-encoding the finder string
+            url = f"{API}?onlyData=true&finder={FINDER}&limit=25&offset={offset}&sortBy=POSTING_DATES_DESC"
+            resp = requests.get(url, headers=HKBU_HEADERS, timeout=20)
             resp.raise_for_status()
             data = resp.json()
 
@@ -1089,6 +1084,7 @@ def scrape_hkbu():
             if offset > 1000:
                 break
 
+        # Fetch detail pages to fill in missing closing dates
     except Exception as e:
         print(f"  ⚠️  Direct API failed ({e}), falling back to Playwright...")
         try:
@@ -1179,6 +1175,35 @@ def scrape_hkbu():
                 })
         except Exception as e2:
             print(f"  ⚠️  Playwright also failed: {e2}")
+
+    # Fetch detail pages for any jobs still missing a closing date
+    missing = [j for j in jobs if not j["deadline"] and j["apply_url"]]
+    if missing:
+        print(f"  ↳ Fetching {len(missing)} detail pages for closing dates...")
+        try:
+            from playwright.sync_api import sync_playwright
+            with sync_playwright() as p:
+                browser = p.chromium.launch(headless=True)
+                detail_page = browser.new_page()
+                detail_page.set_extra_http_headers(HEADERS)
+                found = 0
+                for job in missing:
+                    try:
+                        detail_page.goto(job["apply_url"], timeout=20000, wait_until="domcontentloaded")
+                        detail_page.wait_for_timeout(2000)
+                        text = detail_page.inner_text("body")
+                        m = re.search(r'[Cc]losing\s+[Dd]ate[:\s]+(\d{1,2}\s+\w+\s+\d{4})', text)
+                        if m:
+                            job["deadline"] = parse_date_text(m.group(1))
+                            job["is_new"] = "TRUE" if is_active(job["deadline"]) else "FALSE"
+                            found += 1
+                    except Exception:
+                        pass
+                detail_page.close()
+                browser.close()
+            print(f"  ↳ Found closing dates for {found}/{len(missing)} jobs")
+        except Exception as pe:
+            print(f"  ↳ Detail page fetch failed: {pe}")
 
     print(f"  ✅ HKBU: {len(jobs)} jobs found")
     return jobs
