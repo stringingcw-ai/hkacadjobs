@@ -883,7 +883,7 @@ def scrape_hkust():
                         "position_type":    detect_type(title),
                         "salary":           "",
                         "start_date":       "",
-                        "apply_url":        url,
+                        "apply_url":        f"https://hrmsxprod.psft.ust.hk:8044/psp/hrmsxprod/EMPLOYEE/HRMS/c/HRS_HRAM.HRS_CE.GBL?Page=HRS_CE_JOB_DTL&Action=A&JobOpeningId={ref}&SiteId=1000&PostingSeq=1",
                         "description":      f"{title}{' — ' + dept if dept else ''}. Please visit the application link for full details.",
                     })
 
