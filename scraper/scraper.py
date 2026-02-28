@@ -436,6 +436,10 @@ def scrape_eduhk():
                         # else: pw_page already on next page from previous click
 
                         full_text = pw_page.inner_text("body")
+                        # Extract PDF links in page order (one per job card)
+                        pdf_links = pw_page.evaluate(
+                            "Array.from(document.querySelectorAll('a[href*=\"/cms/f/career\"]')).map(a => a.href)"
+                        )
                     except Exception as page_err:
                         print(f"  ↳ {pos_type} p{page_num}: error ({page_err.__class__.__name__})")
                         try: pw_page.close()
@@ -447,6 +451,7 @@ def scrape_eduhk():
                         break
 
                     jobs_before = len(jobs)
+                    pdf_idx = 0
                     # Anchor on each "Ad Date:" occurrence.
                     # Grab 400 chars before for title+dept+ref, 200 chars after for close date.
                     for m in re.finditer(r'Ad Date:', full_text):
@@ -505,6 +510,8 @@ def scrape_eduhk():
                             if raw.upper() not in ("N/A", "NA", ""):
                                 deadline = parse_date_text(raw)
 
+                        apply_url = pdf_links[pdf_idx] if pdf_idx < len(pdf_links) else f"{BASE}/en/current-openings?category={category}&department=&q="
+                        pdf_idx += 1
                         jobs.append({
                             "id":               make_id("EDUHK", ref if ref else f"{title[:40]}_{dept[:20]}"),
                             "title":            title,
@@ -518,7 +525,7 @@ def scrape_eduhk():
                             "position_type":    detect_type(title),
                             "salary":           "",
                             "start_date":       "",
-                            "apply_url":        f"{BASE}/en/current-openings?category={category}&department=&q=",
+                            "apply_url":        apply_url,
                             "description":      f"{title}{' — ' + dept if dept else ''}. See EdUHK website for full details.",
                         })
                         cat_count += 1
