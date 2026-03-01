@@ -1319,6 +1319,34 @@ def scrape_cuhk():
     except Exception as e:
         print(f"  ⚠️  Playwright failed: {e}")
 
+    # Fetch detail pages for any jobs missing a closing date
+    missing = [j for j in jobs if not j["deadline"] and j["apply_url"]]
+    if missing:
+        print(f"  ↳ Fetching {len(missing)} detail pages for closing dates...")
+        try:
+            from playwright.sync_api import sync_playwright
+            with sync_playwright() as p:
+                browser = p.chromium.launch(headless=True)
+                detail_page = browser.new_page()
+                detail_page.set_extra_http_headers(HEADERS)
+                found = 0
+                for job in missing:
+                    try:
+                        detail_page.goto(job["apply_url"], timeout=20000, wait_until="domcontentloaded")
+                        detail_page.wait_for_timeout(2000)
+                        text = detail_page.inner_text("body")
+                        m = re.search(r'[Cc]losing\s+[Dd]ate[:\s]+(\w+\s+\d{1,2},\s+\d{4})', text)
+                        if m:
+                            job["deadline"] = parse_date_text(m.group(1))
+                            found += 1
+                    except Exception:
+                        pass
+                detail_page.close()
+                browser.close()
+            print(f"  ↳ Found closing dates for {found}/{len(missing)} jobs")
+        except Exception as pe:
+            print(f"  ↳ Detail page fetch failed: {pe}")
+
     print(f"  ✅ CUHK: {len(jobs)} jobs found")
     return jobs
 
