@@ -352,6 +352,7 @@ function uniColor(code) { return UNI_COLORS[code] || '#555555'; }
 // ── University display names (overrides for codes that aren't self-explanatory)
 const UNI_DISPLAY = { LU: 'Lingnan' };
 function uniDisplay(code) { return UNI_DISPLAY[code] || code; }
+const UNI_ORDER = ['PolyU', 'EdUHK', 'LU', 'HKU', 'HKUST', 'CityU', 'HKBU', 'CUHK'];
 
 // ── University logos via Google favicon service
 const UNI_LOGOS = {
@@ -673,8 +674,17 @@ function filterJobs() {
     const ms = !search || (j.title||'').toLowerCase().includes(search) || (j.department||'').toLowerCase().includes(search) || (j.university||'').toLowerCase().includes(search) || (j.university_full||'').toLowerCase().includes(search);
     return ms && (!uni||j.university===uni) && (!area||j.area===area) && (!selectedDeptGroups.size||selectedDeptGroups.has(j.deptGroup)) && (!rank||j.rank===rank);
   });
-  // New jobs always float to the top of the default view
-  filtered.sort((a, b) => (b.is_new ? 1 : 0) - (a.is_new ? 1 : 0));
+  // 1. New jobs first; 2. University order; 3. Latest date_added first within each university
+  filtered.sort((a, b) => {
+    const newDiff = (b.is_new ? 1 : 0) - (a.is_new ? 1 : 0);
+    if (newDiff !== 0) return newDiff;
+    const uiA = UNI_ORDER.indexOf(a.university), uiB = UNI_ORDER.indexOf(b.university);
+    const uniDiff = (uiA === -1 ? 999 : uiA) - (uiB === -1 ? 999 : uiB);
+    if (uniDiff !== 0) return uniDiff;
+    const da = a.date_added ? new Date(a.date_added) : new Date(0);
+    const db = b.date_added ? new Date(b.date_added) : new Date(0);
+    return db - da;
+  });
   currentPage = 1;
   renderTable();
   renderPagination();
