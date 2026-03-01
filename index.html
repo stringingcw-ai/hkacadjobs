@@ -610,7 +610,6 @@ function initUI() {
   const unis  = new Set(ALL_JOBS.map(j => j.university).filter(Boolean));
   document.getElementById('statTotal').textContent = ALL_JOBS.length;
   document.getElementById('statNew').textContent   = newCount;
-  document.getElementById('statUnis').textContent  = unis.size;
   document.getElementById('navMeta').textContent   = `UPDATED · ${LAST_UPDATED}`;
 
   // Banner
