@@ -368,13 +368,13 @@
 
 <script>
 // ── University colours (keyed by short code)
-const UNI_COLORS = { HKU:'#005BAB', CUHK:'#6B3A8A', HKUST:'#003D7C', PolyU:'#8B0000', CityU:'#00843D', BU:'#C8102E', LU:'#1B4F72', EdUHK:'#E67E22' };
+const UNI_COLORS = { HKU:'#005BAB', CUHK:'#6B3A8A', HKUST:'#003D7C', PolyU:'#8B0000', CityU:'#00843D', BU:'#C8102E', LU:'#1B4F72', EdUHK:'#E67E22', HKMU:'#00704A' };
 function uniColor(code) { return UNI_COLORS[code] || '#555555'; }
 
 // ── University display names (overrides for codes that aren't self-explanatory)
 const UNI_DISPLAY = { LU: 'Lingnan' };
 function uniDisplay(code) { return UNI_DISPLAY[code] || code; }
-const UNI_ORDER = ['PolyU', 'EdUHK', 'LU', 'HKU', 'HKUST', 'CityU', 'HKBU', 'CUHK'];
+const UNI_ORDER = ['PolyU', 'EdUHK', 'LU', 'HKU', 'HKUST', 'CityU', 'HKBU', 'CUHK', 'HKMU'];
 
 // ── University logos via Google favicon service
 const UNI_LOGOS = {
@@ -386,6 +386,7 @@ const UNI_LOGOS = {
   BU:    'https://hro.hkbu.edu.hk/content/dam/hro-assets/shared-assets/logo/20210106_newLogo.svg',
   LU:    'https://www.google.com/s2/favicons?domain=ln.edu.hk&sz=32',
   EdUHK: 'https://www.google.com/s2/favicons?domain=eduhk.hk&sz=32',
+  HKMU:  'https://www.google.com/s2/favicons?domain=hkmu.edu.hk&sz=32',
 };
 function uniLogoHtml(code, cls) {
   const src = UNI_LOGOS[code];

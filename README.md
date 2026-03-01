@@ -20,6 +20,7 @@ A static job board aggregating academic positions from all 8 major Hong Kong uni
 | HKBU | Hong Kong Baptist University |
 | LU | Lingnan University |
 | EdUHK | Education University of Hong Kong |
+| HKMU | Hong Kong Metropolitan University |
 
 ---
 
@@ -112,7 +113,7 @@ python scraper/scraper.py
 python scraper/scraper.py --uni hku
 
 # Available university keys
-# polyu, eduhk, lingnan, hku, hkust, cityu, hkbu, cuhk
+# polyu, eduhk, lingnan, hku, hkust, cityu, hkbu, cuhk, hkmu
 ```
 
 The scraper compares each run against the previous `jobs.csv` to determine which jobs are new (`is_new = TRUE`) and to preserve each job's original `date_added`.
