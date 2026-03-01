@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://stringingcw-ai.github.io/hkacadjobs/sitemap.xml
