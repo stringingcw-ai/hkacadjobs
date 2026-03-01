@@ -27,11 +27,34 @@ A static job board aggregating academic positions from all 8 major Hong Kong uni
 
 - **Daily refresh** — scraper runs at 10:00 HKT every day via GitHub Actions
 - **New badge** — positions are flagged as NEW only on the day they first appear
-- **Search & filter** — by keyword, university, department, and rank
-- **Sortable table** — click any column header to sort
+- **Smart sort** — new jobs float to the top; within each university, latest postings come first
+- **Search & filter** — by keyword, university, academic area, and rank
+- **Area → dept group chips** — cascading filter: pick an area, then multi-select department clusters
+- **Sortable deadline column** — click the Deadline header to sort; N/A deadlines sorted last
 - **Detail panel** — click any row for full job info and a direct apply link
 - **Save for later** — bookmark positions locally (persisted in browser storage)
-- **Deadline tracker** — colour-coded days-remaining indicator on every listing
+- **Deadline tracker** — colour-coded reminder badge: yellow for upcoming deadlines, red for closed
+- **University logos** — each listing shows the university favicon for quick identification
+- **Mobile responsive** — card layout on small screens with apply button, deadline, and reminder
+
+---
+
+## Deadline coverage
+
+Closing dates are sourced directly where available, and fetched from individual job detail pages for universities that embed them there:
+
+| University | Deadline source |
+|---|---|
+| PolyU | Listed on search results page |
+| CityU | Listed on search results page |
+| HKU | Listed on search results page (most jobs) |
+| EdUHK | Partial — varies by posting |
+| HKUST | Partial — fetched from detail pages |
+| HKBU | Partial — fetched from detail pages via Playwright |
+| CUHK | Partial — fetched from Taleo detail pages via Playwright |
+| LU | Not published |
+
+Jobs with a known deadline are retained for up to **14 days after expiry**, then dropped on the next scrape.
 
 ---
 
@@ -40,6 +63,8 @@ A static job board aggregating academic positions from all 8 major Hong Kong uni
 ```
 ├── index.html          # Single-page frontend (HTML + CSS + JS, no build step)
 ├── jobs.csv            # Job data — regenerated daily by the scraper
+├── robots.txt          # Allows all crawlers; points to sitemap
+├── sitemap.xml         # Sitemap for search engine indexing
 ├── scraper/
 │   └── scraper.py      # Python scraper for all 8 universities
 └── .github/
@@ -99,6 +124,12 @@ The scraper compares each run against the previous `jobs.csv` to determine which
 The site is hosted on GitHub Pages from the `main` branch root. No build step — `index.html` reads `jobs.csv` directly via `fetch()`.
 
 The GitHub Actions workflow (`.github/workflows/scrape.yml`) runs the scraper daily, commits the updated `jobs.csv`, and pushes — triggering an automatic Pages redeploy. You can also trigger it manually from the Actions tab.
+
+---
+
+## SEO
+
+The site includes meta description, Open Graph tags, Twitter Card tags, a canonical URL, `robots.txt`, and a `sitemap.xml` submitted to Google Search Console.
 
 ---
 
