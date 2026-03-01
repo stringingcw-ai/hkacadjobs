@@ -123,7 +123,7 @@ def is_active(deadline_str):
         return True
 
 
-def is_within_retention(deadline_str, days=30):
+def is_within_retention(deadline_str, days=14):
     """Return True if deadline is empty, active, or closed within the last `days` days."""
     if not deadline_str:
         return True
@@ -1432,7 +1432,7 @@ def main():
                 print(f"  ❌ {name} crashed: {e}")
 
     all_jobs = deduplicate(all_jobs)
-    # Keep: active jobs, no-deadline jobs, and jobs closed within the last 30 days
+    # Keep: active jobs, no-deadline jobs, and jobs closed within the last 14 days
     all_jobs = [j for j in all_jobs if is_within_retention(j.get("deadline", ""))]
 
     # Override is_new and set date_added based on previous run.
