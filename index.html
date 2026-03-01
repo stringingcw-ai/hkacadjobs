@@ -57,7 +57,8 @@
   .stat-label { font-size: 0.72rem; color: #888; letter-spacing: 0.06em; text-transform: uppercase; }
 
   /* FILTER BAR */
-  .filter-bar { background: var(--white); border-bottom: 1px solid var(--border); padding: 14px 48px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; position: sticky; top: 60px; z-index: 190; }
+  .sticky-controls { position: sticky; top: 60px; z-index: 190; background: var(--white); }
+  .filter-bar { background: var(--white); border-bottom: 1px solid var(--border); padding: 14px 48px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
   .view-tabs { display: flex; background: var(--cream); border-radius: 7px; padding: 3px; border: 1px solid var(--border); }
   .view-tab { padding: 6px 16px; border-radius: 5px; font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.15s; color: var(--muted); display: flex; align-items: center; gap: 6px; border: none; background: none; font-family: 'DM Sans', sans-serif; }
   .view-tab.active { background: var(--white); color: var(--ink); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
@@ -259,6 +260,7 @@
 </div>
 
 <!-- FILTER BAR -->
+<div class="sticky-controls">
 <div class="filter-bar">
   <div class="view-tabs">
     <button class="view-tab active" id="tabAll" onclick="switchTab('all')">All Positions</button>
@@ -288,6 +290,7 @@
   <div id="groupChips" style="display:contents;"></div>
 </div>
 <div class="active-filters" id="activeFilters" style="display:none;"><span class="filter-label">Filtered by:</span></div>
+</div>
 
 <!-- MAIN -->
 <main>
