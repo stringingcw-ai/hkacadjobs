@@ -1352,6 +1352,86 @@ def scrape_cuhk():
     return jobs
 
 
+def scrape_hksyu():
+    """
+    HKSYU — Hong Kong Shue Yan University
+    Single static page: hksyu.edu/en/snippets/external-vacancy
+    Four tables: Academic | Non-academic | Project-specific | Research
+    Columns: Department / Unit | Position | FT/PT | Closing Date
+    Each position links to a PDF (apply_url).
+    Deadline format: DD/MM/YYYY or "-"
+    """
+    print("📋 Scraping HKSYU...")
+
+    URL  = "https://www.hksyu.edu/en/snippets/external-vacancy"
+    BASE = "https://www.hksyu.edu"
+    jobs = []
+    seen = set()
+
+    try:
+        soup = get_soup(URL)
+        if not soup:
+            print("  ⚠️  Could not fetch HKSYU page")
+            return jobs
+
+        for table in soup.find_all("table"):
+            rows = table.find_all("tr")
+            for row in rows:
+                cells = row.find_all(["td", "th"])
+                if len(cells) < 4:
+                    continue
+                dept     = clean(cells[0].get_text())
+                title    = clean(cells[1].get_text())
+                deadline_raw = clean(cells[3].get_text())
+
+                # Skip header row
+                if dept == "Department / Unit" or not title or len(title) < 3:
+                    continue
+                # Skip non-English/non-meaningful entries
+                if not re.search(r'[A-Za-z]', title):
+                    continue
+
+                link = row.find("a", href=True)
+                apply_url = BASE + link["href"] if link and link["href"].startswith("/") else (link["href"] if link else URL)
+
+                ref_m = re.search(r'/([^/]+)\.pdf', apply_url)
+                ref   = ref_m.group(1) if ref_m else ""
+
+                dedup_key = ref if ref else f"{dept}|{title}"
+                if dedup_key in seen:
+                    continue
+                seen.add(dedup_key)
+
+                # Parse deadline — may contain extra text like "or until positions are filled"
+                deadline = ""
+                date_m = re.search(r'\d{1,2}/\d{1,2}/\d{4}', deadline_raw)
+                if date_m:
+                    deadline = parse_date_text(date_m.group())
+
+                jobs.append({
+                    "id":               make_id("HKSYU", ref or title[:25]),
+                    "title":            title,
+                    "rank":             detect_rank(title),
+                    "university":       "HKSYU",
+                    "university_full":  "Hong Kong Shue Yan University",
+                    "department":       dept or "Hong Kong Shue Yan University",
+                    "deadline":         deadline,
+                    "is_new":           "TRUE",
+                    "reference":        ref,
+                    "position_type":    detect_type(title),
+                    "salary":           "",
+                    "start_date":       "",
+                    "apply_url":        apply_url,
+                    "description":      f"{title} — {dept}. Please visit the application link for full details.",
+                })
+
+    except Exception as e:
+        print(f"  ⚠️  HKSYU scraper failed: {e}")
+
+    print(f"  ✅ HKSYU: {len(jobs)} jobs found")
+    return jobs
+
+
 def scrape_sfu():
     """
     SFU — Saint Francis University (sfu.edu.hk)
@@ -1651,6 +1731,7 @@ SCRAPERS = {
     "hkmu":   scrape_hkmu,
     "hsu":    scrape_hsu,
     "sfu":    scrape_sfu,
+    "hksyu":  scrape_hksyu,
 }
 
 

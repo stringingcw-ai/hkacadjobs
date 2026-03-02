@@ -23,6 +23,7 @@ A static job board aggregating academic positions from all 8 major Hong Kong uni
 | HKMU | Hong Kong Metropolitan University |
 | HSU | Hang Seng University of Hong Kong |
 | SFU | Saint Francis University |
+| HKSYU | Hong Kong Shue Yan University |
 
 ---
 
@@ -115,7 +116,7 @@ python scraper/scraper.py
 python scraper/scraper.py --uni hku
 
 # Available university keys
-# polyu, eduhk, lingnan, hku, hkust, cityu, hkbu, cuhk, hkmu, hsu, sfu
+# polyu, eduhk, lingnan, hku, hkust, cityu, hkbu, cuhk, hkmu, hsu, sfu, hksyu
 ```
 
 The scraper compares each run against the previous `jobs.csv` to determine which jobs are new (`is_new = TRUE`) and to preserve each job's original `date_added`.
