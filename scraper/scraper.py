@@ -240,7 +240,7 @@ def scrape_polyu_detail(ref, debug=False):
                 seen.add(key)
                 parts.append(t)
         if parts:
-            return " ".join(parts)[:2000]
+            return "\n\n".join(parts)[:2000]
 
     # Fallback: largest text block
     candidates = [
@@ -363,16 +363,24 @@ def scrape_polyu():
 
     print(f"  ↳ Found {len(raw_jobs)} listings across all pages")
 
-    # Step 2: build job records (descriptions: TODO — deferred to future sprint)
+    # Step 2: fetch detail pages only for jobs within the retention window
+    active_jobs = [j for j in raw_jobs if is_within_retention(j["deadline"])]
+    skipped = len(raw_jobs) - len(active_jobs)
+    print(f"  ↳ Fetching detail pages for {len(active_jobs)} jobs (skipped {skipped} expired)...")
     jobs = []
-    for j in raw_jobs:
+    for idx, j in enumerate(active_jobs, 1):
         ref      = j["ref"]
         title    = j["title"]
         dept     = j["dept"]
         deadline = j["deadline"]
 
         apply_url   = f"{base}/job_detail.php?job={ref}"
-        description = j.get("description") or f"{title} — {dept}. See {apply_url} for full details."
+        description = scrape_polyu_detail(ref)
+        if not description:
+            description = j.get("description") or f"{title} — {dept}. See {apply_url} for full details."
+
+        if idx % 10 == 0 or idx == len(active_jobs):
+            print(f"  ↳ {idx}/{len(active_jobs)} detail pages fetched")
 
         jobs.append({
             "id":               make_id("POLYU", ref),
