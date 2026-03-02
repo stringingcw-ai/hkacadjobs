@@ -1,0 +1,9 @@
+# Data file — updated only by GitHub Actions daily scraper
+jobs.csv
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
