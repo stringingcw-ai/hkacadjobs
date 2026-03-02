@@ -2,7 +2,7 @@
 
 > Every academic opening in Hong Kong, in one place.
 
-A static job board aggregating academic positions from all 8 major Hong Kong universities, updated daily via GitHub Actions. No login required, no paywalls — just a fast, searchable list of open positions pulled straight from official university career portals.
+A static job board aggregating academic positions from 12 Hong Kong universities, updated daily via GitHub Actions. No login required, no paywalls — just a fast, searchable list of open positions pulled straight from official university career portals.
 
 **Live site:** https://stringingcw-ai.github.io/hkacadjobs/
 
@@ -32,10 +32,12 @@ A static job board aggregating academic positions from all 8 major Hong Kong uni
 - **Daily refresh** — scraper runs at 10:00 HKT every day via GitHub Actions
 - **New badge** — positions are flagged as NEW only on the day they first appear
 - **Smart sort** — new jobs float to the top; within each university, latest postings come first
-- **Search & filter** — by keyword, university, academic area, and rank
+- **Search & filter** — by keyword, university, department, academic area, and rank
+- **Department filter** — appears after selecting a university; narrows to that university's departments
 - **Area → dept group chips** — cascading filter: pick an area, then multi-select department clusters
 - **Sortable deadline column** — click the Deadline header to sort; N/A deadlines sorted last
-- **Detail panel** — click any row for full job info and a direct apply link
+- **Detail panel** — click any row for full job info and a dynamic apply link (e.g. "Apply on PolyU")
+- **New positions banner** — green banner shows "X new positions added today" on days with new listings; hidden otherwise
 - **Save for later** — bookmark positions locally (persisted in browser storage)
 - **Deadline tracker** — colour-coded reminder badge: yellow for upcoming deadlines, red for closed
 - **University logos** — each listing shows the university favicon for quick identification
@@ -56,6 +58,10 @@ Closing dates are sourced directly where available, and fetched from individual 
 | HKUST | Partial — fetched from detail pages |
 | HKBU | Partial — fetched from detail pages via Playwright |
 | CUHK | Partial — fetched from Taleo detail pages via Playwright |
+| HKMU | Listed on search results page |
+| HSU | Partial — fetched from detail pages |
+| SFU | Listed in accordion content |
+| HKSYU | Listed on vacancy page |
 | LU | Not published |
 
 Jobs with a known deadline are retained for up to **14 days after expiry**, then dropped on the next scrape.
@@ -66,11 +72,12 @@ Jobs with a known deadline are retained for up to **14 days after expiry**, then
 
 ```
 ├── index.html          # Single-page frontend (HTML + CSS + JS, no build step)
-├── jobs.csv            # Job data — regenerated daily by the scraper
+├── jobs.csv            # Job data — regenerated daily by the scraper (gitignored; force-added by workflow)
 ├── robots.txt          # Allows all crawlers; points to sitemap
 ├── sitemap.xml         # Sitemap for search engine indexing
+├── HKBU.png            # HKBU logo (local asset)
 ├── scraper/
-│   └── scraper.py      # Python scraper for all 8 universities
+│   └── scraper.py      # Python scraper for all 12 universities
 └── .github/
     └── workflows/
         └── scrape.yml  # GitHub Actions workflow (daily + manual trigger)
@@ -133,7 +140,7 @@ The GitHub Actions workflow (`.github/workflows/scrape.yml`) runs the scraper da
 
 ## SEO
 
-The site includes meta description, Open Graph tags, Twitter Card tags, a canonical URL, `robots.txt`, and a `sitemap.xml` submitted to Google Search Console.
+The site includes meta description, Open Graph tags, Twitter Card tags, a canonical URL, `robots.txt`, a `sitemap.xml` submitted to Google Search Console, and Google Analytics (GA4).
 
 ---
 
