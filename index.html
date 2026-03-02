@@ -633,7 +633,7 @@ function initUI() {
 
   // Populate filter dropdowns
   const uniSel  = document.getElementById('uniFilter');
-  [...unis].sort().forEach(u => { const o = document.createElement('option'); o.value = u; o.textContent = u; uniSel.appendChild(o); });
+  [...unis].sort((a,b) => uniDisplay(a).localeCompare(uniDisplay(b))).forEach(u => { const o = document.createElement('option'); o.value = u; o.textContent = uniDisplay(u); uniSel.appendChild(o); });
 
   // Populate areaFilter with areas that have at least one job
   const areaFilter = document.getElementById('areaFilter');
@@ -851,7 +851,7 @@ function renderChips() {
   const search = document.getElementById('searchInput').value;
   const area = document.getElementById('areaFilter').value;
   const dept = document.getElementById('deptFilter').value;
-  if (uni)    chips.push({label:`University: ${uni}`,   clear:()=>{document.getElementById('uniFilter').value='';document.getElementById('deptFilter').value='';document.getElementById('deptFilter').style.display='none';filterJobs();}});
+  if (uni)    chips.push({label:`University: ${uniDisplay(uni)}`,   clear:()=>{document.getElementById('uniFilter').value='';document.getElementById('deptFilter').value='';document.getElementById('deptFilter').style.display='none';filterJobs();}});
   if (dept)   chips.push({label:`Department: ${dept}`,  clear:()=>{document.getElementById('deptFilter').value='';filterJobs();}});
   if (area)   chips.push({label:`Area: ${area}`,        clear:()=>{document.getElementById('areaFilter').value='';selectedDeptGroups.clear();renderGroupChips('');filterJobs();}});
   if (rank)   chips.push({label:`Rank: ${rank}`,        clear:()=>{document.getElementById('rankFilter').value='';filterJobs();}});
