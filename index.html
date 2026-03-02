@@ -249,7 +249,6 @@
 <nav>
   <div class="logo">HK<span>Acad</span>Jobs</div>
   <div class="nav-right">
-    <div class="nav-meta" id="navMeta">Loading…</div>
     <button class="bookmark-nav-btn" onclick="switchTab('saved')">
       🔖 Saved <span class="bk-count" id="navBkCount">0</span>
     </button>
@@ -625,7 +624,6 @@ function initUI() {
   const unis  = new Set(ALL_JOBS.map(j => j.university).filter(Boolean));
   document.getElementById('statTotal').textContent = ALL_JOBS.length;
   document.getElementById('statNew').textContent   = newCount;
-  document.getElementById('navMeta').textContent   = `UPDATED · ${LAST_UPDATED}`;
 
   // Banner
   if (newCount > 0) {
