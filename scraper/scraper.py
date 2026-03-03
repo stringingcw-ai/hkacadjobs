@@ -13,6 +13,7 @@ Requirements:
 """
 
 import csv
+import os
 import re
 import sys
 import time
@@ -196,6 +197,40 @@ def get_js_soup(url, wait_selector=None, timeout=20000):
     except Exception as e:
         print(f"  ⚠️  Playwright failed for {url}: {e}")
         return None
+
+
+# ── Marker used in placeholder descriptions (skip summarising these)
+PLACEHOLDER_MARKER = "Please visit the application link"
+
+
+def summarise_description(raw_text, title, dept):
+    """
+    Call Claude Haiku to summarise a raw job description into 3-4 sentences.
+    Falls back to the raw text if the API key is missing or the call fails.
+    """
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        return raw_text
+    try:
+        import anthropic
+        client = anthropic.Anthropic(api_key=api_key)
+        msg = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=200,
+            messages=[{
+                "role": "user",
+                "content": (
+                    "Summarise this academic job description in 3-4 concise sentences. "
+                    "Focus on the main responsibilities, key requirements, and what makes it distinctive. "
+                    "Do not mention the university name or reference numbers. Be direct and informative.\n\n"
+                    f"Job title: {title}\nDepartment: {dept}\n\nDescription:\n{raw_text[:3000]}"
+                ),
+            }],
+        )
+        return msg.content[0].text.strip()
+    except Exception as e:
+        print(f"  ⚠️  Summarisation failed for '{title}': {e}")
+        return raw_text
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -1776,14 +1811,17 @@ def main():
 
     # Load previous run to detect which jobs are genuinely new today
     today_str = TODAY.strftime("%Y-%m-%d")
-    existing = {}  # id → date_added from previous CSV
+    existing = {}  # id → {date_added, description} from previous CSV
     if OUTPUT_FILE.exists():
         try:
             with open(OUTPUT_FILE, newline="", encoding="utf-8") as f:
                 for row in csv.DictReader(f):
                     jid = row.get("id", "")
                     if jid:
-                        existing[jid] = row.get("date_added", today_str)
+                        existing[jid] = {
+                            "date_added":  row.get("date_added", today_str),
+                            "description": row.get("description", ""),
+                        }
             print(f"↳ Previous CSV: {len(existing)} jobs loaded")
         except Exception as e:
             print(f"  ⚠️  Could not read previous CSV: {e}")
@@ -1816,10 +1854,45 @@ def main():
     for j in all_jobs:
         if j["id"] in existing:
             j["is_new"] = "FALSE"
-            j["date_added"] = existing[j["id"]]
+            j["date_added"] = existing[j["id"]]["date_added"]
         else:
             j["is_new"] = "TRUE"
             j["date_added"] = today_str
+
+    # ── AI summarisation via Claude Haiku
+    # Reuse existing summaries for known jobs; only call the API for jobs
+    # that have real scraped content but no summary yet.
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    to_summarise = []
+    for j in all_jobs:
+        prev_desc = existing.get(j["id"], {}).get("description", "")
+        has_good_summary = (
+            prev_desc
+            and PLACEHOLDER_MARKER not in prev_desc
+            and "See application link" not in prev_desc
+            and len(prev_desc) <= 800  # short = already a summary, not raw text
+        )
+        if has_good_summary:
+            j["description"] = prev_desc  # reuse existing summary
+        elif (
+            len(j.get("description", "")) > 300
+            and PLACEHOLDER_MARKER not in j.get("description", "")
+            and "See application link" not in j.get("description", "")
+        ):
+            to_summarise.append(j)
+
+    if to_summarise:
+        if api_key:
+            print(f"\n🤖 Summarising {len(to_summarise)} descriptions via Claude Haiku...")
+            for idx, j in enumerate(to_summarise, 1):
+                j["description"] = summarise_description(
+                    j["description"], j["title"], j["department"]
+                )
+                if idx % 5 == 0 or idx == len(to_summarise):
+                    print(f"  ↳ {idx}/{len(to_summarise)} summaries done")
+            print(f"  ✅ Summarisation complete")
+        else:
+            print(f"  ℹ️  ANTHROPIC_API_KEY not set — {len(to_summarise)} descriptions left as raw text")
 
     new_count    = sum(1 for j in all_jobs if j["is_new"] == "TRUE")
     active_count = sum(1 for j in all_jobs if is_active(j.get("deadline", "")))
