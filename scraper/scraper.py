@@ -949,10 +949,28 @@ def scrape_hkust():
     return jobs
 
 
+def scrape_cityu_detail(apply_url):
+    """Fetch a CityU job detail page and extract the description."""
+    soup = get_soup(apply_url, timeout=10)
+    if not soup:
+        return ""
+    for tag in soup.find_all(["nav", "header", "footer", "script", "style"]):
+        tag.decompose()
+    candidates = [
+        clean(tag.get_text(" "))
+        for tag in soup.find_all(["div", "td", "section", "article"])
+        if 150 < len(clean(tag.get_text(" "))) < 5000
+    ]
+    if candidates:
+        return max(candidates, key=len)[:3000]
+    return ""
+
+
 def scrape_cityu():
     """
     CityU — jobs1.cityu.edu.hk/apply/Default.aspx
     Three static HTML tables: SENIOR, ACAD, RS.
+    Fetches detail pages for full descriptions.
     """
     print("📋 Scraping CityU...")
 
@@ -1019,11 +1037,20 @@ def scrape_cityu():
                 "salary":           "",
                 "start_date":       "",
                 "apply_url":        apply_url,
-                "description":      f"{title} — {dept}. Please visit the application link for full details.",
+                "description":      "",  # filled in below
             })
             count += 1
 
         print(f"  ↳ {pos_type}: {count} jobs")
+
+    # Fetch detail pages for full descriptions (active jobs only)
+    active = [j for j in jobs if is_within_retention(j["deadline"])]
+    print(f"  ↳ Fetching {len(active)} detail pages for descriptions...")
+    for idx, j in enumerate(active, 1):
+        desc = scrape_cityu_detail(j["apply_url"])
+        j["description"] = desc or f"{j['title']} — {j['department']}. Please visit the application link for full details."
+        if idx % 10 == 0 or idx == len(active):
+            print(f"  ↳ {idx}/{len(active)} detail pages fetched")
 
     print(f"  ✅ CityU: {len(jobs)} jobs found")
     return jobs
@@ -1120,7 +1147,7 @@ def scrape_hkbu():
                     "salary":           "",
                     "start_date":       "",
                     "apply_url":        apply_url,
-                    "description":      desc_text[:500] if desc_text else f"{title} — {dept}. Please visit the application link for full details.",
+                    "description":      desc_text[:3000] if desc_text else f"{title} — {dept}. Please visit the application link for full details.",
                 })
 
             if not has_more or not items:
@@ -1384,6 +1411,12 @@ def scrape_cuhk():
                         if m:
                             job["deadline"] = parse_date_text(m.group(1))
                             found += 1
+                        # Extract description: substantive lines before "Closing Date"
+                        cutoff = text.find("Closing Date")
+                        block = text[:cutoff] if cutoff > 0 else text
+                        lines = [l.strip() for l in block.splitlines() if len(l.strip()) > 60]
+                        if lines:
+                            job["description"] = "\n\n".join(lines[:15])[:3000]
                     except Exception:
                         pass
                 detail_page.close()
@@ -1534,14 +1567,22 @@ def scrape_sfu():
                     dept  = right.strip()
                     title_clean = title_clean[:last_comma].strip()
 
-            # Extract deadline from accordion content
+            # Extract deadline and description from accordion content
             content = acc.find("div", class_="accordion-content")
             deadline = ""
+            desc_text = ""
             if content:
                 body = content.get_text()
                 m = re.search(r'Deadline\s*[\n\r]+\s*(\d{1,2}\s+\w+\s+202\d)', body)
                 if m:
                     deadline = parse_date_text(m.group(1))
+                parts = []
+                for p in content.find_all(["p", "li"]):
+                    t = clean(p.get_text(" "))
+                    if t and len(t) > 20 and not re.match(r'Deadline|Until the Position', t, re.I):
+                        parts.append(t)
+                if parts:
+                    desc_text = "\n\n".join(parts)[:3000]
 
             jobs.append({
                 "id":               make_id("SFU", ref or title_clean[:25]),
@@ -1557,7 +1598,7 @@ def scrape_sfu():
                 "salary":           "",
                 "start_date":       "",
                 "apply_url":        url,
-                "description":      f"{title_clean}{' — ' + dept if dept else ''}. Please visit the application link for full details.",
+                "description":      desc_text or f"{title_clean}{' — ' + dept if dept else ''}. Please visit the application link for full details.",
             })
             sect_count += 1
 
@@ -1608,14 +1649,24 @@ def scrape_hsu():
             dept  = parts[0].strip() if len(parts) > 1 else ""
             title = parts[1].strip() if len(parts) > 1 else full_text
 
-            # Fetch detail page for deadline
+            # Fetch detail page for deadline and description
             deadline = ""
+            desc_text = ""
             detail_soup = get_soup(apply_url)
             if detail_soup:
                 body = detail_soup.get_text()
                 m = re.search(r'(?:on or before|by|before)\s+(\d{1,2}\s+\w+\s+202\d)', body, re.I)
                 if m:
                     deadline = parse_date_text(m.group(1))
+                for tag in detail_soup.find_all(["nav", "header", "footer", "script", "style"]):
+                    tag.decompose()
+                candidates = [
+                    clean(tag.get_text(" "))
+                    for tag in detail_soup.find_all(["div", "section", "article", "main"])
+                    if 150 < len(clean(tag.get_text(" "))) < 5000
+                ]
+                if candidates:
+                    desc_text = max(candidates, key=len)[:3000]
 
             jobs.append({
                 "id":               make_id("HSU", ref or title[:25]),
@@ -1631,7 +1682,7 @@ def scrape_hsu():
                 "salary":           "",
                 "start_date":       "",
                 "apply_url":        apply_url,
-                "description":      f"{title} — {dept}. Please visit the application link for full details.",
+                "description":      desc_text or f"{title} — {dept}. Please visit the application link for full details.",
             })
 
     except Exception as e:
