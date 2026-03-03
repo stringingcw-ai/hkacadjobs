@@ -222,7 +222,8 @@ def summarise_description(raw_text, title, dept):
                 "content": (
                     "Summarise this academic job description in 3-4 concise sentences. "
                     "Focus on the main responsibilities, key requirements, and what makes it distinctive. "
-                    "Do not mention the university name or reference numbers. Be direct and informative.\n\n"
+                    "Do not mention the university name or reference numbers. Be direct and informative. "
+                    "Do not include a title or heading — output plain prose only.\n\n"
                     f"Job title: {title}\nDepartment: {dept}\n\nDescription:\n{raw_text[:3000]}"
                 ),
             }],
