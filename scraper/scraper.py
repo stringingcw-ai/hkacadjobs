@@ -202,6 +202,16 @@ def get_js_soup(url, wait_selector=None, timeout=20000):
 # ── Marker used in placeholder descriptions (skip summarising these)
 PLACEHOLDER_MARKER = "Please visit the application link"
 
+# ── Cache populated by main() before scrapers run; lets scrapers skip detail
+#    page fetches for jobs that already have a good summary.
+_existing_descriptions: dict = {}
+
+
+def _has_good_desc(job_id: str) -> bool:
+    """True if a prior run already produced a real (non-placeholder) summary."""
+    d = _existing_descriptions.get(job_id, "")
+    return bool(d and PLACEHOLDER_MARKER not in d and len(d) > 80)
+
 
 def summarise_description(raw_text, title, dept):
     """
@@ -704,6 +714,29 @@ def scrape_lingnan():
                 page.wait_for_load_state("networkidle", timeout=10000)
                 page.wait_for_timeout(1000)
 
+            # Fetch detail pages for descriptions (skip known good summaries)
+            to_fetch = [j for j in jobs if not _has_good_desc(j["id"])]
+            if to_fetch:
+                print(f"  ↳ Fetching {len(to_fetch)} detail pages for descriptions...")
+                found = 0
+                for idx, j in enumerate(to_fetch, 1):
+                    try:
+                        page.goto(j["apply_url"], timeout=20000, wait_until="networkidle")
+                        page.wait_for_timeout(1500)
+                        text = page.inner_text("body")
+                        lines = [l.strip() for l in text.splitlines() if len(l.strip()) > 60]
+                        if lines:
+                            j["description"] = "\n\n".join(lines[:20])[:3000]
+                            found += 1
+                    except Exception:
+                        pass
+                    if idx % 10 == 0 or idx == len(to_fetch):
+                        print(f"  ↳ {idx}/{len(to_fetch)} done")
+                print(f"  ↳ Got descriptions for {found}/{len(to_fetch)} jobs")
+            # Restore cached summaries for skipped jobs
+            for j in jobs:
+                if _has_good_desc(j["id"]):
+                    j["description"] = _existing_descriptions[j["id"]]
             browser.close()
 
     except Exception as e:
@@ -840,7 +873,32 @@ def scrape_hku():
                     break
 
             print(f"  ↳ Clicked More Jobs {clicks} times, loaded {prev_count} rows")
-            jobs.extend(parse_jobs(page.content(), seen))
+            parsed = parse_jobs(page.content(), seen)
+            jobs.extend(parsed)
+
+            # Fetch detail pages for descriptions (skip known good summaries)
+            active = [j for j in parsed if is_within_retention(j["deadline"]) and not _has_good_desc(j["id"])]
+            if active:
+                print(f"  ↳ Fetching {len(active)} detail pages for descriptions...")
+                found = 0
+                for idx, j in enumerate(active, 1):
+                    try:
+                        page.goto(j["apply_url"], timeout=20000, wait_until="domcontentloaded")
+                        page.wait_for_timeout(1500)
+                        text = page.inner_text("body")
+                        lines = [l.strip() for l in text.splitlines() if len(l.strip()) > 60]
+                        if lines:
+                            j["description"] = "\n\n".join(lines[:20])[:3000]
+                            found += 1
+                    except Exception:
+                        pass
+                    if idx % 10 == 0 or idx == len(active):
+                        print(f"  ↳ {idx}/{len(active)} done")
+                print(f"  ↳ Got descriptions for {found}/{len(active)} jobs")
+            # Restore cached summaries for skipped jobs
+            for j in parsed:
+                if _has_good_desc(j["id"]):
+                    j["description"] = _existing_descriptions[j["id"]]
             browser.close()
 
     except Exception as e:
@@ -939,7 +997,63 @@ def scrape_hkust():
                         "description":      f"{title}{' — ' + dept if dept else ''}. Please visit the application link for full details.",
                     })
 
+                # Extract Interfolio apply URLs from card HTML (replace PeopleSoft links)
+                try:
+                    il_map = page.evaluate("""
+                        () => {
+                            const result = {};
+                            const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+                            let node;
+                            while (node = walker.nextNode()) {
+                                const m = node.textContent.trim().match(/^Job ID: (\\d+)$/);
+                                if (m) {
+                                    let el = node.parentElement;
+                                    for (let i = 0; i < 8; i++) {
+                                        if (!el) break;
+                                        const link = el.querySelector('a[href*="interfolio"]');
+                                        if (link) { result[m[1]] = link.href; break; }
+                                        el = el.parentElement;
+                                    }
+                                }
+                            }
+                            return result;
+                        }
+                    """)
+                    for j in jobs:
+                        if j["reference"] in il_map:
+                            j["apply_url"] = il_map[j["reference"]]
+                except Exception:
+                    pass
+
                 page.close()
+
+            # Fetch Interfolio detail pages for descriptions (skip known good summaries)
+            to_fetch = [
+                j for j in jobs
+                if is_within_retention(j["deadline"])
+                and not _has_good_desc(j["id"])
+                and "interfolio" in j.get("apply_url", "")
+            ]
+            if to_fetch:
+                print(f"  ↳ Fetching {len(to_fetch)} Interfolio pages for descriptions...")
+                detail_page = browser.new_page()
+                detail_page.set_extra_http_headers(HEADERS)
+                found = 0
+                for idx, j in enumerate(to_fetch, 1):
+                    try:
+                        detail_page.goto(j["apply_url"], timeout=20000, wait_until="networkidle")
+                        detail_page.wait_for_timeout(2000)
+                        text = detail_page.inner_text("body")
+                        lines = [l.strip() for l in text.splitlines() if len(l.strip()) > 60]
+                        if lines:
+                            j["description"] = "\n\n".join(lines[:20])[:3000]
+                            found += 1
+                    except Exception:
+                        pass
+                    if idx % 5 == 0 or idx == len(to_fetch):
+                        print(f"  ↳ {idx}/{len(to_fetch)} done")
+                detail_page.close()
+                print(f"  ↳ Got descriptions for {found}/{len(to_fetch)} jobs")
             browser.close()
 
     except Exception as e:
@@ -1801,6 +1915,32 @@ def scrape_hkmu():
                 print(f"  ↳ {section_name}: {sect_count} jobs ({page_num} page(s))")
                 page.close()
 
+            # Fetch detail pages for descriptions (skip known good summaries)
+            to_fetch = [j for j in jobs if is_within_retention(j["deadline"]) and not _has_good_desc(j["id"])]
+            if to_fetch:
+                print(f"  ↳ Fetching {len(to_fetch)} detail pages for descriptions...")
+                detail_page = browser.new_page()
+                detail_page.set_extra_http_headers(HEADERS)
+                found = 0
+                for idx, j in enumerate(to_fetch, 1):
+                    try:
+                        detail_page.goto(j["apply_url"], timeout=30000, wait_until="networkidle")
+                        detail_page.wait_for_timeout(2000)
+                        text = detail_page.inner_text("body")
+                        lines = [l.strip() for l in text.splitlines() if len(l.strip()) > 60]
+                        if lines:
+                            j["description"] = "\n\n".join(lines[:20])[:3000]
+                            found += 1
+                    except Exception:
+                        pass
+                    if idx % 10 == 0 or idx == len(to_fetch):
+                        print(f"  ↳ {idx}/{len(to_fetch)} done")
+                detail_page.close()
+                print(f"  ↳ Got descriptions for {found}/{len(to_fetch)} jobs")
+            # Restore cached summaries for skipped jobs
+            for j in jobs:
+                if _has_good_desc(j["id"]):
+                    j["description"] = _existing_descriptions[j["id"]]
             browser.close()
 
     except Exception as e:
@@ -1877,6 +2017,10 @@ def main():
             print(f"↳ Previous CSV: {len(existing)} jobs loaded")
         except Exception as e:
             print(f"  ⚠️  Could not read previous CSV: {e}")
+
+    # Expose existing descriptions so scrapers can skip re-fetching known jobs
+    global _existing_descriptions
+    _existing_descriptions = {jid: d.get("description", "") for jid, d in existing.items()}
 
     all_jobs = []
 
