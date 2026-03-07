@@ -67,11 +67,19 @@ def make_id(uni_code, ref):
     return f"{uni_code.upper()}-{hashlib.md5(key.encode()).hexdigest()[:10]}"
 
 
-def detect_rank(title):
-    """Infer rank from job title."""
+def detect_rank(title, description=""):
+    """Infer rank from job title (and optionally description)."""
     t = title.lower()
+    d = description.lower()
     if ("tenure-track" in t or "tenure track" in t or "substantiation-track" in t) and "non-tenure" not in t:
         return "Tenure-Track"
+    # Faculty positions — disambiguate using description (Fix 4)
+    if re.search(r'\bfaculty\b', t) and re.search(r'\bpositions?\b', t):
+        if ("tenure-track" in d or "tenure track" in d) and "non-tenure" not in d:
+            return "Tenure-Track"
+        if "lecturer" in d:
+            return "Lecturer"
+    if "teaching-track" in t:        return "Lecturer"   # Fix 1
     if "chair professor" in t:       return "Professor"
     if "associate professor" in t:   return "Associate Professor"
     if "assistant professor" in t:   return "Assistant Professor"
@@ -87,7 +95,9 @@ def detect_rank(title):
     if "vice chancellor" in t:       return "Senior Management"
     if "vice-president" in t:        return "Senior Management"
     if "vice president" in t:        return "Senior Management"
+    if "teaching associate" in t:    return "Teaching Assistant"  # Fix 2
     if "teaching assistant" in t:    return "Teaching Assistant"
+    if "research engineer" in t:     return "Research Assistant/Associate"  # Fix 3
     if "research assistant" in t:    return "Research Assistant/Associate"
     if "research associate" in t:    return "Research Assistant/Associate"
     if "research officer" in t:      return "Research Assistant/Associate"
@@ -103,7 +113,7 @@ def detect_rank(title):
         "coordinator", "consultant", "director",
         "procurement", "laboratory assistant", "lab assistant",
         "office assistant", "security", "systems analyst",
-        "phlebotomist", "editor", "scientist",
+        "phlebotomist", "editor",
         "project assistant", "project associate", "project fellow",
         "project technical",
     )
@@ -2077,6 +2087,10 @@ def main():
     all_jobs = deduplicate(all_jobs)
     # Keep: active jobs, no-deadline jobs, and jobs closed within the last 14 days
     all_jobs = [j for j in all_jobs if is_within_retention(j.get("deadline", ""))]
+
+    # Re-rank using both title and description now that descriptions are available
+    for j in all_jobs:
+        j["rank"] = detect_rank(j["title"], j.get("description", ""))
 
     # Override is_new and set date_added based on previous run.
     # is_new = TRUE only for job IDs not seen in the previous CSV (new today).
