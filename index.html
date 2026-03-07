@@ -49,8 +49,9 @@
   .logo span { color: var(--accent); }
   .nav-right { display: flex; align-items: center; gap: 20px; }
   .nav-meta { font-size: 0.75rem; color: #888; letter-spacing: 0.05em; }
-  .bookmark-nav-btn { display: flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); color: var(--paper); padding: 7px 14px; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; cursor: pointer; transition: background 0.2s; }
+  .bookmark-nav-btn { display: flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); color: var(--paper); padding: 7px 14px; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; cursor: pointer; transition: background 0.2s, border-color 0.2s, box-shadow 0.2s; }
   .bookmark-nav-btn:hover { background: rgba(255,255,255,0.14); }
+  .bookmark-nav-btn.active { border-color: var(--bookmark); box-shadow: 0 0 0 2px var(--bookmark); }
   .bk-count { background: var(--bookmark); color: var(--ink); font-size: 0.68rem; font-weight: 700; border-radius: 10px; padding: 1px 6px; min-width: 18px; text-align: center; display: none; }
   .bk-count.visible { display: inline-block; }
 
@@ -249,7 +250,7 @@
 <nav>
   <div class="logo">HK<span>Acad</span>Jobs</div>
   <div class="nav-right">
-    <button class="bookmark-nav-btn" onclick="switchTab('saved')">
+    <button class="bookmark-nav-btn" id="savedNavBtn" onclick="switchTab(currentView==='saved'?'all':'saved')">
       <span style="color:var(--bookmark)">★</span> Saved <span class="bk-count" id="navBkCount">0</span>
     </button>
   </div>
@@ -693,6 +694,7 @@ function toggleDeptGroup(group) {
 function switchTab(tab) {
   currentView = tab;
   currentPage = 1;
+  document.getElementById('savedNavBtn').classList.toggle('active', tab === 'saved');
   filterJobs();
 }
 
