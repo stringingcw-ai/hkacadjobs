@@ -70,6 +70,8 @@ def make_id(uni_code, ref):
 def detect_rank(title):
     """Infer rank from job title."""
     t = title.lower()
+    if ("tenure-track" in t or "tenure track" in t or "substantiation-track" in t) and "non-tenure" not in t:
+        return "Tenure-Track"
     if "chair professor" in t:       return "Professor"
     if "associate professor" in t:   return "Associate Professor"
     if "assistant professor" in t:   return "Assistant Professor"
@@ -78,9 +80,6 @@ def detect_rank(title):
     if "post-doctoral" in t:         return "Postdoctoral"
     if "post doctoral" in t:         return "Postdoctoral"
     if "research fellow" in t:       return "Postdoctoral"
-    if "tenure-track" in t:          return "Tenure-Track"
-    if "tenure track" in t:          return "Tenure-Track"
-    if "substantiation-track" in t:  return "Tenure-Track"
     if "dean" in t:                  return "Senior Management"
     if "provost" in t:               return "Senior Management"
     if "head of" in t:               return "Senior Management"
