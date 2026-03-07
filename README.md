@@ -1,10 +1,10 @@
 # HKAcadJobs
 
-> Every academic opening in Hong Kong, in one place.
+> Every university opening in Hong Kong, in one place.
 
-A static job board aggregating academic positions from 12 Hong Kong universities, updated daily via GitHub Actions. No login required, no paywalls — just a fast, searchable list of open positions pulled straight from official university career portals.
+A static job board aggregating academic and university positions from 12 Hong Kong universities, updated daily via GitHub Actions. No login required, no paywalls — just a fast, searchable list of open positions pulled straight from official university career portals.
 
-**Live site:** https://stringingcw-ai.github.io/hkacadjobs/
+**Live site:** https://www.hkacadjobs.org/
 
 ---
 
@@ -30,15 +30,15 @@ A static job board aggregating academic positions from 12 Hong Kong universities
 ## Features
 
 - **Daily refresh** — scraper runs at 10:00 HKT every day via GitHub Actions
-- **New badge** — positions are flagged as NEW only on the day they first appear
+- **New badge** — positions flagged as NEW for the first 2 days after they appear (today and yesterday)
 - **Smart sort** — new jobs float to the top; within each university, latest postings come first
 - **Search & filter** — by keyword, university, department, academic area, and rank
 - **Department filter** — appears after selecting a university; narrows to that university's departments
 - **Area → dept group chips** — cascading filter: pick an area, then multi-select department clusters
 - **Sortable deadline column** — click the Deadline header to sort; N/A deadlines sorted last
 - **Detail panel** — click any row for full job info and a dynamic apply link (e.g. "Apply on PolyU")
-- **New positions banner** — green banner shows "X new positions added today" on days with new listings; hidden otherwise
-- **Save for later** — bookmark positions locally (persisted in browser storage)
+- **Results banner** — green animated banner shows the number of positions matching the current filters; hidden when no results or in saved view
+- **Save for later** — star positions to save locally (persisted in browser storage); toggle the Saved button in the nav to switch between saved and all results
 - **Deadline tracker** — colour-coded reminder badge: yellow for upcoming deadlines, red for closed
 - **University logos** — each listing shows the university favicon for quick identification
 - **Mobile responsive** — card layout on small screens with apply button, deadline, and reminder
@@ -73,9 +73,11 @@ Jobs with a known deadline are retained for up to **14 days after expiry**, then
 ```
 ├── index.html          # Single-page frontend (HTML + CSS + JS, no build step)
 ├── jobs.csv            # Job data — regenerated daily by the scraper (gitignored; force-added by workflow)
+├── CNAME               # Custom domain configuration (www.hkacadjobs.org)
 ├── robots.txt          # Allows all crawlers; points to sitemap
 ├── sitemap.xml         # Sitemap for search engine indexing
 ├── HKBU.png            # HKBU logo (local asset)
+├── CHANGELOG.md        # Full update history by date
 ├── scraper/
 │   └── scraper.py      # Python scraper for all 12 universities
 └── .github/
@@ -93,12 +95,12 @@ Jobs with a known deadline are retained for up to **14 days after expiry**, then
 |--------|-------------|
 | `id` | Stable unique ID (e.g. `POLYU-260213012`) |
 | `title` | Job title |
-| `rank` | Detected rank: Professor / Associate Professor / Assistant Professor / Postdoc / Lecturer / Other |
+| `rank` | Detected rank: Senior Management / Professor / Associate Professor / Assistant Professor / Tenure-Track / Postdoctoral / Lecturer / Research Assistant/Associate / Teaching Assistant / Non-Academic / Other |
 | `university` | Short code (e.g. `HKU`) |
 | `university_full` | Full university name |
 | `department` | Department or faculty |
 | `deadline` | Application deadline (`YYYY-MM-DD`) |
-| `is_new` | `TRUE` only on the day the job first appears |
+| `is_new` | `TRUE` on the day the job first appears; frontend shows New badge for 2 days |
 | `date_added` | Date the job was first scraped (`YYYY-MM-DD`) |
 | `reference` | University's internal reference number |
 | `position_type` | Full-time / Part-time / Fixed-term |
@@ -132,7 +134,7 @@ The scraper compares each run against the previous `jobs.csv` to determine which
 
 ## Deployment
 
-The site is hosted on GitHub Pages from the `main` branch root. No build step — `index.html` reads `jobs.csv` directly via `fetch()`.
+The site is hosted on GitHub Pages from the `main` branch root under the custom domain **www.hkacadjobs.org**. No build step — `index.html` reads `jobs.csv` directly via `fetch()`.
 
 The GitHub Actions workflow (`.github/workflows/scrape.yml`) runs the scraper daily, commits the updated `jobs.csv`, and pushes — triggering an automatic Pages redeploy. You can also trigger it manually from the Actions tab.
 
