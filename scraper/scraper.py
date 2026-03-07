@@ -1041,6 +1041,8 @@ def scrape_hkust():
                     })
 
                 # Extract Interfolio apply URLs from card HTML (replace PeopleSoft links)
+                # Walk UP from each "Job ID: X" text node, but stop before entering a container
+                # that holds multiple job cards — otherwise querySelector picks up the wrong link.
                 try:
                     il_map = page.evaluate("""
                         () => {
@@ -1049,22 +1051,29 @@ def scrape_hkust():
                             let node;
                             while (node = walker.nextNode()) {
                                 const m = node.textContent.trim().match(/^Job ID: (\\d+)$/);
-                                if (m) {
-                                    let el = node.parentElement;
-                                    for (let i = 0; i < 8; i++) {
-                                        if (!el) break;
-                                        const link = el.querySelector('a[href*="interfolio"]');
-                                        if (link) { result[m[1]] = link.href; break; }
-                                        el = el.parentElement;
-                                    }
+                                if (!m) continue;
+                                let el = node.parentElement;
+                                let cardEl = el;
+                                for (let i = 0; i < 12; i++) {
+                                    if (!el) break;
+                                    // Stop before a container that owns more than one job card
+                                    if ((el.textContent.match(/Job ID:/g) || []).length > 1) break;
+                                    cardEl = el;
+                                    el = el.parentElement;
                                 }
+                                const link = cardEl.querySelector('a[href*="interfolio"]');
+                                if (link) result[m[1]] = link.href;
                             }
                             return result;
                         }
                     """)
                     for j in jobs:
                         if j["reference"] in il_map:
-                            j["apply_url"] = il_map[j["reference"]]
+                            new_url = il_map[j["reference"]]
+                            if new_url != j["apply_url"]:
+                                # URL corrected — clear cached description so it gets re-fetched
+                                _existing_descriptions.pop(j["id"], None)
+                            j["apply_url"] = new_url
                 except Exception:
                     pass
 
