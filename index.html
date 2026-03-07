@@ -639,11 +639,7 @@ function initUI() {
   document.getElementById('statTotal').textContent = ALL_JOBS.length;
   document.getElementById('statNew').textContent   = newCount;
 
-  // Banner
-  if (newCount > 0) {
-    document.getElementById('updateBanner').style.display = 'flex';
-    document.getElementById('bannerText').innerHTML = `<strong>${newCount} new position${newCount>1?'s':''}</strong> added today`;
-  }
+
 
   // Populate filter dropdowns
   const uniSel  = document.getElementById('uniFilter');
@@ -696,7 +692,6 @@ function toggleDeptGroup(group) {
 function switchTab(tab) {
   currentView = tab;
   currentPage = 1;
-  document.getElementById('updateBanner').style.display = (tab === 'all' && ALL_JOBS.filter(j=>j.is_new).length) ? 'flex' : 'none';
   filterJobs();
 }
 
@@ -741,6 +736,16 @@ function filterJobs() {
   renderPagination();
   updateCount();
   renderChips();
+  updateBanner();
+}
+
+function updateBanner() {
+  const banner = document.getElementById('updateBanner');
+  if (currentView !== 'all') { banner.style.display = 'none'; return; }
+  const n = filtered.filter(j => j.is_new).length;
+  if (!n) { banner.style.display = 'none'; return; }
+  document.getElementById('bannerText').innerHTML = `<strong>${n} new position${n>1?'s':''}</strong> added today`;
+  banner.style.display = 'flex';
 }
 
 // ── Sorting
