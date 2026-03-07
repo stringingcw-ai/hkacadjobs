@@ -742,9 +742,11 @@ function filterJobs() {
 }
 
 function updateBanner() {
+  const banner = document.getElementById('updateBanner');
   const n = filtered.length;
+  if (currentView === 'saved' || n === 0) { banner.style.display = 'none'; return; }
   document.getElementById('bannerText').innerHTML = `<strong>${n}</strong> position${n!==1?'s':''} found`;
-  document.getElementById('updateBanner').style.display = 'flex';
+  banner.style.display = 'flex';
 }
 
 // ── Sorting
