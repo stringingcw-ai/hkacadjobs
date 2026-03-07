@@ -91,6 +91,18 @@ def detect_rank(title):
     if "teaching fellow" in t:       return "Lecturer"
     if "instructor" in t:            return "Lecturer"
     if "clinical" in t:              return "Lecturer"
+    GENERAL_KEYWORDS = (
+        "officer", "manager", "executive", "clerk", "clerical",
+        "administrative", "administrator", "accountant", "accounting",
+        "librarian", "programmer", "technician", "nurse", "counsellor",
+        "secretary", "attendant", "helper", "dental", "registrar",
+        "coordinator", "consultant", "director",
+        "procurement", "laboratory assistant", "lab assistant",
+        "office assistant", "security", "systems analyst",
+        "phlebotomist", "editor", "scientist",
+    )
+    if any(k in t for k in GENERAL_KEYWORDS):
+        return "General"
     return "Other"
 
 
