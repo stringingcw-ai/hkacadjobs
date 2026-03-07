@@ -67,6 +67,35 @@ def make_id(uni_code, ref):
     return f"{uni_code.upper()}-{hashlib.md5(key.encode()).hexdigest()[:10]}"
 
 
+def infer_dept_from_title(title):
+    """Try to extract a department name from a job title string."""
+    # Pattern 1: "Role in Department/Subject Area"
+    m = re.search(
+        r'\bin\s+([A-Za-z][A-Za-z0-9\s&,\-\/\(\)]+?)'
+        r'(?:\s*[\/-]\s*(?:Post|Senior|Research|Lecturer|Professor|Assoc|Assis)'
+        r'|\s*\((?!Full|Part|several|multiple|part)'
+        r'|\s*$)',
+        title,
+    )
+    if m:
+        dept = m.group(1).strip().rstrip(',').rstrip('/')
+        if 5 < len(dept) < 80 and not re.search(r'^\d', dept):
+            return dept
+    # Pattern 2: Director/Head "of [Dept]"
+    m = re.search(r'\bof\s+([A-Z][A-Za-z0-9\s&,\-\/]{4,60})', title)
+    if m:
+        dept = m.group(1).strip()
+        if len(dept) < 70:
+            return dept
+    # Pattern 3: "Role (Department/Section)" at end
+    m = re.search(r'\(([A-Za-z][A-Za-z0-9\s&,\-\/]{4,60})\)\s*$', title)
+    if m:
+        candidate = m.group(1).strip()
+        if not re.search(r'full.time|part.time|posts?|positions?|\d+\s*posts?|several|multiple|various', candidate, re.I):
+            return candidate
+    return ""
+
+
 def detect_rank(title, description=""):
     """Infer rank from job title (and optionally description)."""
     t = title.lower()
@@ -612,7 +641,7 @@ def scrape_eduhk():
                             "rank":             detect_rank(title),
                             "university":       "EdUHK",
                             "university_full":  "Education University of Hong Kong",
-                            "department":       dept,
+                            "department":       dept or infer_dept_from_title(title) or "Education University of Hong Kong",
                             "deadline":         deadline,
                             "is_new":           "TRUE" if is_active(deadline) else "FALSE",
                             "reference":        ref,
@@ -1291,7 +1320,7 @@ def scrape_hkbu():
                     dept  = full_title[last + 1:].strip()
                 else:
                     title = full_title
-                    dept  = ""
+                    dept  = infer_dept_from_title(full_title)
 
                 if not dept and desc_text:
                     m = re.search(r"sits under (?:the\s+)?([A-Z][^,.]{3,60}?)(?:\s+at our|\s+campus|,|\.|$)", desc_text)
@@ -1392,16 +1421,16 @@ def scrape_hkbu():
                     dept  = full_title[last + 1:].strip()
                 else:
                     title = full_title
-                    dept  = ""
+                    dept  = infer_dept_from_title(full_title)
 
-                # Leave empty if not found (don't fall back to university name)
+                # Fall back to university name if still blank
                 jobs.append({
                     "id":               make_id("HKBU", ref or title[:25]),
                     "title":            title,
                     "rank":             detect_rank(title),
                     "university":       "HKBU",
                     "university_full":  "Hong Kong Baptist University",
-                    "department":       dept,
+                    "department":       dept or "Hong Kong Baptist University",
                     "deadline":         "",
                     "is_new":           "TRUE",
                     "reference":        ref,
