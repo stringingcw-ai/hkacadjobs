@@ -886,6 +886,10 @@ def scrape_hku():
                         page.goto(j["apply_url"], timeout=20000, wait_until="domcontentloaded")
                         page.wait_for_timeout(1500)
                         text = page.inner_text("body")
+                        # Skip bot-protection pages
+                        BOT_MARKERS = ("security check", "not a bot", "verify that you are", "cloudflare")
+                        if any(m in text.lower() for m in BOT_MARKERS):
+                            continue
                         lines = [l.strip() for l in text.splitlines() if len(l.strip()) > 60]
                         if lines:
                             j["description"] = "\n\n".join(lines[:20])[:3000]
