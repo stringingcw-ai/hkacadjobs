@@ -134,7 +134,7 @@
   .days-left.soon { color: #c9960a; font-weight: 600; }
   .days-left.ok { color: #27ae60; }
   .new-badge { display: inline-block; background: var(--accent); color: white; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 6px; border-radius: 3px; margin-right: 6px; vertical-align: middle; }
-  .bk-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 4px 6px; border-radius: 4px; transition: transform 0.15s; line-height: 1; opacity: 0.3; }
+  .bk-btn { background: none; border: none; cursor: pointer; padding: 4px 6px; border-radius: 4px; transition: transform 0.15s; line-height: 1; opacity: 0.6; color: var(--bookmark); }
   .bk-btn:hover { transform: scale(1.25); opacity: 1; }
   .bk-btn.saved { opacity: 1; }
   .apply-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; background: var(--ink); color: var(--paper); border-radius: 5px; font-size: 0.78rem; font-weight: 500; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.15s, transform 0.1s; white-space: nowrap; text-decoration: none; }
@@ -250,7 +250,7 @@
   <div class="logo">HK<span>Acad</span>Jobs</div>
   <div class="nav-right">
     <button class="bookmark-nav-btn" onclick="switchTab('saved')">
-      🔖 Saved <span class="bk-count" id="navBkCount">0</span>
+      <span style="color:var(--bookmark)">★</span> Saved <span class="bk-count" id="navBkCount">0</span>
     </button>
   </div>
 </nav>
@@ -329,7 +329,7 @@
       <tbody id="jobBody"></tbody>
     </table>
     <div class="empty-state" id="emptyState"><div class="empty-icon">🔍</div><p>No positions match your filters.</p></div>
-    <div class="saved-empty" id="savedEmpty"><div class="empty-icon">🔖</div><p>No saved positions yet.</p><small>Click 🔲 on any row to save it here.</small></div>
+    <div class="saved-empty" id="savedEmpty"><div class="empty-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="var(--bookmark)" stroke="var(--bookmark)" stroke-width="2.2" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div><p>No saved positions yet.</p><small>Click <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--bookmark)" stroke-width="2.2" stroke-linejoin="round" style="vertical-align:middle"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> on any row to save it here.</small></div>
   </div>
 
   <div class="pagination" id="pagination" style="display:none;"></div>
@@ -356,7 +356,7 @@
   </div>
   <div class="panel-body" id="panelBody"></div>
   <div class="panel-footer">
-    <button class="panel-save" id="panelSaveBtn" onclick="toggleBookmarkPanel()">🔖 Save</button>
+    <button class="panel-save" id="panelSaveBtn" onclick="toggleBookmarkPanel()">☆ Save</button>
     <a class="panel-apply" id="panelApplyLink" href="#" target="_blank" rel="noopener">
       <span id="panelApplyText">Apply on University Site</span>
       <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.5 6.5h8M7 2.5L11 6.5 7 10.5"/></svg>
@@ -534,7 +534,7 @@ function toggleBookmarkPanel() { toggleBookmark(openJobId, null); }
 function updatePanelSaveBtn(id) {
   const btn = document.getElementById('panelSaveBtn');
   const saved = bookmarks.has(id);
-  btn.textContent = saved ? '🔖 Saved' : '🔖 Save';
+  btn.textContent = saved ? '★ Saved' : '☆ Save';
   btn.classList.toggle('saved', saved);
 }
 
@@ -792,7 +792,7 @@ function renderTable() {
     row.onclick = () => openPanel(j._id);
     row.innerHTML = `
       <td onclick="event.stopPropagation()">
-        <button class="bk-btn${isBk?' saved':''}" title="${isBk?'Remove':'Save'}" onclick="toggleBookmark('${j._id}',event)">${isBk?'🔖':'🔲'}</button>
+        <button class="bk-btn${isBk?' saved':''}" title="${isBk?'Remove from saved':'Save'}" onclick="toggleBookmark('${j._id}',event)">${isBk?'<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>':'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>'}</button>
       </td>
       <td>
         <div class="job-title">${newB}${j.title}</div>
