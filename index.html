@@ -518,8 +518,6 @@ function updateBkUI() {
   const n = bookmarks.size;
   document.getElementById('navBkCount').textContent = n;
   document.getElementById('navBkCount').classList.toggle('visible', n > 0);
-  document.getElementById('tabBkCount').textContent = n;
-  document.getElementById('tabBkCount').classList.toggle('visible', n > 0);
 }
 function toggleBookmark(id, e) {
   if (e) e.stopPropagation();
