@@ -630,7 +630,8 @@ function initUI() {
   if (!LAST_UPDATED) LAST_UPDATED = new Date().toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
 
   // Stats
-  const newCount = ALL_JOBS.filter(j => j.is_new).length;
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const newCount = ALL_JOBS.filter(j => j.date_added === todayStr).length;
   const depts = new Set(ALL_JOBS.map(j => j.department).filter(Boolean));
   const unis  = new Set(ALL_JOBS.map(j => j.university).filter(Boolean));
   document.getElementById('statTotal').textContent = ALL_JOBS.length;
