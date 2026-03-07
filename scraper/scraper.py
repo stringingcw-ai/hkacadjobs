@@ -74,15 +74,20 @@ def detect_rank(title):
     if "associate professor" in t:   return "Associate Professor"
     if "assistant professor" in t:   return "Assistant Professor"
     if "professor" in t:             return "Professor"
-    if "postdoc" in t:               return "Postdoc"
-    if "post-doctoral" in t:         return "Postdoc"
-    if "post doctoral" in t:         return "Postdoc"
-    if "research fellow" in t:       return "Postdoc"
-    if "dean" in t:                  return "Deans/Heads"
-    if "provost" in t:               return "Deans/Heads"
-    if "head of" in t:               return "Deans/Heads"
-    if "vice-chancellor" in t:       return "Deans/Heads"
-    if "vice chancellor" in t:       return "Deans/Heads"
+    if "postdoc" in t:               return "Postdoctoral"
+    if "post-doctoral" in t:         return "Postdoctoral"
+    if "post doctoral" in t:         return "Postdoctoral"
+    if "research fellow" in t:       return "Postdoctoral"
+    if "tenure-track" in t:          return "Tenure-Track"
+    if "tenure track" in t:          return "Tenure-Track"
+    if "substantiation-track" in t:  return "Tenure-Track"
+    if "dean" in t:                  return "Senior Management"
+    if "provost" in t:               return "Senior Management"
+    if "head of" in t:               return "Senior Management"
+    if "vice-chancellor" in t:       return "Senior Management"
+    if "vice chancellor" in t:       return "Senior Management"
+    if "vice-president" in t:        return "Senior Management"
+    if "vice president" in t:        return "Senior Management"
     if "teaching assistant" in t:    return "Teaching Assistant"
     if "research assistant" in t:    return "Research Assistant/Associate"
     if "research associate" in t:    return "Research Assistant/Associate"
@@ -91,7 +96,7 @@ def detect_rank(title):
     if "teaching fellow" in t:       return "Lecturer"
     if "instructor" in t:            return "Lecturer"
     if "clinical" in t:              return "Lecturer"
-    GENERAL_KEYWORDS = (
+    NON_ACADEMIC_KEYWORDS = (
         "officer", "manager", "executive", "clerk", "clerical",
         "administrative", "administrator", "accountant", "accounting",
         "librarian", "programmer", "technician", "nurse", "counsellor",
@@ -100,9 +105,11 @@ def detect_rank(title):
         "procurement", "laboratory assistant", "lab assistant",
         "office assistant", "security", "systems analyst",
         "phlebotomist", "editor", "scientist",
+        "project assistant", "project associate", "project fellow",
+        "project technical",
     )
-    if any(k in t for k in GENERAL_KEYWORDS):
-        return "General"
+    if any(k in t for k in NON_ACADEMIC_KEYWORDS):
+        return "Non-Academic"
     return "Other"
 
 
