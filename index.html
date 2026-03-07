@@ -78,8 +78,7 @@
   select { padding: 8px 30px 8px 11px; border: 1.5px solid var(--border); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.84rem; background: var(--paper); color: var(--ink); outline: none; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7568' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; transition: border-color 0.2s; }
   select:focus { border-color: var(--accent); }
   .filter-divider { width: 1px; height: 26px; background: var(--border); }
-  .result-count { margin-left: auto; font-size: 0.78rem; color: var(--muted); white-space: nowrap; }
-  .result-count strong { color: var(--ink); }
+
 
   /* ACTIVE FILTERS */
   .active-filters { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 10px 48px 12px; background: var(--white); border-bottom: 1px solid var(--border); }
@@ -287,7 +286,7 @@
     <option>Teaching Assistant</option>
     <option>Non-Academic</option>
   </select>
-  <div class="result-count" id="resultCount"></div>
+
 </div>
 <div class="group-chips-bar" id="groupChipsBar" style="display:none;">
   <span class="group-bar-label">Groups:</span>
@@ -731,7 +730,6 @@ function filterJobs() {
   currentPage = 1;
   renderTable();
   renderPagination();
-  updateCount();
   renderChips();
   updateBanner();
 }
@@ -848,11 +846,6 @@ function renderPagination() {
   pg.appendChild(next);
 }
 
-function updateCount() {
-  const n = filtered.length;
-  const label = currentView==='saved' ? 'saved position' : 'position';
-  document.getElementById('resultCount').innerHTML = `<strong>${n}</strong> ${label}${n!==1?'s':''} found`;
-}
 
 function renderChips() {
   const bar = document.getElementById('activeFilters');
