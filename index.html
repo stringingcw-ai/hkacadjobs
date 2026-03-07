@@ -298,7 +298,7 @@
 <div class="main-layout">
   <div class="error-state" id="errorState">
     <strong>⚠️ Could not load job listings</strong>
-    <p>The Google Sheet URL may not be configured yet, or the sheet isn't published. Check that <code>SHEET_CSV_URL</code> is set correctly in the HTML file and the sheet is published as CSV.</p>
+    <p>Could not load <code>jobs.csv</code>. The file may not be available yet.</p>
   </div>
 
   <div class="update-banner" id="updateBanner" style="display:none;">
@@ -309,7 +309,7 @@
   <div class="job-table-wrap" id="tableWrap">
     <div class="loading-state" id="loadingState">
       <div class="spinner"></div>
-      <p>Loading positions from Google Sheets…</p>
+      <p>Loading positions…</p>
     </div>
     <table id="jobTable" style="display:none;">
       <thead>
