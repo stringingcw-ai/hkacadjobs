@@ -102,9 +102,7 @@
   .error-state code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-size: 0.8rem; }
 
   /* UPDATE BANNER */
-  .update-banner { background: #edfaf1; border: 1px solid #a3d9b1; border-radius: 6px; padding: 10px 16px; font-size: 0.78rem; color: #1e7a3a; display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
-  .update-banner .dot { width: 7px; height: 7px; background: #1e7a3a; border-radius: 50%; animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .update-banner { background: #f4f6f8; border: 1px solid #dde1e7; border-radius: 6px; padding: 10px 16px; font-size: 0.78rem; color: #555; display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
 
   /* TABLE */
   .job-table-wrap { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--white); }
@@ -307,7 +305,6 @@
   </div>
 
   <div class="update-banner" id="updateBanner" style="display:none;">
-    <div class="dot"></div>
     <span id="bannerText"></span>
   </div>
 
@@ -740,12 +737,9 @@ function filterJobs() {
 }
 
 function updateBanner() {
-  const banner = document.getElementById('updateBanner');
-  if (currentView !== 'all') { banner.style.display = 'none'; return; }
-  const n = filtered.filter(j => j.is_new).length;
-  if (!n) { banner.style.display = 'none'; return; }
-  document.getElementById('bannerText').innerHTML = `<strong>${n} new position${n>1?'s':''}</strong> added today`;
-  banner.style.display = 'flex';
+  const n = filtered.length;
+  document.getElementById('bannerText').innerHTML = `<strong>${n}</strong> position${n!==1?'s':''} found`;
+  document.getElementById('updateBanner').style.display = 'flex';
 }
 
 // ── Sorting
