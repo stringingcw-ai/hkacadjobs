@@ -598,7 +598,8 @@ async function loadData() {
     const text = await res.text();
     const rows = parseCSV(text);
     if (!rows.length) throw new Error('jobs.csv is empty');
-    ALL_JOBS = rows.map((r, i) => ({ ...r, _id: r.id || String(i), is_new: String(r.is_new).toLowerCase() === 'true', area: classifyArea(r.department), deptGroup: classifyDeptGroup(r.department) }));
+    const _cutoff = new Date(); _cutoff.setHours(0,0,0,0); _cutoff.setDate(_cutoff.getDate() - 1);
+    ALL_JOBS = rows.map((r, i) => ({ ...r, _id: r.id || String(i), is_new: r.date_added ? new Date(r.date_added) >= _cutoff : String(r.is_new).toLowerCase() === 'true', area: classifyArea(r.department), deptGroup: classifyDeptGroup(r.department) }));
     initUI();
   } catch (err) {
     clearTimeout(timer);
