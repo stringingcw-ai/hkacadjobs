@@ -1119,7 +1119,7 @@ function renderChips() {
   const search = document.getElementById('searchInput').value;
   const area = document.getElementById('areaFilter').value;
   const dept = document.getElementById('deptFilter').value;
-  if (uni)    chips.push({label:`University: ${uniDisplay(uni)}`,   clear:()=>{document.getElementById('uniFilter').value='';document.getElementById('deptFilter').value='';document.getElementById('deptFilter').style.display='none';filterJobs();}});
+  if (uni)    chips.push({label:`Institution: ${uniDisplay(uni)}`,   clear:()=>{document.getElementById('uniFilter').value='';document.getElementById('deptFilter').value='';document.getElementById('deptFilter').style.display='none';filterJobs();}});
   if (dept)   chips.push({label:`Department: ${dept}`,  clear:()=>{document.getElementById('deptFilter').value='';filterJobs();}});
   if (area)   chips.push({label:`Area: ${area}`,        clear:()=>{document.getElementById('areaFilter').value='';selectedDeptGroups.clear();renderGroupChips('');filterJobs();}});
   if (rank)   chips.push({label:`Rank: ${rank}`,        clear:()=>{document.getElementById('rankFilter').value='';filterJobs();}});
