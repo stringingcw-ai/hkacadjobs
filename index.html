@@ -254,22 +254,20 @@
     .filter-chevron { font-size: 0.65rem; opacity: 0.6; transition: transform 0.2s; }
     .filters-toggle-btn.expanded .filter-chevron { transform: rotate(180deg); }
 
-    /* Expandable selects wrapper — grid-template-rows animation (Option B) */
+    /* Expandable selects wrapper — slide down + fade (Option D, GPU-accelerated) */
     .filter-expandable {
-      display: grid;
-      grid-template-rows: 1fr;
-      width: 100%;
-      transition: grid-template-rows 0.35s ease;
+      display: block; width: 100%; overflow: hidden;
+      max-height: 160px; opacity: 1; transform: translateY(0);
+      transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1),
+                  opacity 0.25s ease,
+                  transform 0.25s ease;
+      will-change: transform, opacity;
     }
-    .filter-expandable-inner {
-      display: flex; flex-wrap: wrap; gap: 8px;
-      min-height: 0; overflow: hidden;
-    }
+    .filter-expandable-inner { display: flex; flex-wrap: wrap; gap: 8px; }
     /* Collapsed state */
     .sticky-controls.filters-collapsed .filter-expandable {
-      grid-template-rows: 0fr;
+      max-height: 0; opacity: 0; transform: translateY(-6px); pointer-events: none;
     }
-    .sticky-controls.filters-collapsed .filter-expandable-inner { pointer-events: none; }
     .group-chips-bar, .active-filters {
       transition: max-height 0.35s ease, opacity 0.2s ease, padding 0.35s ease;
       overflow: hidden;
