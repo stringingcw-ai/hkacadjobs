@@ -369,7 +369,7 @@
 
 <footer>
   Data sourced daily from official university career portals ·
-  <a href="#" onclick="openAbout();return false;">About</a> · <a href="#" onclick="openReport();return false;">Report an error</a> · Not affiliated with any institution
+  <a href="#" onclick="openAbout();return false;">About</a> · <a href="#" onclick="openReport();return false;">Feedback &amp; errors</a> · Not affiliated with any institution
   <br><br>
   AI summaries are generated automatically and may contain inaccuracies. Always refer to the official university career portal for the most accurate and up-to-date information.
 </footer>
@@ -427,25 +427,33 @@
 <div class="modal-overlay" id="reportOverlay" onclick="closeReport()">
   <div class="modal" onclick="event.stopPropagation()">
     <button class="modal-close" onclick="closeReport()">✕</button>
-    <h2>Report an Error</h2>
-    <p class="modal-sub">Help us improve — let us know what's wrong and we'll look into it.</p>
+    <h2>Feedback &amp; Error Report</h2>
+    <p class="modal-sub">Found something wrong, or have a suggestion? We'd love to hear from you.</p>
     <div id="reportFormWrap">
       <form class="report-form" id="reportForm" onsubmit="submitReport(event)">
-        <label>Type of issue</label>
+        <label>Type of feedback</label>
         <select name="issue_type" required>
-          <option value="" disabled selected>Select an issue type…</option>
-          <option>Wrong job information</option>
-          <option>Missing position</option>
-          <option>Broken or incorrect link</option>
-          <option>AI summary is inaccurate</option>
-          <option>Wrong rank or department</option>
-          <option>Duplicate listing</option>
-          <option>Other</option>
+          <option value="" disabled selected>Select a category…</option>
+          <optgroup label="Error Reports">
+            <option>Wrong job information</option>
+            <option>Missing position</option>
+            <option>Broken or incorrect link</option>
+            <option>AI summary is inaccurate</option>
+            <option>Wrong rank or department</option>
+            <option>Duplicate listing</option>
+          </optgroup>
+          <optgroup label="Suggestions">
+            <option>New feature request</option>
+            <option>UI / design improvement</option>
+            <option>Missing university</option>
+            <option>Search or filter improvement</option>
+            <option>Other suggestion</option>
+          </optgroup>
         </select>
         <label>University &amp; job title (optional)</label>
         <input type="text" name="job_reference" placeholder="e.g. CUHK — Assistant Professor in Finance">
-        <label>Description</label>
-        <textarea name="description" placeholder="Please describe the issue in as much detail as possible…" required></textarea>
+        <label>Details</label>
+        <textarea name="description" placeholder="Describe the issue or share your suggestion…" required></textarea>
         <label>Your email (optional, for follow-up)</label>
         <input type="email" name="email" placeholder="you@example.com">
         <button type="submit" class="report-submit" id="reportSubmitBtn">Submit Report</button>
@@ -453,8 +461,8 @@
     </div>
     <div class="report-success" id="reportSuccess" style="display:none;">
       <div class="success-icon">✅</div>
-      <p>Thank you — your report has been received.</p>
-      <p class="success-sub">We'll review it and make corrections where needed.</p>
+      <p>Thank you — your feedback has been received.</p>
+      <p class="success-sub">We'll review it and follow up if needed.</p>
     </div>
   </div>
 </div>
