@@ -235,6 +235,32 @@
   .group-chip:hover { border-color: var(--accent); color: var(--accent); }
   .group-chip.selected { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); font-weight: 600; }
 
+  /* FILTER COLLAPSE TOGGLE (mobile only) */
+  .filters-toggle-btn { display: none; }
+  @media (max-width: 768px) {
+    .filters-toggle-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 13px; border: 1.5px solid var(--border); border-radius: 20px;
+      background: var(--paper); color: var(--ink); font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem; font-weight: 500; cursor: pointer; white-space: nowrap;
+      flex-shrink: 0; transition: border-color 0.2s, background 0.2s, color 0.2s;
+    }
+    .filters-toggle-btn.has-filters { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+    .filter-active-count { background: var(--accent); color: white; font-size: 0.65rem; font-weight: 700; border-radius: 10px; padding: 1px 6px; display: none; }
+    .filter-active-count.visible { display: inline-block; }
+    .filter-chevron { font-size: 0.65rem; opacity: 0.6; transition: transform 0.2s; }
+    .filters-toggle-btn.expanded .filter-chevron { transform: rotate(180deg); }
+
+    /* Collapsed state */
+    .sticky-controls.filters-collapsed .filter-bar select,
+    .sticky-controls.filters-collapsed .filter-bar .filter-divider {
+      display: none !important;
+    }
+    .sticky-controls.filters-collapsed .filter-bar { flex-wrap: nowrap; }
+    .sticky-controls.filters-collapsed .group-chips-bar,
+    .sticky-controls.filters-collapsed .active-filters { display: none !important; }
+  }
+
   @media (max-width: 768px) {
     nav { padding: 0 20px; }
     .hero { padding: 32px 20px 28px; }
@@ -307,6 +333,9 @@
     <span class="search-icon">🔍</span>
     <input type="text" id="searchInput" placeholder="Search roles, keywords…" oninput="filterJobs()">
   </div>
+  <button class="filters-toggle-btn" id="filtersToggleBtn" onclick="toggleFiltersExpanded()">
+    Filters <span class="filter-chevron">▼</span><span class="filter-active-count" id="filterActiveCount"></span>
+  </button>
   <select id="uniFilter" onchange="onUniChange()"><option value="">All Universities</option></select>
   <select id="deptFilter" onchange="filterJobs()" style="display:none;"><option value="">All Departments</option></select>
   <select id="areaFilter" onchange="onAreaChange()"><option value="">All Areas</option></select>
@@ -323,7 +352,6 @@
     <option>Teaching Assistant</option>
     <option>Non-Academic</option>
   </select>
-
 </div>
 <div class="group-chips-bar" id="groupChipsBar" style="display:none;">
   <span class="group-bar-label">Groups:</span>
@@ -875,6 +903,7 @@ function filterJobs() {
   renderPagination();
   renderChips();
   updateBanner();
+  updateFilterToggleBtn();
 }
 
 function updateBanner() {
@@ -884,6 +913,53 @@ function updateBanner() {
   document.getElementById('bannerText').innerHTML = `<strong>${n}</strong> position${n!==1?'s':''} found`;
   banner.style.display = 'flex';
 }
+
+// ── Mobile filter collapse
+let _filtersManuallyExpanded = false;
+let _lastScrollY = 0;
+
+function updateFilterToggleBtn() {
+  const btn = document.getElementById('filtersToggleBtn');
+  const badge = document.getElementById('filterActiveCount');
+  if (!btn) return;
+  const count = [
+    document.getElementById('searchInput').value,
+    document.getElementById('uniFilter').value,
+    document.getElementById('deptFilter').value,
+    document.getElementById('areaFilter').value,
+    document.getElementById('rankFilter').value,
+  ].filter(Boolean).length + (selectedDeptGroups ? selectedDeptGroups.size : 0);
+  btn.classList.toggle('has-filters', count > 0);
+  badge.textContent = count || '';
+  badge.classList.toggle('visible', count > 0);
+}
+
+function toggleFiltersExpanded() {
+  const controls = document.querySelector('.sticky-controls');
+  const btn = document.getElementById('filtersToggleBtn');
+  const isCollapsed = controls.classList.contains('filters-collapsed');
+  controls.classList.toggle('filters-collapsed', !isCollapsed);
+  btn.classList.toggle('expanded', isCollapsed);
+  _filtersManuallyExpanded = isCollapsed;
+}
+
+window.addEventListener('scroll', () => {
+  if (window.innerWidth > 768) return;
+  const y = window.scrollY;
+  const controls = document.querySelector('.sticky-controls');
+  const btn = document.getElementById('filtersToggleBtn');
+  if (y < 10) {
+    // Back at top — always expand
+    controls.classList.remove('filters-collapsed');
+    if (btn) btn.classList.remove('expanded');
+    _filtersManuallyExpanded = false;
+  } else if (!_filtersManuallyExpanded && y > _lastScrollY + 4) {
+    // Scrolling down from any position — collapse
+    controls.classList.add('filters-collapsed');
+    if (btn) btn.classList.remove('expanded');
+  }
+  _lastScrollY = y;
+}, { passive: true });
 
 // ── Sorting
 function sortTable(key) {
