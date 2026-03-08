@@ -237,6 +237,9 @@
 
   /* FILTER COLLAPSE TOGGLE (mobile only) */
   .filters-toggle-btn { display: none; }
+  /* transparent to desktop flex layout */
+  .filter-expandable { display: contents; }
+  .filter-expandable-inner { display: contents; }
   @media (max-width: 768px) {
     .filters-toggle-btn {
       display: inline-flex; align-items: center; gap: 6px;
@@ -251,14 +254,31 @@
     .filter-chevron { font-size: 0.65rem; opacity: 0.6; transition: transform 0.2s; }
     .filters-toggle-btn.expanded .filter-chevron { transform: rotate(180deg); }
 
-    /* Collapsed state */
-    .sticky-controls.filters-collapsed .filter-bar select,
-    .sticky-controls.filters-collapsed .filter-bar .filter-divider {
-      display: none !important;
+    /* Expandable selects wrapper — grid-template-rows animation (Option B) */
+    .filter-expandable {
+      display: grid;
+      grid-template-rows: 1fr;
+      width: 100%;
+      transition: grid-template-rows 0.35s ease;
     }
-    .sticky-controls.filters-collapsed .filter-bar { flex-wrap: nowrap; }
+    .filter-expandable-inner {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      min-height: 0; overflow: hidden;
+    }
+    /* Collapsed state */
+    .sticky-controls.filters-collapsed .filter-expandable {
+      grid-template-rows: 0fr;
+    }
+    .sticky-controls.filters-collapsed .filter-expandable-inner { pointer-events: none; }
+    .group-chips-bar, .active-filters {
+      transition: max-height 0.35s ease, opacity 0.2s ease, padding 0.35s ease;
+      overflow: hidden;
+    }
     .sticky-controls.filters-collapsed .group-chips-bar,
-    .sticky-controls.filters-collapsed .active-filters { display: none !important; }
+    .sticky-controls.filters-collapsed .active-filters {
+      max-height: 0 !important; opacity: 0; pointer-events: none;
+      padding-top: 0 !important; padding-bottom: 0 !important;
+    }
   }
 
   @media (max-width: 768px) {
@@ -272,7 +292,7 @@
     .group-chips-bar { padding: 8px 20px; }
 
     /* TABLE → CARD LAYOUT on mobile */
-    .job-table-wrap { border-radius: 0; border-left: none; border-right: none; background: transparent; box-shadow: none; }
+    .job-table-wrap { border-radius: 0; border: none; background: transparent; box-shadow: none; }
     table { display: block; }
     thead { display: none; }
     tbody { display: flex; flex-direction: column; gap: 10px; }
@@ -336,22 +356,26 @@
   <button class="filters-toggle-btn" id="filtersToggleBtn" onclick="toggleFiltersExpanded()">
     Filters <span class="filter-chevron">▼</span><span class="filter-active-count" id="filterActiveCount"></span>
   </button>
-  <select id="uniFilter" onchange="onUniChange()"><option value="">All Universities</option></select>
-  <select id="deptFilter" onchange="filterJobs()" style="display:none;"><option value="">All Departments</option></select>
-  <select id="areaFilter" onchange="onAreaChange()"><option value="">All Areas</option></select>
-  <select id="rankFilter" onchange="filterJobs()">
-    <option value="">All Ranks</option>
-    <option>Senior Management</option>
-    <option>Professor</option>
-    <option>Associate Professor</option>
-    <option>Assistant Professor</option>
-    <option>Tenure-Track</option>
-    <option>Postdoctoral</option>
-    <option>Lecturer</option>
-    <option>Research Assistant/Associate</option>
-    <option>Teaching Assistant</option>
-    <option>Non-Academic</option>
-  </select>
+  <div class="filter-expandable" id="filterExpandable">
+    <div class="filter-expandable-inner">
+      <select id="uniFilter" onchange="onUniChange()"><option value="">All Universities</option></select>
+      <select id="deptFilter" onchange="filterJobs()" style="display:none;"><option value="">All Departments</option></select>
+      <select id="areaFilter" onchange="onAreaChange()"><option value="">All Areas</option></select>
+      <select id="rankFilter" onchange="filterJobs()">
+        <option value="">All Ranks</option>
+        <option>Senior Management</option>
+        <option>Professor</option>
+        <option>Associate Professor</option>
+        <option>Assistant Professor</option>
+        <option>Tenure-Track</option>
+        <option>Postdoctoral</option>
+        <option>Lecturer</option>
+        <option>Research Assistant/Associate</option>
+        <option>Teaching Assistant</option>
+        <option>Non-Academic</option>
+      </select>
+    </div>
+  </div>
 </div>
 <div class="group-chips-bar" id="groupChipsBar" style="display:none;">
   <span class="group-bar-label">Groups:</span>
