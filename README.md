@@ -42,6 +42,8 @@ A static job board aggregating academic and university positions from 12 Hong Ko
 - **Deadline tracker** — colour-coded reminder badge: yellow for upcoming deadlines, red for closed
 - **University logos** — each listing shows the university favicon for quick identification
 - **Mobile responsive** — card layout on small screens with apply button, deadline, and reminder
+- **Collapsing filter bar** — on mobile, filter dropdowns collapse to a search bar + "Filters" pill on any downward scroll; tap to expand, auto-expands at top of page; GPU-accelerated animation for smooth iOS performance
+- **Animated hero stats** — Open Positions and New Today count up on page load with a dramatic ease-out deceleration effect
 
 ---
 

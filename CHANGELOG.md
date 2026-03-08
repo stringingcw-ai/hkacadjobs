@@ -4,6 +4,27 @@ All notable changes to HKAcadJobs are recorded here, grouped by date.
 
 ---
 
+## 2026-03-08
+
+### UI — Mobile
+- Added collapsing filter bar for mobile: scrolling down from any position collapses the filter dropdowns to a single search bar + "Filters ▼" pill; scrolling back to the top auto-expands
+- Active filter count badge on pill turns orange when filters are applied
+- Tapping the pill manually expands filters; stays expanded until next downward scroll
+- Filter collapse uses GPU-accelerated `max-height` + `translateY` + `opacity` animation (cubic-bezier easing) for smooth performance on iOS Safari
+- Fixed filter dropdown reflow: removed `flex-wrap: nowrap` on collapse to prevent selects shifting sideways before animating
+- Fixed white gap when "Filtered by" row collapses: padding now animates to zero alongside height
+- Removed top border on job table wrap on mobile (was showing a thin line above the first result card)
+
+### UI — Hero stats
+- Open Positions and New Today counters now animate on page load with a fade + slide-up entrance
+- Count-up animation uses 2s ease-out cubic deceleration (exponent 3) — rushes through early numbers then dramatically slows to the final value
+- Stats staggered: Open Positions starts at 100ms, New Today at 300ms
+
+### Scraper
+- `detect_rank()`: Teaching Consultant and academic-context consultant titles (language, academic, education, learning) now classified as Lecturer instead of Non-Academic
+
+---
+
 ## 2026-03-07
 
 ### UI
