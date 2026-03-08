@@ -63,6 +63,8 @@
   .stats-row { display: flex; gap: 40px; flex-wrap: wrap; }
   .stat-num { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--paper); }
   .stat-label { font-size: 0.72rem; color: #888; letter-spacing: 0.06em; text-transform: uppercase; }
+  .stat-item { opacity: 0; transform: translateY(10px); transition: opacity 0.5s ease, transform 0.5s ease; }
+  .stat-item.visible { opacity: 1; transform: translateY(0); }
 
   /* FILTER BAR */
   .sticky-controls { position: sticky; top: 60px; z-index: 190; background: var(--white); }
@@ -824,8 +826,24 @@ function initUI() {
   const newCount = ALL_JOBS.filter(j => j.date_added === todayStr).length;
   const depts = new Set(ALL_JOBS.map(j => j.department).filter(Boolean));
   const unis  = new Set(ALL_JOBS.map(j => j.university).filter(Boolean));
-  document.getElementById('statTotal').textContent = ALL_JOBS.length;
-  document.getElementById('statNew').textContent   = newCount;
+  function countUp(el, target, delay) {
+    setTimeout(() => {
+      el.closest('.stat-item').classList.add('visible');
+      if (target === 0) { el.textContent = 0; return; }
+      const duration = 2000;
+      const start = performance.now();
+      function tick(now) {
+        const progress = Math.min((now - start) / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.floor(ease * target);
+        if (progress < 1) requestAnimationFrame(tick);
+        else el.textContent = target;
+      }
+      requestAnimationFrame(tick);
+    }, delay);
+  }
+  countUp(document.getElementById('statTotal'), ALL_JOBS.length, 100);
+  countUp(document.getElementById('statNew'),   newCount, 300);
 
 
 
