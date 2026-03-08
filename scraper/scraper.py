@@ -107,8 +107,8 @@ def detect_rank(title, description=""):
         if ("tenure-track" in d or "tenure track" in d) and "non-tenure" not in d:
             return "Tenure-Track"
         if "lecturer" in d:
-            return "Senior Lecturer/Lecturer"
-    if "teaching-track" in t:        return "Senior Lecturer/Lecturer"   # Fix 1
+            return "Lecturer"
+    if "teaching-track" in t:        return "Lecturer"   # Fix 1
     if "chair professor" in t:       return "Professor"
     if "associate professor" in t:   return "Associate Professor"
     if "assistant professor" in t:   return "Assistant Professor"
@@ -130,10 +130,10 @@ def detect_rank(title, description=""):
     if "research assistant" in t:    return "Research Assistant/Associate"
     if "research associate" in t:    return "Research Assistant/Associate"
     if "research officer" in t:      return "Research Assistant/Associate"
-    if "lecturer" in t:              return "Senior Lecturer/Lecturer"
-    if "teaching fellow" in t:       return "Senior Lecturer/Lecturer"
-    if "instructor" in t:            return "Senior Lecturer/Lecturer"
-    if "clinical" in t:              return "Senior Lecturer/Lecturer"
+    if "lecturer" in t:              return "Lecturer"
+    if "teaching fellow" in t:       return "Lecturer"
+    if "instructor" in t:            return "Lecturer"
+    if "clinical" in t:              return "Lecturer"
     NON_ACADEMIC_KEYWORDS = (
         "officer", "manager", "executive", "clerk", "clerical",
         "administrative", "administrator", "accountant", "accounting",
