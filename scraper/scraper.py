@@ -134,6 +134,9 @@ def detect_rank(title, description=""):
     if "teaching fellow" in t:       return "Lecturer"
     if "instructor" in t:            return "Lecturer"
     if "clinical" in t:              return "Lecturer"
+    if "teaching consultant" in t:   return "Lecturer"
+    if "consultant" in t and any(k in t for k in ("teaching", "language", "academic", "education", "learning")):
+        return "Lecturer"
     NON_ACADEMIC_KEYWORDS = (
         "officer", "manager", "executive", "clerk", "clerical",
         "administrative", "administrator", "accountant", "accounting",
