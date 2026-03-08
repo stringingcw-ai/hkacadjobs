@@ -1,0 +1,41 @@
+name: Deploy Lecturer Rename (One-time)
+
+on:
+  schedule:
+    - cron: "58 1 * * *"   # 01:58 UTC = 09:58 HKT
+  workflow_dispatch:        # allow manual trigger if needed
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check if this is the target date
+        id: check
+        run: |
+          TODAY=$(date -u +%Y-%m-%d)
+          echo "Today is $TODAY"
+          if [ "$TODAY" = "2026-03-09" ]; then
+            echo "run=true" >> $GITHUB_OUTPUT
+          else
+            echo "run=false" >> $GITHUB_OUTPUT
+            echo "Not the target date — skipping."
+          fi
+
+      - name: Apply rank rename to index.html
+        if: steps.check.outputs.run == 'true'
+        run: |
+          sed -i 's|<option>Lecturer</option>|<option>Senior Lecturer/Lecturer</option>|g' index.html
+
+      - name: Commit and push
+        if: steps.check.outputs.run == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "deploy: rename Lecturer rank to Senior Lecturer/Lecturer in filter"
+          git push

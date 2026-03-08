@@ -130,13 +130,13 @@ def detect_rank(title, description=""):
     if "research assistant" in t:    return "Research Assistant/Associate"
     if "research associate" in t:    return "Research Assistant/Associate"
     if "research officer" in t:      return "Research Assistant/Associate"
-    if "lecturer" in t:              return "Lecturer"
-    if "teaching fellow" in t:       return "Lecturer"
-    if "instructor" in t:            return "Lecturer"
-    if "clinical" in t:              return "Lecturer"
-    if "teaching consultant" in t:   return "Lecturer"
+    if "lecturer" in t:              return "Senior Lecturer/Lecturer"
+    if "teaching fellow" in t:       return "Senior Lecturer/Lecturer"
+    if "instructor" in t:            return "Senior Lecturer/Lecturer"
+    if "clinical" in t:              return "Senior Lecturer/Lecturer"
+    if "teaching consultant" in t:   return "Senior Lecturer/Lecturer"
     if "consultant" in t and any(k in t for k in ("teaching", "language", "academic", "education", "learning")):
-        return "Lecturer"
+        return "Senior Lecturer/Lecturer"
     NON_ACADEMIC_KEYWORDS = (
         "officer", "manager", "executive", "clerk", "clerical",
         "administrative", "administrator", "accountant", "accounting",
