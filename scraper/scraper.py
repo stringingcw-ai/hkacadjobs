@@ -283,7 +283,7 @@ def _has_good_desc(job_id: str) -> bool:
 
 def summarise_description(raw_text, title, dept):
     """
-    Call Claude Haiku to summarise a raw job description into 3-4 sentences.
+    Call Claude Haiku to summarise a raw job description into 3 structured sections.
     Falls back to the raw text if the API key is missing or the call fails.
     """
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
@@ -294,14 +294,25 @@ def summarise_description(raw_text, title, dept):
         client = anthropic.Anthropic(api_key=api_key)
         msg = client.messages.create(
             model="claude-haiku-4-5-20251001",
-            max_tokens=200,
+            max_tokens=500,
             messages=[{
                 "role": "user",
                 "content": (
-                    "Summarise this academic job description in 3-4 concise sentences. "
-                    "Focus on the main responsibilities, key requirements, and what makes it distinctive. "
-                    "Do not mention the university name or reference numbers. Be direct and informative. "
-                    "Do not include a title or heading — output plain prose only.\n\n"
+                    "Summarise this academic job description into exactly 3 sections using the format below. "
+                    "Each section must have a bold header followed by 2-4 concise bullet points. "
+                    "Be brief — each bullet point should be one short sentence. "
+                    "Do not mention the university name or reference numbers.\n\n"
+                    "Use this exact format:\n"
+                    "**Duties & Responsibilities**\n"
+                    "• [bullet]\n"
+                    "• [bullet]\n\n"
+                    "**Requirements & Qualifications**\n"
+                    "• [bullet]\n"
+                    "• [bullet]\n\n"
+                    "**Appointment**\n"
+                    "• [Full-time / Part-time / Contract — include contract duration if mentioned, or 'Not specified']\n\n"
+                    "**Key Dates**\n"
+                    "• [deadline or 'Not specified' if not mentioned]\n\n"
                     f"Job title: {title}\nDepartment: {dept}\n\nDescription:\n{raw_text[:3000]}"
                 ),
             }],

@@ -181,6 +181,10 @@
   .psection p + p { margin-top: 10px; }
   .psection ul { padding-left: 18px; }
   .psection ul li { font-size: 0.875rem; line-height: 1.85; color: #2a2a2a; }
+  .desc-section { margin-bottom: 14px; }
+  .desc-section-title { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .desc-section ul { padding-left: 16px; margin: 0; }
+  .desc-section ul li { font-size: 0.875rem; line-height: 1.75; color: #2a2a2a; margin-bottom: 2px; }
   .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .info-cell { background: var(--paper); border-radius: 6px; padding: 10px 14px; border: 1px solid var(--cream); }
   .info-label { font-size: 0.67rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
@@ -1031,8 +1035,24 @@ function openPanel(id) {
     ${j.rank ? `<span class="ptag rank">${j.rank}</span>` : ''}
     <span class="ptag ${dl.cls||'ok'}">⏱ ${fmtDate(j.deadline)}${dl.text?` · ${dl.text}`:''}</span>`;
 
-  const descHtml = (j.description||'No description provided.')
-    .split('\n\n').map(p=>`<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
+  const descHtml = (() => {
+    const text = j.description || 'No description provided.';
+    // Structured format: **Section**\n• bullet\n• bullet
+    if (text.includes('**') && text.includes('•')) {
+      return text.split('\n\n').map(block => {
+        const lines = block.split('\n');
+        const header = lines[0].replace(/\*\*/g, '').trim();
+        const bullets = lines.slice(1).filter(l => l.trim().startsWith('•'));
+        if (!bullets.length) return `<p>${lines.join(' ')}</p>`;
+        return `<div class="desc-section">
+          <div class="desc-section-title">${header}</div>
+          <ul>${bullets.map(b => `<li>${b.replace(/^•\s*/, '')}</li>`).join('')}</ul>
+        </div>`;
+      }).join('');
+    }
+    // Legacy plain-prose fallback
+    return text.split('\n\n').map(p => `<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
+  })();
 
   document.getElementById('panelBody').innerHTML = `
     <div class="psection">
