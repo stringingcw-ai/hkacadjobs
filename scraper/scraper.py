@@ -275,10 +275,16 @@ PLACEHOLDER_MARKER = "Please visit the application link"
 _existing_descriptions: dict = {}
 
 
+BOT_MARKERS = ("security check", "not a bot", "verify that you are", "cloudflare", "complete the security")
+
 def _has_good_desc(job_id: str) -> bool:
     """True if a prior run already produced a real (non-placeholder) summary."""
     d = _existing_descriptions.get(job_id, "")
-    return bool(d and PLACEHOLDER_MARKER not in d and len(d) > 80)
+    if not d or PLACEHOLDER_MARKER in d or len(d) <= 80:
+        return False
+    if any(m in d.lower() for m in BOT_MARKERS):
+        return False
+    return True
 
 
 def summarise_description(raw_text, title, dept):
@@ -966,7 +972,6 @@ def scrape_hku():
                         page.wait_for_timeout(1500)
                         text = page.inner_text("body")
                         # Skip bot-protection pages
-                        BOT_MARKERS = ("security check", "not a bot", "verify that you are", "cloudflare")
                         if any(m in text.lower() for m in BOT_MARKERS):
                             continue
                         lines = [l.strip() for l in text.splitlines() if len(l.strip()) > 60]

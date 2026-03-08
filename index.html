@@ -1036,7 +1036,11 @@ function openPanel(id) {
     <span class="ptag ${dl.cls||'ok'}">⏱ ${fmtDate(j.deadline)}${dl.text?` · ${dl.text}`:''}</span>`;
 
   const descHtml = (() => {
-    const text = j.description || 'No description provided.';
+    const raw = j.description || '';
+    const BOT_MARKERS = ['security check', 'not a bot', 'verify that you are', 'cloudflare', 'complete the security'];
+    const text = BOT_MARKERS.some(m => raw.toLowerCase().includes(m))
+      ? 'Please visit the application link for full details.'
+      : (raw || 'No description provided.');
     // Structured format: **Section**\n• bullet\n• bullet
     if (text.includes('**') && text.includes('•')) {
       return text.split('\n\n').map(block => {
