@@ -195,6 +195,21 @@
   footer { background: var(--ink); color: #666; text-align: center; padding: 24px 48px; font-size: 0.75rem; letter-spacing: 0.03em; }
   footer a { color: var(--accent); text-decoration: none; }
 
+  /* ABOUT MODAL */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(15,17,23,0.55); z-index: 500; opacity: 0; pointer-events: none; transition: opacity 0.25s; backdrop-filter: blur(2px); display: flex; align-items: center; justify-content: center; }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal { background: var(--white); border-radius: 12px; width: min(560px, 92vw); max-height: 80vh; overflow-y: auto; padding: 36px 36px 28px; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
+  .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: 1px solid var(--border); border-radius: 6px; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; color: var(--muted); transition: background 0.15s; }
+  .modal-close:hover { background: var(--cream); color: var(--ink); }
+  .modal h2 { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--ink); margin-bottom: 6px; }
+  .modal .modal-sub { font-size: 0.78rem; color: var(--muted); margin-bottom: 24px; }
+  .modal-section { margin-bottom: 20px; }
+  .modal-section h3 { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--cream); }
+  .modal-section p { font-size: 0.85rem; line-height: 1.7; color: #2a2a2a; }
+  .modal-section ul { padding-left: 18px; }
+  .modal-section ul li { font-size: 0.85rem; line-height: 1.8; color: #2a2a2a; }
+  .modal-disclaimer { font-size: 0.75rem; color: var(--muted); line-height: 1.6; border-top: 1px solid var(--cream); padding-top: 16px; margin-top: 8px; }
+
   /* GROUP CHIPS BAR */
   .group-chips-bar { background: var(--white); border-bottom: 1px solid var(--border); padding: 8px 48px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .group-bar-label { font-size: 0.72rem; color: var(--muted); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; }
@@ -339,11 +354,60 @@
 </main>
 
 <footer>
-  HKAcadJobs · Data sourced daily from official university career portals ·
-  <a href="#">About</a> · <a href="#">Report an error</a> · Not affiliated with any institution
+  Data sourced daily from official university career portals ·
+  <a href="#" onclick="openAbout();return false;">About</a> · <a href="#">Report an error</a> · Not affiliated with any institution
   <br><br>
   AI summaries are generated automatically and may contain inaccuracies. Always refer to the official university career portal for the most accurate and up-to-date information.
 </footer>
+
+<!-- ABOUT MODAL -->
+<div class="modal-overlay" id="aboutOverlay" onclick="closeAbout()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeAbout()">✕</button>
+    <h2>About HKAcadJobs</h2>
+    <p class="modal-sub">Every university opening in Hong Kong, in one place.</p>
+
+    <div class="modal-section">
+      <h3>What is this?</h3>
+      <p>HKAcadJobs is a free, independent job board that aggregates academic and university positions from 12 Hong Kong universities. It is updated daily and requires no login or subscription.</p>
+    </div>
+
+    <div class="modal-section">
+      <h3>Universities covered</h3>
+      <ul>
+        <li>University of Hong Kong (HKU)</li>
+        <li>Chinese University of Hong Kong (CUHK)</li>
+        <li>HK University of Science & Technology (HKUST)</li>
+        <li>Hong Kong Polytechnic University (PolyU)</li>
+        <li>City University of Hong Kong (CityU)</li>
+        <li>Hong Kong Baptist University (HKBU)</li>
+        <li>Lingnan University (LU)</li>
+        <li>Education University of Hong Kong (EdUHK)</li>
+        <li>Hong Kong Metropolitan University (HKMU)</li>
+        <li>Hang Seng University of Hong Kong (HSU)</li>
+        <li>Saint Francis University (SFU)</li>
+        <li>Hong Kong Shue Yan University (HKSYU)</li>
+      </ul>
+    </div>
+
+    <div class="modal-section">
+      <h3>How it works</h3>
+      <p>A Python scraper runs daily via GitHub Actions, pulling job listings directly from each university's official career portal. AI-generated summaries (via Claude) provide a quick overview of each role. All data is stored in a CSV file and served as a static site with no backend.</p>
+    </div>
+
+    <div class="modal-section">
+      <h3>How to use</h3>
+      <ul>
+        <li>Search by keyword, university, department, area, or rank</li>
+        <li>Click any row to open the full job detail panel</li>
+        <li>Star a position to save it for later — saved locally in your browser</li>
+        <li>Click the Saved button in the top bar to view your saved positions</li>
+      </ul>
+    </div>
+
+    <p class="modal-disclaimer">This site is not affiliated with any Hong Kong university. Data is sourced from official public career portals. AI summaries are generated automatically and may contain inaccuracies — always refer to the official university career portal for the most accurate information.</p>
+  </div>
+</div>
 
 <!-- PANEL -->
 <div class="panel-overlay" id="panelOverlay" onclick="closePanel()"></div>
@@ -933,6 +997,15 @@ function closePanel() {
   document.getElementById('detailPanel').classList.remove('open');
   document.body.style.overflow = '';
   renderTable();
+}
+
+function openAbout() {
+  document.getElementById('aboutOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeAbout() {
+  document.getElementById('aboutOverlay').classList.remove('open');
+  document.body.style.overflow = '';
 }
 
 document.addEventListener('keydown', e => { if (e.key==='Escape') closePanel(); });
