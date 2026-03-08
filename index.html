@@ -210,6 +210,20 @@
   .modal-section ul li { font-size: 0.85rem; line-height: 1.8; color: #2a2a2a; }
   .modal-disclaimer { font-size: 0.75rem; color: var(--muted); line-height: 1.6; border-top: 1px solid var(--cream); padding-top: 16px; margin-top: 8px; }
 
+  /* REPORT MODAL */
+  .report-form label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 5px; margin-top: 16px; }
+  .report-form label:first-child { margin-top: 0; }
+  .report-form select, .report-form input, .report-form textarea { width: 100%; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: var(--ink); background: var(--paper); outline: none; transition: border-color 0.2s; box-sizing: border-box; }
+  .report-form select:focus, .report-form input:focus, .report-form textarea:focus { border-color: var(--accent); }
+  .report-form textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+  .report-submit { margin-top: 20px; width: 100%; padding: 11px; background: var(--ink); color: var(--paper); border: none; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+  .report-submit:hover { background: var(--accent); }
+  .report-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  .report-success { text-align: center; padding: 28px 0 12px; }
+  .report-success .success-icon { font-size: 2rem; margin-bottom: 10px; }
+  .report-success p { font-size: 0.88rem; color: var(--ink); line-height: 1.6; }
+  .report-success .success-sub { font-size: 0.78rem; color: var(--muted); margin-top: 6px; }
+
   /* GROUP CHIPS BAR */
   .group-chips-bar { background: var(--white); border-bottom: 1px solid var(--border); padding: 8px 48px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .group-bar-label { font-size: 0.72rem; color: var(--muted); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; }
@@ -355,7 +369,7 @@
 
 <footer>
   Data sourced daily from official university career portals ·
-  <a href="#" onclick="openAbout();return false;">About</a> · <a href="#">Report an error</a> · Not affiliated with any institution
+  <a href="#" onclick="openAbout();return false;">About</a> · <a href="#" onclick="openReport();return false;">Report an error</a> · Not affiliated with any institution
   <br><br>
   AI summaries are generated automatically and may contain inaccuracies. Always refer to the official university career portal for the most accurate and up-to-date information.
 </footer>
@@ -406,6 +420,42 @@
     </div>
 
     <p class="modal-disclaimer">This site is not affiliated with any Hong Kong university. Data is sourced from official public career portals. AI summaries are generated automatically and may contain inaccuracies — always refer to the official university career portal for the most accurate information.</p>
+  </div>
+</div>
+
+<!-- REPORT MODAL -->
+<div class="modal-overlay" id="reportOverlay" onclick="closeReport()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeReport()">✕</button>
+    <h2>Report an Error</h2>
+    <p class="modal-sub">Help us improve — let us know what's wrong and we'll look into it.</p>
+    <div id="reportFormWrap">
+      <form class="report-form" id="reportForm" onsubmit="submitReport(event)">
+        <label>Type of issue</label>
+        <select name="issue_type" required>
+          <option value="" disabled selected>Select an issue type…</option>
+          <option>Wrong job information</option>
+          <option>Missing position</option>
+          <option>Broken or incorrect link</option>
+          <option>AI summary is inaccurate</option>
+          <option>Wrong rank or department</option>
+          <option>Duplicate listing</option>
+          <option>Other</option>
+        </select>
+        <label>University &amp; job title (optional)</label>
+        <input type="text" name="job_reference" placeholder="e.g. CUHK — Assistant Professor in Finance">
+        <label>Description</label>
+        <textarea name="description" placeholder="Please describe the issue in as much detail as possible…" required></textarea>
+        <label>Your email (optional, for follow-up)</label>
+        <input type="email" name="email" placeholder="you@example.com">
+        <button type="submit" class="report-submit" id="reportSubmitBtn">Submit Report</button>
+      </form>
+    </div>
+    <div class="report-success" id="reportSuccess" style="display:none;">
+      <div class="success-icon">✅</div>
+      <p>Thank you — your report has been received.</p>
+      <p class="success-sub">We'll review it and make corrections where needed.</p>
+    </div>
   </div>
 </div>
 
@@ -1006,6 +1056,43 @@ function openAbout() {
 function closeAbout() {
   document.getElementById('aboutOverlay').classList.remove('open');
   document.body.style.overflow = '';
+}
+
+function openReport() {
+  document.getElementById('reportForm').reset();
+  document.getElementById('reportFormWrap').style.display = '';
+  document.getElementById('reportSuccess').style.display = 'none';
+  document.getElementById('reportOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeReport() {
+  document.getElementById('reportOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+async function submitReport(e) {
+  e.preventDefault();
+  const btn = document.getElementById('reportSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  const form = document.getElementById('reportForm');
+  const data = new FormData(form);
+  try {
+    const res = await fetch('https://formspree.io/f/REPLACE_WITH_YOUR_FORM_ID', {
+      method: 'POST', body: data, headers: { Accept: 'application/json' }
+    });
+    if (res.ok) {
+      document.getElementById('reportFormWrap').style.display = 'none';
+      document.getElementById('reportSuccess').style.display = 'block';
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Submit Report';
+      alert('Submission failed — please try again.');
+    }
+  } catch {
+    btn.disabled = false;
+    btn.textContent = 'Submit Report';
+    alert('Network error — please try again.');
+  }
 }
 
 document.addEventListener('keydown', e => { if (e.key==='Escape') closePanel(); });
