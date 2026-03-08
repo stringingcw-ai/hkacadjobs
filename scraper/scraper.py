@@ -278,11 +278,14 @@ _existing_descriptions: dict = {}
 BOT_MARKERS = ("security check", "not a bot", "verify that you are", "cloudflare", "complete the security")
 
 def _has_good_desc(job_id: str) -> bool:
-    """True if a prior run already produced a real (non-placeholder) summary."""
+    """True if a prior run already produced a real structured summary."""
     d = _existing_descriptions.get(job_id, "")
     if not d or PLACEHOLDER_MARKER in d or len(d) <= 80:
         return False
     if any(m in d.lower() for m in BOT_MARKERS):
+        return False
+    # Must be new structured format — old plain-prose summaries are re-fetched
+    if "**" not in d or "•" not in d:
         return False
     return True
 
