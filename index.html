@@ -69,8 +69,8 @@
   .stat-item.visible { opacity: 1; transform: translateY(0); }
 
   /* FILTER BAR */
-  .sticky-controls { position: sticky; top: 60px; z-index: 190; background: var(--white); }
-  .filter-bar { background: var(--white); border-bottom: 1px solid var(--border); padding: 14px 48px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .sticky-controls { position: sticky; top: 60px; z-index: 190; background: var(--white); border-bottom: 1px solid var(--border); }
+  .filter-bar { background: var(--white); padding: 10px 48px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
   .view-tabs { display: flex; background: var(--cream); border-radius: 7px; padding: 3px; border: 1px solid var(--border); }
   .view-tab { padding: 6px 16px; border-radius: 5px; font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.15s; color: var(--muted); display: flex; align-items: center; gap: 6px; border: none; background: none; font-family: 'DM Sans', sans-serif; }
   .view-tab.active { background: var(--white); color: var(--ink); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
@@ -86,9 +86,9 @@
 
 
   /* ACTIVE FILTERS */
-  .active-filters { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 10px 48px 12px; background: var(--white); border-bottom: 1px solid var(--border); }
-  .filter-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-soft); color: var(--accent); border: 1px solid #d9b5a8; border-radius: 20px; padding: 4px 10px; font-size: 0.75rem; font-weight: 500; cursor: pointer; }
-  .filter-label { font-size: 0.75rem; color: var(--muted); }
+  .active-filters { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 6px 48px 8px; background: var(--white); border-bottom: 1px solid var(--border); }
+  .filter-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-soft); color: var(--accent); border: 1px solid #d9b5a8; border-radius: 20px; padding: 4px 10px; font-size: 0.84rem; font-weight: 500; cursor: pointer; }
+  .filter-label { font-size: 0.84rem; color: var(--muted); }
 
   /* MAIN */
   .main-layout { max-width: 100%; padding: 28px 48px 64px; }
@@ -233,9 +233,9 @@
   .report-success .success-sub { font-size: 0.78rem; color: var(--muted); margin-top: 6px; }
 
   /* GROUP CHIPS BAR */
-  .group-chips-bar { background: var(--white); border-bottom: 1px solid var(--border); padding: 8px 48px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .group-chips-bar { background: var(--white); padding: 4px 48px 6px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .group-bar-label { font-size: 0.72rem; color: var(--muted); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; }
-  .group-chip { display: inline-flex; align-items: center; padding: 5px 13px; border-radius: 16px; font-size: 0.78rem; font-weight: 500; cursor: pointer; border: 1.5px solid var(--border); background: var(--white); color: var(--muted); transition: all 0.15s; user-select: none; }
+  .group-chip { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 20px; font-size: 0.84rem; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--white); color: var(--muted); transition: all 0.15s; user-select: none; }
   .group-chip:hover { border-color: var(--accent); color: var(--accent); }
   .group-chip.selected { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); font-weight: 600; }
 
@@ -276,10 +276,15 @@
       transition: max-height 0.35s ease, opacity 0.2s ease, padding 0.35s ease;
       overflow: hidden;
     }
-    .sticky-controls.filters-collapsed .group-chips-bar,
-    .sticky-controls.filters-collapsed .active-filters {
+    .sticky-controls.filters-collapsed .group-chips-bar {
       max-height: 0 !important; opacity: 0; pointer-events: none;
       padding-top: 0 !important; padding-bottom: 0 !important;
+    }
+    .sticky-controls.filters-collapsed .filter-bar {
+      padding-bottom: 4px;
+    }
+    .sticky-controls.filters-collapsed .active-filters {
+      padding-top: 2px;
     }
   }
 
@@ -287,11 +292,11 @@
     nav { padding: 0 20px; }
     .hero { padding: 32px 20px 28px; }
     .hero h1 { font-size: 1.9rem; }
-    .filter-bar { padding: 12px 20px; }
-    .active-filters { padding: 10px 20px 10px; }
+    .filter-bar { padding: 10px 20px; }
+    .active-filters { padding: 5px 20px 6px; }
     .main-layout { padding: 20px 16px 48px; }
     .nav-meta { display: none; }
-    .group-chips-bar { padding: 8px 20px; }
+    .group-chips-bar { padding: 3px 20px 5px; }
 
     /* TABLE → CARD LAYOUT on mobile */
     .job-table-wrap { border-radius: 0; border: none; background: transparent; box-shadow: none; }
@@ -380,7 +385,6 @@
   </div>
 </div>
 <div class="group-chips-bar" id="groupChipsBar" style="display:none;">
-  <span class="group-bar-label">Groups:</span>
   <div id="groupChips" style="display:contents;"></div>
 </div>
 <div class="active-filters" id="activeFilters" style="display:none;"><span class="filter-label">Filtered by:</span></div>
@@ -1119,10 +1123,10 @@ function renderChips() {
   const search = document.getElementById('searchInput').value;
   const area = document.getElementById('areaFilter').value;
   const dept = document.getElementById('deptFilter').value;
-  if (uni)    chips.push({label:`Institution: ${uniDisplay(uni)}`,   clear:()=>{document.getElementById('uniFilter').value='';document.getElementById('deptFilter').value='';document.getElementById('deptFilter').style.display='none';filterJobs();}});
-  if (dept)   chips.push({label:`Department: ${dept}`,  clear:()=>{document.getElementById('deptFilter').value='';filterJobs();}});
-  if (area)   chips.push({label:`Area: ${area}`,        clear:()=>{document.getElementById('areaFilter').value='';selectedDeptGroups.clear();renderGroupChips('');filterJobs();}});
-  if (rank)   chips.push({label:`Rank: ${rank}`,        clear:()=>{document.getElementById('rankFilter').value='';filterJobs();}});
+  if (uni)    chips.push({label:uniDisplay(uni),   clear:()=>{document.getElementById('uniFilter').value='';document.getElementById('deptFilter').value='';document.getElementById('deptFilter').style.display='none';filterJobs();}});
+  if (dept)   chips.push({label:dept,  clear:()=>{document.getElementById('deptFilter').value='';filterJobs();}});
+  if (area)   chips.push({label:area,        clear:()=>{document.getElementById('areaFilter').value='';selectedDeptGroups.clear();renderGroupChips('');filterJobs();}});
+  if (rank)   chips.push({label:rank,        clear:()=>{document.getElementById('rankFilter').value='';filterJobs();}});
   if (search) chips.push({label:`"${search}"`,          clear:()=>{document.getElementById('searchInput').value='';filterJobs();}});
   if (!chips.length) { bar.style.display='none'; return; }
   bar.style.display = 'flex';
