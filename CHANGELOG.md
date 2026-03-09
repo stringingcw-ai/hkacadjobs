@@ -4,6 +4,31 @@ All notable changes to HKAcadJobs are recorded here, grouped by date.
 
 ---
 
+## 2026-03-09
+
+### Scraper
+- Added VTC (Vocational Training Council) as 13th institution — covers full-time (tab1) and part-time (tab2) listings from vtc.edu.hk; parses title, division, department, deadline, reference, and detail page description
+
+### UI — Terminology
+- Renamed "University" to "Institution" throughout: filter dropdown, table header, and active filter chip label
+
+### UI — Filter bar polish
+- Removed "Groups:" and "Filtered by:" prefix labels; show pill values only
+- Removed border separators between filter bar, group chips, and filtered-by rows
+- Added persistent bottom border to sticky controls as separator when no filters are applied
+- Filtered-by row now stays visible on mobile when filter bar is collapsed
+- Aligned group chip and filter chip font size to match dropdowns (0.84rem)
+- Tightened padding between filter bar sections; reduced gap between search bar and filtered-by row in collapsed state
+
+### UI — Mobile fixes
+- Fixed filter dropdowns being clipped: increased `filter-expandable` max-height to 220px
+- Fixed filter dropdowns overflowing screen width on mobile: selects now flex to 50% width with `min-width: 0`
+
+### Infrastructure
+- Scheduled one-time GitHub Actions workflow to rename "Lecturer" → "Senior Lecturer/Lecturer" in filter dropdown at 09:58 HKT (2 minutes before daily scrape)
+
+---
+
 ## 2026-03-08
 
 ### UI — Mobile

@@ -2,15 +2,15 @@
 
 > Every university opening in Hong Kong, in one place.
 
-A static job board aggregating academic and university positions from 12 Hong Kong universities, updated daily via GitHub Actions. No login required, no paywalls — just a fast, searchable list of open positions pulled straight from official university career portals.
+A static job board aggregating academic and university positions from 13 Hong Kong institutions, updated daily via GitHub Actions. No login required, no paywalls — just a fast, searchable list of open positions pulled straight from official university career portals.
 
 **Live site:** https://www.hkacadjobs.org/
 
 ---
 
-## Universities covered
+## Institutions covered
 
-| Code | University |
+| Code | Institution |
 |------|-----------|
 | HKU | University of Hong Kong |
 | CUHK | Chinese University of Hong Kong |
@@ -24,6 +24,7 @@ A static job board aggregating academic and university positions from 12 Hong Ko
 | HSU | Hang Seng University of Hong Kong |
 | SFU | Saint Francis University |
 | HKSYU | Hong Kong Shue Yan University |
+| VTC | Vocational Training Council |
 
 ---
 
@@ -32,7 +33,7 @@ A static job board aggregating academic and university positions from 12 Hong Ko
 - **Daily refresh** — scraper runs at 10:00 HKT every day via GitHub Actions
 - **New badge** — positions flagged as NEW for the first 2 days after they appear (today and yesterday)
 - **Smart sort** — new jobs float to the top; within each university, latest postings come first
-- **Search & filter** — by keyword, university, department, academic area, and rank
+- **Search & filter** — by keyword, institution, department, academic area, and rank
 - **Department filter** — appears after selecting a university; narrows to that university's departments
 - **Area → dept group chips** — cascading filter: pick an area, then multi-select department clusters
 - **Sortable deadline column** — click the Deadline header to sort; N/A deadlines sorted last
