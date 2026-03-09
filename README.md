@@ -45,6 +45,7 @@ A static job board aggregating academic and university positions from 13 Hong Ko
 - **Mobile responsive** — card layout on small screens with apply button, deadline, and reminder
 - **Collapsing filter bar** — on mobile, filter dropdowns collapse to a search bar + "Filters" pill on any downward scroll; tap to expand, auto-expands at top of page; GPU-accelerated animation for smooth iOS performance
 - **Animated hero stats** — Open Positions and New Today count up on page load with a dramatic ease-out deceleration effect
+- **New institution toast** — one-time dismissible toast notifies users when a new institution is added; self-gates until data is present
 
 ---
 

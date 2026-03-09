@@ -4,7 +4,7 @@ All notable changes to HKAcadJobs are recorded here, grouped by date.
 
 ---
 
-## 2026-03-09
+## 2026-03-09 (updated)
 
 ### Scraper
 - Added VTC (Vocational Training Council) as 13th institution — covers full-time (tab1) and part-time (tab2) listings from vtc.edu.hk; parses title, division, department, deadline, reference, and detail page description
@@ -23,6 +23,11 @@ All notable changes to HKAcadJobs are recorded here, grouped by date.
 ### UI — Mobile fixes
 - Fixed filter dropdowns being clipped: increased `filter-expandable` max-height to 220px
 - Fixed filter dropdowns overflowing screen width on mobile: selects now flex to 50% width with `min-width: 0`
+
+### UI — Announcement toast
+- Added dismissible toast notification (bottom-right on desktop, full-width on mobile) announcing VTC as a new institution
+- Toast self-gates: only appears once VTC jobs are present in loaded data; silently inactive until scraper adds VTC
+- One-time per user via localStorage; auto-dismisses after 7s; styled in brand accent colour
 
 ### Infrastructure
 - Scheduled one-time GitHub Actions workflow to rename "Lecturer" → "Senior Lecturer/Lecturer" in filter dropdown at 09:58 HKT (2 minutes before daily scrape)
