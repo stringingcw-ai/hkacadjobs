@@ -23,7 +23,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install requests beautifulsoup4 playwright anthropic
+          pip install requests beautifulsoup4 playwright anthropic pypdf
           playwright install chromium --with-deps
 
       - name: Run scraper

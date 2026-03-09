@@ -979,6 +979,8 @@ def scrape_hku():
                         text = page.inner_text("body")
                         # Skip bot-protection pages
                         if any(m in text.lower() for m in BOT_MARKERS):
+                            if _has_good_desc(j["id"]):
+                                j["description"] = _existing_descriptions[j["id"]]
                             continue
                         lines = [l.strip() for l in text.splitlines() if len(l.strip()) > 60]
                         if lines:
@@ -1330,10 +1332,15 @@ def scrape_hkbu():
                     r.get("ClosingDate") or r.get("closingDate") or ""
                 ))
 
-                desc_text = clean(str(
+                desc_raw = str(
                     r.get("ExternalDescriptionStr") or r.get("ShortDescription") or
                     r.get("description") or ""
-                ))
+                )
+                # Strip HTML tags if present
+                if "<" in desc_raw:
+                    desc_text = clean(BeautifulSoup(desc_raw, "html.parser").get_text("\n"))
+                else:
+                    desc_text = clean(desc_raw)
 
                 # Dept: comma split or "sits under" pattern
                 if "," in full_title:
@@ -1465,34 +1472,49 @@ def scrape_hkbu():
         except Exception as e2:
             print(f"  ⚠️  Playwright also failed: {e2}")
 
-    # Fetch detail pages for any jobs still missing a closing date
-    missing = [j for j in jobs if not j["deadline"] and j["apply_url"]]
-    if missing:
-        print(f"  ↳ Fetching {len(missing)} detail pages for closing dates...")
+    # Fetch detail pages for jobs missing a closing date or description
+    needs_detail = [j for j in jobs if (not j["deadline"] or not _has_good_desc(j["id"])) and j["apply_url"]]
+    if needs_detail:
+        print(f"  ↳ Fetching {len(needs_detail)} detail pages for descriptions/dates...")
         try:
             from playwright.sync_api import sync_playwright
             with sync_playwright() as p:
                 browser = p.chromium.launch(headless=True)
                 detail_page = browser.new_page()
                 detail_page.set_extra_http_headers(HEADERS)
-                found = 0
-                for job in missing:
+                found_dates = 0
+                found_descs = 0
+                for job in needs_detail:
                     try:
+                        if _has_good_desc(job["id"]):
+                            job["description"] = _existing_descriptions[job["id"]]
+                            continue
                         detail_page.goto(job["apply_url"], timeout=20000, wait_until="domcontentloaded")
                         detail_page.wait_for_timeout(2000)
                         text = detail_page.inner_text("body")
-                        m = re.search(r'[Cc]losing\s+[Dd]ate[:\s]+(\d{1,2}\s+\w+\s+\d{4})', text)
-                        if m:
-                            job["deadline"] = parse_date_text(m.group(1))
-                            job["is_new"] = "TRUE" if is_active(job["deadline"]) else "FALSE"
-                            found += 1
+                        if any(m in text.lower() for m in BOT_MARKERS):
+                            continue
+                        if not job["deadline"]:
+                            m = re.search(r'[Cc]losing\s+[Dd]ate[:\s]+(\d{1,2}\s+\w+\s+\d{4})', text)
+                            if m:
+                                job["deadline"] = parse_date_text(m.group(1))
+                                job["is_new"] = "TRUE" if is_active(job["deadline"]) else "FALSE"
+                                found_dates += 1
+                        lines = [l.strip() for l in text.splitlines() if len(l.strip()) > 60]
+                        if lines:
+                            job["description"] = "\n\n".join(lines[:20])[:3000]
+                            found_descs += 1
                     except Exception:
                         pass
                 detail_page.close()
                 browser.close()
-            print(f"  ↳ Found closing dates for {found}/{len(missing)} jobs")
+            print(f"  ↳ Got descriptions for {found_descs}/{len(needs_detail)} jobs, dates for {found_dates}")
         except Exception as pe:
             print(f"  ↳ Detail page fetch failed: {pe}")
+    # Restore cached summaries for skipped jobs
+    for j in jobs:
+        if _has_good_desc(j["id"]):
+            j["description"] = _existing_descriptions[j["id"]]
 
     print(f"  ✅ HKBU: {len(jobs)} jobs found")
     return jobs
@@ -1716,11 +1738,37 @@ def scrape_hksyu():
                     "salary":           "",
                     "start_date":       "",
                     "apply_url":        apply_url,
-                    "description":      f"{title} — {dept}. Please visit the application link for full details.",
+                    "description":      PLACEHOLDER_MARKER,
                 })
 
     except Exception as e:
         print(f"  ⚠️  HKSYU scraper failed: {e}")
+
+    # Extract text from PDF apply links for AI summarisation
+    needs_desc = [j for j in jobs if not _has_good_desc(j["id"]) and j["apply_url"].endswith(".pdf")]
+    if needs_desc:
+        print(f"  ↳ Extracting text from {len(needs_desc)} PDF job ads...")
+        try:
+            import pypdf, io
+            found = 0
+            for j in needs_desc:
+                try:
+                    r = requests.get(j["apply_url"], headers=HEADERS, timeout=15)
+                    r.raise_for_status()
+                    reader = pypdf.PdfReader(io.BytesIO(r.content))
+                    text = "\n".join(page.extract_text() or "" for page in reader.pages).strip()
+                    if text and len(text) > 80:
+                        j["description"] = text[:3000]
+                        found += 1
+                except Exception:
+                    pass
+            print(f"  ↳ Got PDF text for {found}/{len(needs_desc)} jobs")
+        except ImportError:
+            print("  ↳ pypdf not installed — skipping PDF extraction")
+    # Restore cached summaries
+    for j in jobs:
+        if _has_good_desc(j["id"]):
+            j["description"] = _existing_descriptions[j["id"]]
 
     print(f"  ✅ HKSYU: {len(jobs)} jobs found")
     return jobs
