@@ -29,7 +29,7 @@ jobs:
       - name: Run scraper
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: python scraper/scraper.py
+        run: python scraper/scraper.py --force-resummary
 
       - name: Commit and push jobs.csv
         run: |

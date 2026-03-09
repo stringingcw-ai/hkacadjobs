@@ -1,0 +1,40 @@
+name: Remove force-resummary flag (One-time)
+
+on:
+  schedule:
+    - cron: "0 2 * * *"   # 02:00 UTC = 10:00 HKT, same as daily scraper
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  remove:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check if this is the target date
+        id: check
+        run: |
+          TODAY=$(date -u +%Y-%m-%d)
+          if [ "$TODAY" = "2026-03-11" ]; then
+            echo "run=true" >> $GITHUB_OUTPUT
+          else
+            echo "run=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Remove --force-resummary from scrape.yml
+        if: steps.check.outputs.run == 'true'
+        run: |
+          sed -i 's|python scraper/scraper.py --force-resummary|python scraper/scraper.py|g' .github/workflows/scrape.yml
+
+      - name: Commit and push
+        if: steps.check.outputs.run == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .github/workflows/scrape.yml
+          git commit -m "chore: remove --force-resummary flag after one-time re-summarisation"
+          git pull --rebase
+          git push

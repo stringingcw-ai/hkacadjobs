@@ -2288,6 +2288,7 @@ def main():
     parser.add_argument("--uni", help="Scrape one university only (e.g. polyu, hku)")
     parser.add_argument("--output", help="Output CSV path (default: ../jobs.csv)")
     parser.add_argument("--debug-polyu", metavar="REF", help="Debug a single PolyU detail page")
+    parser.add_argument("--force-resummary", action="store_true", help="Re-run AI summarisation for all jobs, ignoring cached summaries")
     args = parser.parse_args()
 
     if args.debug_polyu:
@@ -2374,7 +2375,7 @@ def main():
             and "See application link" not in prev_desc
             and len(prev_desc) <= 800  # short = already a summary, not raw text
         )
-        if has_good_summary:
+        if has_good_summary and not args.force_resummary:
             j["description"] = prev_desc  # reuse existing summary
         elif (
             len(j.get("description", "")) > 300
