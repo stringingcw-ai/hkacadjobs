@@ -85,6 +85,30 @@
   .filter-divider { width: 1px; height: 26px; background: var(--border); }
 
 
+  /* ANNOUNCEMENT TOAST */
+  #announcementToast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+    display: flex; align-items: flex-start; gap: 12px;
+    background: #fdf1ed; color: var(--accent); border: 1px solid #e8b9a8;
+    padding: 14px 16px; border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+    max-width: 320px; font-size: 0.84rem; line-height: 1.45;
+    opacity: 0; transform: translateY(16px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+    pointer-events: none;
+  }
+  #announcementToast.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  #announcementToast.hiding { opacity: 0; transform: translateY(16px); pointer-events: none; }
+  #announcementToast strong { color: var(--accent); }
+  #announceToastClose {
+    flex-shrink: 0; background: none; border: none; cursor: pointer;
+    color: var(--accent); opacity: 0.5; font-size: 1rem; padding: 0; line-height: 1; margin-top: 1px;
+  }
+  #announceToastClose:hover { opacity: 1; }
+  @media (max-width: 768px) {
+    #announcementToast { bottom: 16px; right: 16px; left: 16px; max-width: none; }
+  }
+
   /* ACTIVE FILTERS */
   .active-filters { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 6px 48px 8px; background: var(--white); border-bottom: 1px solid var(--border); }
   .filter-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-soft); color: var(--accent); border: 1px solid #d9b5a8; border-radius: 20px; padding: 4px 10px; font-size: 0.84rem; font-weight: 500; cursor: pointer; }
@@ -343,6 +367,12 @@
     </button>
   </div>
 </nav>
+
+<!-- ANNOUNCEMENT TOAST -->
+<div id="announcementToast">
+  <div>🆕 <strong>VTC</strong> (Vocational Training Council) is now included — browse their latest openings below.</div>
+  <button id="announceToastClose" onclick="dismissToast()" aria-label="Dismiss">×</button>
+</div>
 
 <!-- HERO -->
 <div class="hero">
@@ -801,6 +831,7 @@ async function loadData() {
     const _cutoff = new Date(); _cutoff.setHours(0,0,0,0); _cutoff.setDate(_cutoff.getDate() - 1);
     ALL_JOBS = rows.map((r, i) => ({ ...r, _id: r.id || String(i), is_new: r.date_added ? new Date(r.date_added) >= _cutoff : String(r.is_new).toLowerCase() === 'true', area: classifyArea(r.department), deptGroup: classifyDeptGroup(r.department) }));
     initUI();
+    maybeShowToast();
   } catch (err) {
     clearTimeout(timer);
     showError(err.name === 'AbortError' ? 'Request timed out — please reload the page.' : err.message);
@@ -1259,6 +1290,23 @@ async function submitReport(e) {
 }
 
 document.addEventListener('keydown', e => { if (e.key==='Escape') closePanel(); });
+
+// Announcement toast
+const TOAST_KEY = 'hkaj_toast_vtc_2026';
+function dismissToast() {
+  const el = document.getElementById('announcementToast');
+  el.classList.remove('visible');
+  el.classList.add('hiding');
+  setTimeout(() => el.style.display = 'none', 350);
+  localStorage.setItem(TOAST_KEY, '1');
+}
+function maybeShowToast() {
+  if (!localStorage.getItem(TOAST_KEY) && ALL_JOBS.some(j => j.university === 'VTC')) {
+    const el = document.getElementById('announcementToast');
+    setTimeout(() => el.classList.add('visible'), 800);
+    setTimeout(() => dismissToast(), 7000);
+  }
+}
 
 // Hero entrance animations
 (function() {
