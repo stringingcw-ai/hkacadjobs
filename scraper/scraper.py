@@ -1132,15 +1132,14 @@ def scrape_hkust():
 
                 page.close()
 
-            # Fetch Interfolio detail pages for descriptions (skip known good summaries)
+            # Fetch detail pages for descriptions (Interfolio + PeopleSoft, skip known good)
             to_fetch = [
                 j for j in jobs
                 if is_within_retention(j["deadline"])
                 and not _has_good_desc(j["id"])
-                and "interfolio" in j.get("apply_url", "")
             ]
             if to_fetch:
-                print(f"  ↳ Fetching {len(to_fetch)} Interfolio pages for descriptions...")
+                print(f"  ↳ Fetching {len(to_fetch)} detail pages for descriptions...")
                 detail_page = browser.new_page()
                 detail_page.set_extra_http_headers(HEADERS)
                 found = 0
@@ -1149,6 +1148,8 @@ def scrape_hkust():
                         detail_page.goto(j["apply_url"], timeout=20000, wait_until="networkidle")
                         detail_page.wait_for_timeout(2000)
                         text = detail_page.inner_text("body")
+                        if any(m in text.lower() for m in BOT_MARKERS):
+                            continue
                         lines = [l.strip() for l in text.splitlines() if len(l.strip()) > 60]
                         if lines:
                             j["description"] = "\n\n".join(lines[:20])[:3000]
@@ -1159,6 +1160,10 @@ def scrape_hkust():
                         print(f"  ↳ {idx}/{len(to_fetch)} done")
                 detail_page.close()
                 print(f"  ↳ Got descriptions for {found}/{len(to_fetch)} jobs")
+            # Restore cached summaries for skipped/failed jobs
+            for j in jobs:
+                if _has_good_desc(j["id"]):
+                    j["description"] = _existing_descriptions[j["id"]]
             browser.close()
 
     except Exception as e:
@@ -1168,21 +1173,18 @@ def scrape_hkust():
     return jobs
 
 
-def scrape_cityu_detail(apply_url):
-    """Fetch a CityU job detail page and extract the description."""
-    soup = get_soup(apply_url, timeout=10)
-    if not soup:
+def scrape_cityu_detail(apply_url, page):
+    """Fetch a CityU job detail page using Playwright and extract the description."""
+    try:
+        page.goto(apply_url, timeout=20000, wait_until="networkidle")
+        page.wait_for_timeout(1500)
+        text = page.inner_text("body")
+        if any(m in text.lower() for m in BOT_MARKERS):
+            return ""
+        lines = [l.strip() for l in text.splitlines() if len(l.strip()) > 60]
+        return "\n\n".join(lines[:20])[:3000] if lines else ""
+    except Exception:
         return ""
-    for tag in soup.find_all(["nav", "header", "footer", "script", "style"]):
-        tag.decompose()
-    candidates = [
-        clean(tag.get_text(" "))
-        for tag in soup.find_all(["div", "td", "section", "article"])
-        if 150 < len(clean(tag.get_text(" "))) < 5000
-    ]
-    if candidates:
-        return max(candidates, key=len)[:3000]
-    return ""
 
 
 def scrape_cityu():
@@ -1262,14 +1264,35 @@ def scrape_cityu():
 
         print(f"  ↳ {pos_type}: {count} jobs")
 
-    # Fetch detail pages for full descriptions (active jobs only)
-    active = [j for j in jobs if is_within_retention(j["deadline"])]
+    # Fetch detail pages for full descriptions using Playwright (bypasses Incapsula)
+    active = [j for j in jobs if is_within_retention(j["deadline"]) and not _has_good_desc(j["id"])]
     print(f"  ↳ Fetching {len(active)} detail pages for descriptions...")
-    for idx, j in enumerate(active, 1):
-        desc = scrape_cityu_detail(j["apply_url"])
-        j["description"] = desc or f"{j['title']} — {j['department']}. Please visit the application link for full details."
-        if idx % 10 == 0 or idx == len(active):
-            print(f"  ↳ {idx}/{len(active)} detail pages fetched")
+    if active:
+        try:
+            from playwright.sync_api import sync_playwright
+            with sync_playwright() as p:
+                browser = p.chromium.launch(headless=True)
+                page = browser.new_page()
+                page.set_extra_http_headers(HEADERS)
+                found = 0
+                for idx, j in enumerate(active, 1):
+                    desc = scrape_cityu_detail(j["apply_url"], page)
+                    j["description"] = desc or f"{j['title']} — {j['department']}. Please visit the application link for full details."
+                    if desc:
+                        found += 1
+                    if idx % 10 == 0 or idx == len(active):
+                        print(f"  ↳ {idx}/{len(active)} detail pages fetched")
+                browser.close()
+            print(f"  ↳ Got descriptions for {found}/{len(active)} jobs")
+        except Exception as e:
+            print(f"  ↳ Playwright detail fetch failed: {e}")
+            for j in active:
+                if not j["description"]:
+                    j["description"] = f"{j['title']} — {j['department']}. Please visit the application link for full details."
+    # Restore cached summaries for skipped jobs
+    for j in jobs:
+        if _has_good_desc(j["id"]):
+            j["description"] = _existing_descriptions[j["id"]]
 
     print(f"  ✅ CityU: {len(jobs)} jobs found")
     return jobs
