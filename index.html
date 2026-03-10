@@ -967,10 +967,14 @@ function filterJobs() {
     const ms = !search || (j.title||'').toLowerCase().includes(search) || (j.department||'').toLowerCase().includes(search) || (j.university||'').toLowerCase().includes(search) || (j.university_full||'').toLowerCase().includes(search);
     return ms && (!uni||j.university===uni) && (!dept||j.department===dept) && (!area||j.area===area) && (!selectedDeptGroups.size||selectedDeptGroups.has(j.deptGroup)) && (!rank||j.rank===rank);
   });
-  // 1. New jobs first; 2. University order; 3. Latest date_added first within each university
+  // 1. New jobs first; 2. Area order; 3. University order within area; 4. Latest date_added
+  const AREA_ORDER = AREA_GROUPS.map(g => g.area).concat(['Other']);
   filtered.sort((a, b) => {
     const newDiff = (b.is_new ? 1 : 0) - (a.is_new ? 1 : 0);
     if (newDiff !== 0) return newDiff;
+    const aiA = AREA_ORDER.indexOf(a.area ?? 'Other'), aiB = AREA_ORDER.indexOf(b.area ?? 'Other');
+    const areaDiff = (aiA === -1 ? 999 : aiA) - (aiB === -1 ? 999 : aiB);
+    if (areaDiff !== 0) return areaDiff;
     const uiA = UNI_ORDER.indexOf(a.university), uiB = UNI_ORDER.indexOf(b.university);
     const uniDiff = (uiA === -1 ? 999 : uiA) - (uiB === -1 ? 999 : uiB);
     if (uniDiff !== 0) return uniDiff;
