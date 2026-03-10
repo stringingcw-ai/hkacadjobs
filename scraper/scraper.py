@@ -306,12 +306,12 @@ def summarise_description(raw_text, title, dept):
         client = anthropic.Anthropic(api_key=api_key)
         msg = client.messages.create(
             model="claude-haiku-4-5-20251001",
-            max_tokens=500,
+            max_tokens=600,
             messages=[{
                 "role": "user",
                 "content": (
-                    "Summarise this academic job description into exactly 3 sections using the format below. "
-                    "Each section must have a bold header followed by 2-4 concise bullet points. "
+                    "Summarise this academic job description into exactly 4 sections using the format below. "
+                    "Each section must have a bold header followed by concise bullet points. "
                     "Be brief — each bullet point should be one short sentence. "
                     "Do not mention the university name or reference numbers.\n\n"
                     "Use this exact format:\n"
@@ -324,7 +324,10 @@ def summarise_description(raw_text, title, dept):
                     "**Appointment**\n"
                     "• [Full-time / Part-time / Contract — include contract duration if mentioned, or 'Not specified']\n\n"
                     "**Key Dates**\n"
-                    "• [deadline or 'Not specified' if not mentioned]\n\n"
+                    "Extract ALL dates mentioned in the description and label each one clearly. Use one bullet per date. "
+                    "Examples of labels: 'Closing date', 'Application deadline', 'Review date', 'Interview date', 'Start date', 'Posted date'. "
+                    "Format each bullet as: '• [Label]: [Date]'. "
+                    "If no dates are mentioned, write: '• Not specified'\n\n"
                     f"Job title: {title}\nDepartment: {dept}\n\nDescription:\n{raw_text[:3000]}"
                 ),
             }],
