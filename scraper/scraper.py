@@ -968,28 +968,38 @@ def scrape_hku():
             jobs.extend(parsed)
 
             # Fetch detail pages for descriptions (skip known good summaries)
+            # Use fresh browser contexts in batches to avoid session-based rate limiting
             active = [j for j in parsed if is_within_retention(j["deadline"]) and not _has_good_desc(j["id"])]
             if active:
+                import random
                 print(f"  ↳ Fetching {len(active)} detail pages for descriptions...")
                 found = 0
-                for idx, j in enumerate(active, 1):
-                    try:
-                        page.goto(j["apply_url"], timeout=20000, wait_until="domcontentloaded")
-                        page.wait_for_timeout(1500)
-                        text = page.inner_text("body")
-                        # Skip bot-protection pages
-                        if any(m in text.lower() for m in BOT_MARKERS):
-                            if _has_good_desc(j["id"]):
-                                j["description"] = _existing_descriptions[j["id"]]
-                            continue
-                        lines = [l.strip() for l in text.splitlines() if len(l.strip()) > 60]
-                        if lines:
-                            j["description"] = "\n\n".join(lines[:20])[:3000]
-                            found += 1
-                    except Exception:
-                        pass
-                    if idx % 10 == 0 or idx == len(active):
-                        print(f"  ↳ {idx}/{len(active)} done")
+                BATCH = 20  # fresh context every N requests
+                for batch_start in range(0, len(active), BATCH):
+                    batch = active[batch_start:batch_start + BATCH]
+                    ctx = browser.new_context()
+                    ctx.set_extra_http_headers(HEADERS)
+                    detail_page = ctx.new_page()
+                    for idx_in_batch, j in enumerate(batch):
+                        idx = batch_start + idx_in_batch + 1
+                        try:
+                            detail_page.goto(j["apply_url"], timeout=20000, wait_until="domcontentloaded")
+                            detail_page.wait_for_timeout(random.randint(2500, 4500))
+                            text = detail_page.inner_text("body")
+                            if any(m in text.lower() for m in BOT_MARKERS):
+                                if _has_good_desc(j["id"]):
+                                    j["description"] = _existing_descriptions[j["id"]]
+                                continue
+                            lines = [l.strip() for l in text.splitlines() if len(l.strip()) > 60]
+                            if lines:
+                                j["description"] = "\n\n".join(lines[:20])[:3000]
+                                found += 1
+                        except Exception:
+                            pass
+                        if idx % 10 == 0 or idx == len(active):
+                            print(f"  ↳ {idx}/{len(active)} done")
+                    detail_page.close()
+                    ctx.close()
                 print(f"  ↳ Got descriptions for {found}/{len(active)} jobs")
             # Restore cached summaries for skipped jobs
             for j in parsed:
@@ -1132,11 +1142,12 @@ def scrape_hkust():
 
                 page.close()
 
-            # Fetch detail pages for descriptions (Interfolio + PeopleSoft, skip known good)
+            # Fetch Interfolio detail pages only — PeopleSoft URLs are HKUST-internal and always timeout
             to_fetch = [
                 j for j in jobs
                 if is_within_retention(j["deadline"])
                 and not _has_good_desc(j["id"])
+                and "interfolio" in j.get("apply_url", "")
             ]
             if to_fetch:
                 print(f"  ↳ Fetching {len(to_fetch)} detail pages for descriptions...")
