@@ -32,7 +32,7 @@ A static job board aggregating academic and university positions from 13 Hong Ko
 
 - **Daily refresh** — scraper runs at 10:00 HKT every day via GitHub Actions
 - **New badge** — positions flagged as NEW for the first 2 days after they appear (today and yesterday)
-- **Smart sort** — new jobs float to the top; within each university, latest postings come first
+- **Smart sort** — new jobs float to the top; results then sorted by academic area (Medicine & Health → Engineering → CS & AI → Science → Business → Arts → Social Sciences → Education → Law → Architecture → Administration), then by institution and date
 - **Search & filter** — by keyword, institution, department, academic area, and rank
 - **Department filter** — appears after selecting a university; narrows to that university's departments
 - **Area → dept group chips** — cascading filter: pick an area, then multi-select department clusters
@@ -46,6 +46,7 @@ A static job board aggregating academic and university positions from 13 Hong Ko
 - **Collapsing filter bar** — on mobile, filter dropdowns collapse to a search bar + "Filters" pill on any downward scroll; tap to expand, auto-expands at top of page; GPU-accelerated animation for smooth iOS performance
 - **Animated hero stats** — Open Positions and New Today count up on page load with a dramatic ease-out deceleration effect
 - **New institution toast** — one-time dismissible toast notifies users when a new institution is added; self-gates until data is present
+- **AI summaries with labelled key dates** — each job summary extracts and labels all dates found on the detail page (closing date, review date, start date etc.)
 
 ---
 

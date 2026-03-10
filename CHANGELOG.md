@@ -4,6 +4,31 @@ All notable changes to HKAcadJobs are recorded here, grouped by date.
 
 ---
 
+## 2026-03-10
+
+### UI
+- Results list now sorted by academic area after new jobs (Medicine & Health → Engineering → Computer Science & AI → Science & Mathematics → Business → Arts & Humanities → Social Sciences → Education → Law → Architecture & Design → Administration → Other), then by institution, then by date added
+
+### Scraper — AI Summary
+- Improved Key Dates extraction: model now identifies and labels all dates found on the detail page (closing date, review date, start date, interview date etc.) with format `Label: Date` per bullet, instead of a single unlabelled deadline
+- Increased summarisation max_tokens to 600 to accommodate multiple date bullets
+- Added `--force-resummary` flag to scraper to re-run AI summaries for all jobs ignoring cached summaries; used for one-time re-summarisation on 2026-03-11
+- Scheduled one-time GitHub Actions workflow to remove `--force-resummary` flag on 2026-03-12
+
+### Scraper — Description coverage fixes
+- **CityU**: switched detail page fetching from `requests` to Playwright to bypass Incapsula bot protection — coverage improved from 13% to 100%
+- **HKBU**: strip HTML tags from Oracle HCM API description field; extend Playwright detail visit to extract descriptions (not just closing dates); add caching — coverage improved from 0% to 99.5%
+- **HKSYU**: extract text from PDF job ads using `pypdf` for AI summarisation — coverage improved from 0% to 100%
+- **HKU**: use fresh browser context every 20 requests with randomised 2.5–4.5s delay to reduce session-based rate limiting
+- **HKUST**: revert detail fetch to Interfolio-only — PeopleSoft URLs are HKUST-internal and always timeout, wasting ~44min per scrape run
+- **HKU/HKBU/HKSYU**: restore cached descriptions on bot detection instead of silently leaving placeholder
+- Added `pypdf` to workflow pip install
+
+### Infrastructure
+- Fixed daily scraper push rejection when `deploy-lecturer-rename` workflow commits concurrently: added `git pull --rebase` before push
+
+---
+
 ## 2026-03-09 (updated)
 
 ### Scraper
