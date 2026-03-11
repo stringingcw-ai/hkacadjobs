@@ -829,7 +829,9 @@ async function loadData() {
     const text = await res.text();
     const rows = parseCSV(text);
     if (!rows.length) throw new Error('jobs.csv is empty');
-    const _cutoff = new Date(); _cutoff.setHours(0,0,0,0); _cutoff.setDate(_cutoff.getDate() - 1);
+    // Cutoff = yesterday midnight HKT (UTC+8)
+    const _hktNow = new Date(Date.now() + 8 * 3600000);
+    const _cutoff = new Date(Date.UTC(_hktNow.getUTCFullYear(), _hktNow.getUTCMonth(), _hktNow.getUTCDate() - 1) - 8 * 3600000);
     ALL_JOBS = rows.map((r, i) => ({ ...r, _id: r.id || String(i), is_new: r.date_added ? new Date(r.date_added) >= _cutoff : String(r.is_new).toLowerCase() === 'true', area: classifyArea(r.department), deptGroup: classifyDeptGroup(r.department) }));
     initUI();
     maybeShowToast();
@@ -862,7 +864,9 @@ function initUI() {
   if (!LAST_UPDATED) LAST_UPDATED = new Date().toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
 
   // Stats
-  const todayStr = new Date().toISOString().slice(0, 10);
+  // Use HKT date (UTC+8) to match scraper's date_added timezone
+  const _hkt = new Date(Date.now() + 8 * 3600000);
+  const todayStr = _hkt.toISOString().slice(0, 10);
   const newCount = ALL_JOBS.filter(j => j.date_added === todayStr).length;
   const depts = new Set(ALL_JOBS.map(j => j.department).filter(Boolean));
   const unis  = new Set(ALL_JOBS.map(j => j.university).filter(Boolean));

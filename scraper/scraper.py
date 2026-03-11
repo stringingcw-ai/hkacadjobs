@@ -19,7 +19,7 @@ import sys
 import time
 import argparse
 import hashlib
-from datetime import datetime, date
+from datetime import datetime, date, timezone, timedelta
 from pathlib import Path
 
 import requests
@@ -45,7 +45,8 @@ HEADERS = {
     "Accept-Language": "en-US,en;q=0.9",
 }
 
-TODAY = date.today()
+HKT = timezone(timedelta(hours=8))
+TODAY = datetime.now(HKT).date()
 
 
 # ══════════════════════════════════════════════════════════════════
