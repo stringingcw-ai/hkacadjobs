@@ -24,10 +24,11 @@ jobs:
             echo "run=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Remove --force-resummary from scrape.yml
+      - name: Remove --force-resummary and update cron to 02:00 HKT
         if: steps.check.outputs.run == 'true'
         run: |
           sed -i 's|python scraper/scraper.py --force-resummary|python scraper/scraper.py|g' .github/workflows/scrape.yml
+          sed -i 's|cron: "0 2 \* \* \*".*|cron: "0 18 * * *"   # 18:00 UTC = 02:00 HKT|g' .github/workflows/scrape.yml
 
       - name: Commit and push
         if: steps.check.outputs.run == 'true'
@@ -35,6 +36,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .github/workflows/scrape.yml
-          git commit -m "chore: remove --force-resummary flag after one-time re-summarisation"
+          git commit -m "chore: remove --force-resummary flag and switch scraper to 02:00 HKT daily"
           git pull --rebase
           git push
