@@ -2,7 +2,7 @@ name: Daily Scraper
 
 on:
   schedule:
-    - cron: "0 2 * * *"   # 02:00 UTC = 10:00 HKT
+    - cron: "0 18 * * *"   # 18:00 UTC = 02:00 HKT
   workflow_dispatch:        # allow manual trigger from GitHub UI
 
 permissions:
@@ -29,7 +29,7 @@ jobs:
       - name: Run scraper
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: python scraper/scraper.py --force-resummary
+        run: python scraper/scraper.py
 
       - name: Commit and push jobs.csv
         run: |
