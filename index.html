@@ -864,10 +864,16 @@ function initUI() {
   if (!LAST_UPDATED) LAST_UPDATED = new Date().toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
 
   // Stats
-  // Use HKT date (UTC+8) to match scraper's date_added timezone
-  const _hkt = new Date(Date.now() + 8 * 3600000);
-  const todayStr = _hkt.toISOString().slice(0, 10);
-  const newCount = ALL_JOBS.filter(j => j.date_added === todayStr).length;
+  // "New Today" = jobs added on the latest scrape date.
+  // Cache the count in localStorage keyed by scrape date so the number
+  // persists across page loads until new scrape data arrives.
+  const latestScrapeDate = addedDates.length ? addedDates[addedDates.length - 1] : null;
+  const NEW_CACHE_KEY = 'hkaj_new_count_' + (latestScrapeDate || 'none');
+  let newCount = parseInt(localStorage.getItem(NEW_CACHE_KEY) || '', 10);
+  if (isNaN(newCount)) {
+    newCount = latestScrapeDate ? ALL_JOBS.filter(j => j.date_added === latestScrapeDate).length : 0;
+    if (latestScrapeDate) localStorage.setItem(NEW_CACHE_KEY, String(newCount));
+  }
   const depts = new Set(ALL_JOBS.map(j => j.department).filter(Boolean));
   const unis  = new Set(ALL_JOBS.map(j => j.university).filter(Boolean));
   function countUp(el, target, delay) {
