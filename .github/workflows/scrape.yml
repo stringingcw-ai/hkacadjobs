@@ -42,6 +42,7 @@ jobs:
             DATE=$(date -u +"%d %b %Y")
             NEW=$(git diff --cached jobs.csv | grep "^+" | grep -c ",TRUE," || true)
             git commit -m "Data refresh: ${DATE} (${NEW} new)"
-            git pull --rebase
+            git fetch origin main
+            git rebase -X ours origin/main
             git push
           fi
