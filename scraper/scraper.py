@@ -1668,37 +1668,44 @@ def scrape_cuhk():
     except Exception as e:
         print(f"  ⚠️  Playwright failed: {e}")
 
-    # Fetch detail pages for any jobs missing a closing date
-    missing = [j for j in jobs if not j["deadline"] and j["apply_url"]]
-    if missing:
-        print(f"  ↳ Fetching {len(missing)} detail pages for closing dates...")
+    # Fetch detail pages for jobs missing a closing date or a good description
+    needs_detail = [j for j in jobs if (not j["deadline"] or not _has_good_desc(j["id"])) and j["apply_url"]]
+    if needs_detail:
+        print(f"  ↳ Fetching {len(needs_detail)} detail pages for dates/descriptions...")
         try:
             from playwright.sync_api import sync_playwright
             with sync_playwright() as p:
                 browser = p.chromium.launch(headless=True)
                 detail_page = browser.new_page()
                 detail_page.set_extra_http_headers(HEADERS)
-                found = 0
-                for job in missing:
+                found_date = 0
+                found_desc = 0
+                for job in needs_detail:
                     try:
-                        detail_page.goto(job["apply_url"], timeout=20000, wait_until="domcontentloaded")
-                        detail_page.wait_for_timeout(2000)
+                        detail_page.goto(job["apply_url"], timeout=30000, wait_until="networkidle")
+                        detail_page.wait_for_timeout(3000)
                         text = detail_page.inner_text("body")
-                        m = re.search(r'[Cc]losing\s+[Dd]ate[:\s]+(\w+\s+\d{1,2},\s+\d{4})', text)
-                        if m:
-                            job["deadline"] = parse_date_text(m.group(1))
-                            found += 1
-                        # Extract description: substantive lines before "Closing Date"
-                        cutoff = text.find("Closing Date")
-                        block = text[:cutoff] if cutoff > 0 else text
-                        lines = [l.strip() for l in block.splitlines() if len(l.strip()) > 60]
-                        if lines:
-                            job["description"] = "\n\n".join(lines[:15])[:3000]
+                        # Closing date
+                        if not job["deadline"]:
+                            m = re.search(r'[Cc]losing\s+[Dd]ate[:\s]+(\w+\s+\d{1,2},\s+\d{4})', text)
+                            if m:
+                                job["deadline"] = parse_date_text(m.group(1))
+                                found_date += 1
+                        # Description: skip nav/header, take substantive body lines
+                        if not _has_good_desc(job["id"]):
+                            # Find start of actual content after the header line
+                            start_marker = "Description\n"
+                            start = text.find(start_marker)
+                            block = text[start + len(start_marker):] if start > 0 else text
+                            lines = [l.strip() for l in block.splitlines() if len(l.strip()) > 60]
+                            if lines:
+                                job["description"] = "\n\n".join(lines[:15])[:3000]
+                                found_desc += 1
                     except Exception:
                         pass
                 detail_page.close()
                 browser.close()
-            print(f"  ↳ Found closing dates for {found}/{len(missing)} jobs")
+            print(f"  ↳ Found closing dates for {found_date}, descriptions for {found_desc}/{len(needs_detail)} jobs")
         except Exception as pe:
             print(f"  ↳ Detail page fetch failed: {pe}")
 
