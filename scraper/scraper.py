@@ -972,11 +972,20 @@ def scrape_hku():
             jobs.extend(parsed)
 
             # Fetch detail pages for descriptions (skip known good summaries)
-            # Use fresh browser contexts in batches to avoid session-based rate limiting
+            # Use fresh browser contexts in batches to avoid session-based rate limiting.
+            # HKU detail pages are AWS WAF protected — only the first ~35 requests succeed
+            # before being blocked. Prioritise tenure-track/lecturer roles so the most
+            # valuable jobs get descriptions first.
+            RANK_PRIORITY = {
+                "Tenure-Track": 0, "Professor": 1, "Associate Professor": 2,
+                "Assistant Professor": 3, "Senior Lecturer": 4, "Lecturer": 5,
+                "Instructor": 6, "Research Assistant/Associate": 7,
+            }
             active = [j for j in parsed if is_within_retention(j["deadline"]) and not _has_good_desc(j["id"])]
+            active.sort(key=lambda j: RANK_PRIORITY.get(j.get("rank", ""), 99))
             if active:
                 import random
-                print(f"  ↳ Fetching {len(active)} detail pages for descriptions...")
+                print(f"  ↳ Fetching {len(active)} detail pages for descriptions (priority: academic first)...")
                 found = 0
                 BATCH = 20  # fresh context every N requests
                 for batch_start in range(0, len(active), BATCH):
