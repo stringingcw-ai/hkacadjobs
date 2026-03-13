@@ -982,7 +982,10 @@ def scrape_hku():
                 "Instructor": 6, "Research Assistant/Associate": 7,
             }
             active = [j for j in parsed if is_within_retention(j["deadline"]) and not _has_good_desc(j["id"])]
-            active.sort(key=lambda j: RANK_PRIORITY.get(j.get("rank", ""), 99))
+            active.sort(key=lambda j: (
+                RANK_PRIORITY.get(j.get("rank", ""), 99),
+                -(datetime.strptime(j["date_added"], "%Y-%m-%d").toordinal() if j.get("date_added") else 0),
+            ))
             if active:
                 import random
                 print(f"  ↳ Fetching {len(active)} detail pages for descriptions (priority: academic first)...")
