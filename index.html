@@ -503,6 +503,7 @@
         <li>Hong Kong Shue Yan University (HKSYU)</li>
         <li>Vocational Training Council (VTC)</li>
         <li>HKU School of Professional and Continuing Education (HKU SPACE)</li>
+        <li>HKCC / SPEED — College of Professional and Continuing Education (CPCE)</li>
       </ul>
     </div>
 
@@ -594,13 +595,13 @@
 
 <script>
 // ── University colours (keyed by short code)
-const UNI_COLORS = { HKU:'#005BAB', CUHK:'#6B3A8A', HKUST:'#003D7C', PolyU:'#8B0000', CityU:'#00843D', HKBU:'#C8102E', LU:'#1B4F72', EdUHK:'#E67E22', HKMU:'#00704A', HSU:'#1b5b4d', SFU:'#8B1A1A', HKSYU:'#003366', VTC:'#003087', HKUSPACE:'#005BAB' };
+const UNI_COLORS = { HKU:'#005BAB', CUHK:'#6B3A8A', HKUST:'#003D7C', PolyU:'#8B0000', CityU:'#00843D', HKBU:'#C8102E', LU:'#1B4F72', EdUHK:'#E67E22', HKMU:'#00704A', HSU:'#1b5b4d', SFU:'#8B1A1A', HKSYU:'#003366', VTC:'#003087', HKUSPACE:'#005BAB', CPCE:'#8B0000' };
 function uniColor(code) { return UNI_COLORS[code] || '#555555'; }
 
 // ── University display names (overrides for codes that aren't self-explanatory)
-const UNI_DISPLAY = { LU: 'Lingnan', HKUSPACE: 'HKU SPACE' };
+const UNI_DISPLAY = { LU: 'Lingnan', HKUSPACE: 'HKU SPACE', CPCE: 'HKCC/SPEED' };
 function uniDisplay(code) { return UNI_DISPLAY[code] || code; }
-const UNI_ORDER = ['PolyU', 'EdUHK', 'LU', 'HKU', 'HKUSPACE', 'HKUST', 'CityU', 'HKBU', 'CUHK', 'HKMU', 'HSU', 'SFU', 'HKSYU', 'VTC'];
+const UNI_ORDER = ['PolyU', 'CPCE', 'EdUHK', 'LU', 'HKU', 'HKUSPACE', 'HKUST', 'CityU', 'HKBU', 'CUHK', 'HKMU', 'HSU', 'SFU', 'HKSYU', 'VTC'];
 
 // ── University logos via Google favicon service
 const UNI_LOGOS = {
@@ -618,6 +619,7 @@ const UNI_LOGOS = {
   HKSYU: 'https://www.hksyu.edu/favicon.ico',
   VTC:      './vtc_logo.png',
   HKUSPACE: 'https://www.google.com/s2/favicons?domain=hkuspace.hku.hk&sz=32',
+  CPCE:     'https://www.google.com/s2/favicons?domain=cpce-polyu.edu.hk&sz=32',
 };
 function uniLogoHtml(code, cls) {
   const src = UNI_LOGOS[code];

@@ -2285,6 +2285,111 @@ def scrape_vtc():
     return jobs
 
 
+def scrape_cpce():
+    """
+    CPCE (HKCC / SPEED) — jas.cpce-polyu.edu.hk
+    Six listing pages (id=5010–5015) covering Senior Management, Academic,
+    Management/Senior Professional, Executive/Professional, General, Research.
+    Listing: <table class="list-table"> with <tr class="list-row" data-id="...">
+    Columns: Unit | Position | Initial screening date/Closing date | Ref. no.
+    Detail: /detail?id=<data-id>  — static HTML, Duties → Qualifications sections.
+    Both HKCC and SPEED share this portal (unit names distinguish them).
+    """
+    print("📋 Scraping CPCE (HKCC/SPEED)...")
+
+    BASE = "https://jas.cpce-polyu.edu.hk"
+    SECTIONS = [
+        (5010, "Senior Management"),
+        (5011, "Academic"),
+        (5012, "Management/Senior Professional"),
+        (5013, "Executive/Professional"),
+        (5014, "General"),
+        (5015, "Research"),
+    ]
+    jobs = []
+    seen = set()
+
+    for section_id, section_name in SECTIONS:
+        try:
+            soup = get_soup(f"{BASE}/list?id={section_id}&sort=sort_rel")
+            if not soup:
+                continue
+            rows = soup.select("table.list-table tr.list-row")
+            for row in rows:
+                data_id = row.get("data-id", "")
+                cells = row.find_all("td")
+                if len(cells) < 4 or not data_id:
+                    continue
+                dept     = clean(cells[0].get_text())
+                title    = clean(cells[1].get_text())
+                deadline = parse_date_text(clean(cells[2].get_text()))
+                ref      = clean(cells[3].get_text())
+                if not title or len(title) < 5:
+                    continue
+                if data_id in seen:
+                    continue
+                seen.add(data_id)
+                jobs.append({
+                    "id":              make_id("CPCE", data_id),
+                    "title":           title,
+                    "rank":            detect_rank(title),
+                    "university":      "CPCE",
+                    "university_full": "HKCC / SPEED (CPCE)",
+                    "department":      dept or "CPCE",
+                    "deadline":        deadline,
+                    "is_new":          "TRUE",
+                    "reference":       ref,
+                    "position_type":   section_name,
+                    "salary":          "",
+                    "start_date":      "",
+                    "apply_url":       f"{BASE}/detail?id={data_id}",
+                    "description":     f"{title} — {dept}. Please visit the application link for full details.",
+                })
+        except Exception as e:
+            print(f"  ⚠️  CPCE section {section_id} failed: {e}")
+
+    # ── Detail pages for descriptions ────────────────────────────────
+    needs_desc = [j for j in jobs if not _has_good_desc(j["id"])]
+    if needs_desc:
+        print(f"  ↳ Fetching {len(needs_desc)} detail pages...")
+        found = 0
+        for j in needs_desc:
+            try:
+                dsoup = get_soup(j["apply_url"])
+                if not dsoup:
+                    continue
+                text = dsoup.get_text("\n", strip=True)
+                # Extract from "Duties" to "Conditions of Service" or "Apply Now"
+                start = next((text.find(m) for m in ["Duties\n", "Duties\r"] if text.find(m) > -1), -1)
+                end   = next((text.find(m) for m in ["Apply Now", "Posting Date", "Conditions of Service"] if text.find(m) > -1), -1)
+                if start > -1:
+                    block = text[start:end] if end > start else text[start:]
+                else:
+                    block = text
+                lines = [l.strip() for l in block.splitlines() if len(l.strip()) > 30]
+                if lines:
+                    j["description"] = "\n\n".join(lines[:20])[:3000]
+                    found += 1
+                # Closing date if not set
+                if not j["deadline"]:
+                    m = re.search(r'screening date[^:]*:\s*(.+?)(?:\n|$)', text, re.I)
+                    if not m:
+                        m = re.search(r'Consideration of applications will commence on (.+?) until', text)
+                    if m:
+                        j["deadline"] = parse_date_text(m.group(1).strip())
+            except Exception:
+                pass
+        print(f"  ↳ Got descriptions for {found}/{len(needs_desc)} jobs")
+
+    # Restore cached summaries
+    for j in jobs:
+        if _has_good_desc(j["id"]):
+            j["description"] = _existing_descriptions[j["id"]]
+
+    print(f"  ✅ CPCE: {len(jobs)} jobs found")
+    return jobs
+
+
 def scrape_hkuspace():
     """
     HKU SPACE — jobs.hkuspace.hku.hk
@@ -2456,6 +2561,7 @@ SCRAPERS = {
     "hksyu":    scrape_hksyu,
     "vtc":      scrape_vtc,
     "hkuspace": scrape_hkuspace,
+    "cpce":     scrape_cpce,
 }
 
 
