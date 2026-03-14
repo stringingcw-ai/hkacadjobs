@@ -2698,23 +2698,30 @@ def main():
     # ── AI summarisation via Claude Haiku
     # Reuse existing summaries for known jobs; only call the API for jobs
     # that have real scraped content but no summary yet.
+    # _has_good_desc() is the single source of truth: requires **+• markers,
+    # no placeholder text, and length > 80. Any job that doesn't meet this
+    # standard is treated as needing a fresh fetch + summarisation.
+    POOR_PATTERNS = (
+        PLACEHOLDER_MARKER.lower(),
+        "see application link",
+        "see eduhk website",
+        "please visit",
+        "for full details",
+        "visit the.*website",
+    )
+    def _is_poor_content(desc):
+        if not desc or len(desc.strip()) <= 300:
+            return True
+        d = desc.strip().lower()
+        return any(re.search(p, d) for p in POOR_PATTERNS)
+
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     to_summarise = []
     for j in all_jobs:
         prev_desc = existing.get(j["id"], {}).get("description", "")
-        has_good_summary = (
-            prev_desc
-            and PLACEHOLDER_MARKER not in prev_desc
-            and "See application link" not in prev_desc
-            and len(prev_desc) <= 800  # short = already a summary, not raw text
-        )
-        if has_good_summary and not args.force_resummary:
-            j["description"] = prev_desc  # reuse existing summary
-        elif (
-            len(j.get("description", "")) > 300
-            and PLACEHOLDER_MARKER not in j.get("description", "")
-            and "See application link" not in j.get("description", "")
-        ):
+        if _has_good_desc(j["id"]) and not args.force_resummary:
+            j["description"] = prev_desc  # reuse existing AI summary
+        elif not _is_poor_content(j.get("description", "")):
             to_summarise.append(j)
 
     if to_summarise:
