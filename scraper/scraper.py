@@ -2739,6 +2739,147 @@ def scrape_chuhai():
     return jobs
 
 
+def scrape_thei():
+    """Scrapes THEi (Technological and Higher Education Institute of HK) jobs."""
+    LISTING_URL = "https://thei.edu.hk/career-opportunities/"
+
+    jobs = []
+    try:
+        from playwright.sync_api import sync_playwright
+
+        with sync_playwright() as p:
+            browser = p.chromium.launch()
+            page = browser.new_page(viewport={"width": 1280, "height": 900})
+            page.goto(LISTING_URL, wait_until="networkidle", timeout=30000)
+
+            # Grid 0 (Teaching/Academic) uses infinite scroll — scroll to load all items
+            for _ in range(6):
+                page.keyboard.press("End")
+                page.wait_for_timeout(1500)
+
+            # Grid 1 (Admin/General) uses click-to-load-more
+            for _ in range(5):
+                lm_display = page.evaluate(
+                    'window.getComputedStyle(document.querySelector("div.e-loop__load-more") || document.createElement("div")).display'
+                )
+                if lm_display == "none":
+                    break
+                count_before = len(page.query_selector_all(".e-loop-item"))
+                page.evaluate('document.querySelector("div.e-loop__load-more a").click()')
+                try:
+                    page.wait_for_function(
+                        f'document.querySelectorAll(".e-loop-item").length > {count_before}',
+                        timeout=8000,
+                    )
+                except Exception:
+                    pass
+                page.wait_for_timeout(3000)
+
+            # Extract all cards
+            soup = BeautifulSoup(page.content(), "html.parser")
+            cards_data = []
+            seen_urls = set()
+            for card in soup.find_all("div", class_=lambda c: c and "e-loop-item" in c):
+                # Find job URL: first <a> linking to a single-slug thei.edu.hk page
+                href = ""
+                for a in card.find_all("a", href=True):
+                    h = a["href"]
+                    path = h.replace("https://thei.edu.hk/", "").rstrip("/")
+                    if path and "/" not in path:
+                        href = h
+                        break
+                if not href or href in seen_urls:
+                    continue
+                seen_urls.add(href)
+
+                # Title: first <a> with non-empty text, or fall back to any text in card heading
+                title = ""
+                for a in card.find_all("a", href=True):
+                    t = clean(a.get_text())
+                    if t:
+                        title = t
+                        break
+                if not title:
+                    # Some cards wrap title in a span inside job-career div
+                    jc = card.find("div", class_="job-career")
+                    if jc:
+                        title = clean(jc.get_text())
+                if not title:
+                    continue
+
+                # Card text parts: title | department | closing_date_text | More Details
+                parts = [p.strip() for p in card.get_text(separator="|", strip=True).split("|") if p.strip()]
+                dept = parts[1] if len(parts) > 1 else ""
+                date_text = parts[2] if len(parts) > 2 else ""
+
+                # Parse closing date — skip "Review of applications..." text
+                deadline = ""
+                if re.search(r"\d{1,2}\s+\w+\s+\d{4}", date_text):
+                    m = re.search(r"(\d{1,2}\s+\w+\s+\d{4})", date_text)
+                    if m:
+                        deadline = parse_date_text(m.group(1))
+
+                cards_data.append({
+                    "title": title,
+                    "url": href,
+                    "dept": dept,
+                    "deadline": deadline,
+                })
+
+            # Fetch detail pages for ref + description
+            for card in cards_data:
+                try:
+                    page.goto(card["url"], wait_until="networkidle", timeout=30000)
+                    detail_soup = BeautifulSoup(page.content(), "html.parser")
+
+                    text_parts = []
+                    for widget in detail_soup.find_all(
+                        "div", class_=lambda c: c and "elementor-widget-text-editor" in c
+                    ):
+                        t = widget.get_text(separator="\n", strip=True)
+                        if len(t) > 80:
+                            text_parts.append(t)
+                    full_text = "\n\n".join(text_parts)
+
+                    # Extract ref no.
+                    ref = ""
+                    ref_m = re.search(
+                        r"Ref(?:erence)?\.?\s*No\.?\s*[:\s]+([A-Za-z0-9/_\-\.\(\)]+)",
+                        full_text, re.I,
+                    )
+                    if ref_m:
+                        ref = ref_m.group(1).strip().rstrip(".")
+
+                    jobs.append({
+                        "id":              make_id("THEI", ref or card["title"]),
+                        "title":           card["title"],
+                        "rank":            detect_rank(card["title"]),
+                        "university":      "THEI",
+                        "university_full": "Technological and Higher Education Institute of Hong Kong",
+                        "department":      card["dept"],
+                        "deadline":        card["deadline"],
+                        "is_new":          "TRUE" if is_active(card["deadline"]) else "FALSE",
+                        "date_added":      TODAY.strftime("%Y-%m-%d"),
+                        "reference":       ref,
+                        "position_type":   detect_type(card["title"]),
+                        "salary":          "",
+                        "start_date":      "",
+                        "apply_url":       card["url"],
+                        "description":     full_text[:3000],
+                    })
+                except Exception as e:
+                    print(f"  ⚠️  Error fetching {card['url']}: {e}")
+
+            browser.close()
+
+    except Exception as e:
+        print(f"  ⚠️  THEi scraper failed: {e}")
+        import traceback; traceback.print_exc()
+
+    print(f"  ✅ THEi: {len(jobs)} jobs found")
+    return jobs
+
+
 SCRAPERS = {
     "polyu":  scrape_polyu,
     "eduhk":  scrape_eduhk,
@@ -2756,6 +2897,7 @@ SCRAPERS = {
     "hkuspace": scrape_hkuspace,
     "cpce":     scrape_cpce,
     "chuhai":   scrape_chuhai,
+    "thei":     scrape_thei,
 }
 
 
