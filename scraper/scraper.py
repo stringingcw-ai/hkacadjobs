@@ -2988,7 +2988,8 @@ def main():
             j["is_new"] = "FALSE"
             j["date_added"] = existing[j["id"]]["date_added"]
         else:
-            j["is_new"] = "TRUE"
+            # Don't mark as new if the deadline has already passed
+            j["is_new"] = "TRUE" if is_active(j.get("deadline", "")) else "FALSE"
             j["date_added"] = today_str
 
     # ── AI summarisation via Claude Haiku
