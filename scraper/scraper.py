@@ -175,7 +175,7 @@ def parse_date_text(text):
     formats = [
         "%d %B %Y", "%d %b %Y",
         "%Y-%m-%d", "%d/%m/%Y", "%m/%d/%Y",
-        "%d/%b/%Y",
+        "%d/%b/%Y", "%d-%b-%Y", "%d-%B-%Y",
         "%B %d, %Y", "%b %d, %Y",
     ]
     for fmt in formats:
