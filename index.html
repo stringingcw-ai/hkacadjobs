@@ -113,6 +113,11 @@
   .active-filters { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 6px 48px 8px; background: var(--white); border-bottom: 1px solid var(--border); }
   .filter-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-soft); color: var(--accent); border: 1px solid #d9b5a8; border-radius: 20px; padding: 4px 10px; font-size: 0.84rem; font-weight: 500; cursor: pointer; }
   .filter-label { font-size: 0.84rem; color: var(--muted); }
+  .clear-all-btn { margin-left: 4px; background: none; border: none; font-family: 'DM Sans', sans-serif; font-size: 0.84rem; color: var(--muted); cursor: pointer; padding: 2px 4px; text-decoration: underline; }
+  .clear-all-btn:hover { color: var(--accent); }
+  .share-url-btn { display: inline-flex; align-items: center; gap: 5px; background: none; border: 1px solid var(--border); border-radius: 20px; padding: 4px 10px; font-family: 'DM Sans', sans-serif; font-size: 0.84rem; color: var(--muted); cursor: pointer; margin-left: auto; }
+  .share-url-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .share-url-btn.copied { color: #2a7a2a; border-color: #2a7a2a; }
 
   /* MAIN */
   .main-layout { max-width: 100%; padding: 28px 48px 64px; }
@@ -911,6 +916,24 @@ function initUI() {
   if (ALL_JOBS.some(j => j.area === 'Other')) presentAreas.push('Other');
   presentAreas.forEach(a => { const o = document.createElement('option'); o.value = a; o.textContent = a; areaFilter.appendChild(o); });
 
+  // Restore filters from URL params (enables shareable links)
+  const urlParams = new URLSearchParams(location.search);
+  if (urlParams.has('q'))     document.getElementById('searchInput').value = urlParams.get('q');
+  if (urlParams.has('uni')) {
+    document.getElementById('uniFilter').value = urlParams.get('uni');
+    onUniChange();  // populates dept dropdown
+  }
+  if (urlParams.has('dept'))  document.getElementById('deptFilter').value = urlParams.get('dept');
+  if (urlParams.has('area')) {
+    document.getElementById('areaFilter').value = urlParams.get('area');
+    renderGroupChips(urlParams.get('area'));
+  }
+  if (urlParams.has('rank'))   document.getElementById('rankFilter').value = urlParams.get('rank');
+  if (urlParams.has('groups')) {
+    urlParams.get('groups').split(',').filter(Boolean).forEach(g => selectedDeptGroups.add(g));
+    renderGroupChips(document.getElementById('areaFilter').value);
+  }
+
   filterJobs();
   updateBkUI();
 }
@@ -998,6 +1021,36 @@ function filterJobs() {
   renderChips();
   updateBanner();
   updateFilterToggleBtn();
+  syncFiltersToURL();
+}
+
+function clearAllFilters() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('uniFilter').value = '';
+  document.getElementById('deptFilter').value = '';
+  document.getElementById('deptFilter').style.display = 'none';
+  document.getElementById('areaFilter').value = '';
+  document.getElementById('rankFilter').value = '';
+  selectedDeptGroups.clear();
+  renderGroupChips('');
+  filterJobs();
+}
+
+function syncFiltersToURL() {
+  const params = new URLSearchParams();
+  const search = document.getElementById('searchInput').value;
+  const uni    = document.getElementById('uniFilter').value;
+  const dept   = document.getElementById('deptFilter').value;
+  const area   = document.getElementById('areaFilter').value;
+  const rank   = document.getElementById('rankFilter').value;
+  if (search) params.set('q', search);
+  if (uni)    params.set('uni', uni);
+  if (dept)   params.set('dept', dept);
+  if (area)   params.set('area', area);
+  if (rank)   params.set('rank', rank);
+  if (selectedDeptGroups.size) params.set('groups', [...selectedDeptGroups].join(','));
+  const newURL = params.toString() ? `${location.pathname}?${params}` : location.pathname;
+  history.replaceState(null, '', newURL);
 }
 
 function updateBanner() {
@@ -1177,7 +1230,7 @@ function renderChips() {
   if (search) chips.push({label:`"${search}"`,          clear:()=>{document.getElementById('searchInput').value='';filterJobs();}});
   if (!chips.length) { bar.style.display='none'; return; }
   bar.style.display = 'flex';
-  bar.innerHTML = `<span class="filter-label">Filtered by:</span>`;
+  bar.innerHTML = '';
   chips.forEach(c => {
     const chip = document.createElement('span');
     chip.className = 'filter-chip';
@@ -1185,6 +1238,18 @@ function renderChips() {
     chip.onclick = c.clear;
     bar.appendChild(chip);
   });
+  // Share URL button
+  const shareBtn = document.createElement('button');
+  shareBtn.className = 'share-url-btn';
+  shareBtn.innerHTML = '&#128279; Copy link';
+  shareBtn.onclick = () => {
+    navigator.clipboard.writeText(location.href).then(() => {
+      shareBtn.textContent = 'Copied!';
+      shareBtn.classList.add('copied');
+      setTimeout(() => { shareBtn.innerHTML = '&#128279; Copy link'; shareBtn.classList.remove('copied'); }, 2000);
+    });
+  };
+  bar.appendChild(shareBtn);
 }
 
 // ── Detail Panel
