@@ -676,7 +676,7 @@ def scrape_eduhk():
                             "salary":           "",
                             "start_date":       "",
                             "apply_url":        apply_url,
-                            "description":      f"{title}{' — ' + dept if dept else ''}. See EdUHK website for full details.",
+                            "description":      "",
                         })
                         cat_count += 1
 
@@ -702,6 +702,49 @@ def scrape_eduhk():
     except Exception as e:
         print(f"  ⚠️  Playwright failed: {e}")
         import traceback; traceback.print_exc()
+
+    # Fetch descriptions from PDF job ads (EdUHK only uses PDFs, no HTML detail pages)
+    # EdUHK's server requires legacy SSL renegotiation — use urllib with a permissive context.
+    needs_desc = [j for j in jobs if not _has_good_desc(j["id"]) and j.get("apply_url", "").endswith(".pdf")]
+    if needs_desc:
+        import ssl, urllib.request, io
+        try:
+            from pypdf import PdfReader
+            ssl_ctx = ssl.create_default_context()
+            ssl_ctx.check_hostname = False
+            ssl_ctx.verify_mode = ssl.CERT_NONE
+            ssl_ctx.options |= getattr(ssl, "OP_LEGACY_SERVER_CONNECT", 0x4)
+            PREAMBLE_END = "in support of its strategic development in diverse areas."
+            found_pdf = 0
+            print(f"  ↳ Fetching {len(needs_desc)} PDF descriptions...")
+            for j in needs_desc:
+                try:
+                    req = urllib.request.Request(j["apply_url"], headers={"User-Agent": "Mozilla/5.0"})
+                    with urllib.request.urlopen(req, context=ssl_ctx, timeout=15) as resp:
+                        data = resp.read()
+                    reader = PdfReader(io.BytesIO(data))
+                    text = "\n".join(page.extract_text() or "" for page in reader.pages)
+                    # Skip the standard EdUHK university preamble if present
+                    idx = text.find(PREAMBLE_END)
+                    body = text[idx + len(PREAMBLE_END):].strip() if idx >= 0 else text.strip()
+                    # Take meaningful lines (>50 chars), skip trailing boilerplate
+                    lines = []
+                    for ln in body.splitlines():
+                        ln = ln.strip()
+                        if not ln:
+                            continue
+                        if re.match(r'^(Salary will be|The University only accepts|Applicants should complete|For enquiries|Further information)', ln, re.I):
+                            break
+                        if len(ln) > 50:
+                            lines.append(ln)
+                    if lines:
+                        j["description"] = "\n\n".join(lines[:20])[:3000]
+                        found_pdf += 1
+                except Exception:
+                    pass
+            print(f"  ↳ PDF descriptions: {found_pdf}/{len(needs_desc)} extracted")
+        except ImportError:
+            print("  ⚠️  pypdf not installed — skipping EdUHK PDF extraction")
 
     print(f"  ✅ EdUHK: {len(jobs)} jobs found")
     return jobs
@@ -1119,29 +1162,26 @@ def scrape_hkust():
                         "description":      f"{title}{' — ' + dept if dept else ''}. Please visit the application link for full details.",
                     })
 
-                # Extract Interfolio apply URLs from card HTML (replace PeopleSoft links)
-                # Walk UP from each "Job ID: X" text node, but stop before entering a container
-                # that holds multiple job cards — otherwise querySelector picks up the wrong link.
+                # Map Interfolio links to job IDs positionally:
+                # walk all text nodes in order, collect (jobId, linkHref) pairs where
+                # each link is assigned to the most recently seen Job ID before it.
                 try:
                     il_map = page.evaluate("""
                         () => {
                             const result = {};
-                            const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+                            const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ALL);
+                            let currentJobId = null;
                             let node;
                             while (node = walker.nextNode()) {
-                                const m = node.textContent.trim().match(/^Job ID: (\\d+)$/);
-                                if (!m) continue;
-                                let el = node.parentElement;
-                                let cardEl = el;
-                                for (let i = 0; i < 12; i++) {
-                                    if (!el) break;
-                                    // Stop before a container that owns more than one job card
-                                    if ((el.textContent.match(/Job ID:/g) || []).length > 1) break;
-                                    cardEl = el;
-                                    el = el.parentElement;
+                                if (node.nodeType === Node.TEXT_NODE) {
+                                    const m = node.textContent.trim().match(/^Job ID: (\\d+)$/);
+                                    if (m) currentJobId = m[1];
+                                } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'A') {
+                                    const href = node.href || '';
+                                    if (currentJobId && href.includes('interfolio') && !result[currentJobId]) {
+                                        result[currentJobId] = href;
+                                    }
                                 }
-                                const link = cardEl.querySelector('a[href*="interfolio"]');
-                                if (link) result[m[1]] = link.href;
                             }
                             return result;
                         }
