@@ -2715,10 +2715,10 @@ def scrape_chuhai():
                     ref = ref_m.group(1).strip()
 
                 jobs.append({
-                    "id":              make_id("CHUHAI", ref or f"{title[:40]}_{current_dept[:20]}"),
+                    "id":              make_id("HKCHC", ref or f"{title[:40]}_{current_dept[:20]}"),
                     "title":           title,
                     "rank":            detect_rank(title),
-                    "university":      "CHUHAI",
+                    "university":      "HKCHC",
                     "university_full": "Hong Kong Chu Hai College",
                     "department":      current_dept,
                     "deadline":        deadline,
