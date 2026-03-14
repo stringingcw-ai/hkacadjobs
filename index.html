@@ -402,7 +402,6 @@
   <div class="filter-expandable" id="filterExpandable">
     <div class="filter-expandable-inner">
       <select id="uniFilter" onchange="onUniChange()"><option value="">All Institutions</option></select>
-      <select id="deptFilter" onchange="filterJobs()" style="display:none;"><option value="">All Departments</option></select>
       <select id="areaFilter" onchange="onAreaChange()"><option value="">All Areas</option></select>
       <select id="rankFilter" onchange="filterJobs()">
         <option value="">All Ranks</option>
@@ -916,9 +915,8 @@ function initUI() {
   if (urlParams.has('q'))     document.getElementById('searchInput').value = urlParams.get('q');
   if (urlParams.has('uni')) {
     document.getElementById('uniFilter').value = urlParams.get('uni');
-    onUniChange();  // populates dept dropdown
+    onUniChange();
   }
-  if (urlParams.has('dept'))  document.getElementById('deptFilter').value = urlParams.get('dept');
   if (urlParams.has('area')) {
     document.getElementById('areaFilter').value = urlParams.get('area');
     renderGroupChips(urlParams.get('area'));
@@ -975,29 +973,18 @@ function switchTab(tab) {
 }
 
 function onUniChange() {
-  const uni = document.getElementById('uniFilter').value;
-  const deptSel = document.getElementById('deptFilter');
-  deptSel.value = '';
-  if (uni) {
-    const depts = [...new Set(ALL_JOBS.filter(j => j.university === uni && j.department).map(j => j.department))].sort();
-    deptSel.innerHTML = '<option value="">All Departments</option>' + depts.map(d => `<option value="${d}">${d}</option>`).join('');
-    deptSel.style.display = '';
-  } else {
-    deptSel.style.display = 'none';
-  }
   filterJobs();
 }
 
 function filterJobs() {
   const search = document.getElementById('searchInput').value.toLowerCase();
   const uni    = document.getElementById('uniFilter').value;
-  const dept   = document.getElementById('deptFilter').value;
   const area   = document.getElementById('areaFilter').value;
   const rank   = document.getElementById('rankFilter').value;
   const pool   = currentView === 'saved' ? ALL_JOBS.filter(j => bookmarks.has(j._id)) : ALL_JOBS;
   filtered = pool.filter(j => {
     const ms = !search || (j.title||'').toLowerCase().includes(search) || (j.department||'').toLowerCase().includes(search) || (j.university||'').toLowerCase().includes(search) || (j.university_full||'').toLowerCase().includes(search);
-    return ms && (!uni||j.university===uni) && (!dept||j.department===dept) && (!area||j.area===area) && (!selectedDeptGroups.size||selectedDeptGroups.has(j.deptGroup)) && (!rank||j.rank===rank);
+    return ms && (!uni||j.university===uni) && (!area||j.area===area) && (!selectedDeptGroups.size||selectedDeptGroups.has(j.deptGroup)) && (!rank||j.rank===rank);
   });
   // 1. New jobs first; 2. University order; 3. Latest date_added first within each university
   filtered.sort((a, b) => {
@@ -1022,8 +1009,6 @@ function filterJobs() {
 function clearAllFilters() {
   document.getElementById('searchInput').value = '';
   document.getElementById('uniFilter').value = '';
-  document.getElementById('deptFilter').value = '';
-  document.getElementById('deptFilter').style.display = 'none';
   document.getElementById('areaFilter').value = '';
   document.getElementById('rankFilter').value = '';
   selectedDeptGroups.clear();
@@ -1035,12 +1020,10 @@ function syncFiltersToURL() {
   const params = new URLSearchParams();
   const search = document.getElementById('searchInput').value;
   const uni    = document.getElementById('uniFilter').value;
-  const dept   = document.getElementById('deptFilter').value;
   const area   = document.getElementById('areaFilter').value;
   const rank   = document.getElementById('rankFilter').value;
   if (search) params.set('q', search);
   if (uni)    params.set('uni', uni);
-  if (dept)   params.set('dept', dept);
   if (area)   params.set('area', area);
   if (rank)   params.set('rank', rank);
   if (selectedDeptGroups.size) params.set('groups', [...selectedDeptGroups].join(','));
@@ -1067,7 +1050,6 @@ function updateFilterToggleBtn() {
   const count = [
     document.getElementById('searchInput').value,
     document.getElementById('uniFilter').value,
-    document.getElementById('deptFilter').value,
     document.getElementById('areaFilter').value,
     document.getElementById('rankFilter').value,
   ].filter(Boolean).length + (selectedDeptGroups ? selectedDeptGroups.size : 0);
@@ -1217,9 +1199,7 @@ function renderChips() {
   const rank = document.getElementById('rankFilter').value;
   const search = document.getElementById('searchInput').value;
   const area = document.getElementById('areaFilter').value;
-  const dept = document.getElementById('deptFilter').value;
-  if (uni)    chips.push({label:uniDisplay(uni),   clear:()=>{document.getElementById('uniFilter').value='';document.getElementById('deptFilter').value='';document.getElementById('deptFilter').style.display='none';filterJobs();}});
-  if (dept)   chips.push({label:dept,  clear:()=>{document.getElementById('deptFilter').value='';filterJobs();}});
+  if (uni)    chips.push({label:uniDisplay(uni),   clear:()=>{document.getElementById('uniFilter').value='';filterJobs();}});
   if (area)   chips.push({label:area,        clear:()=>{document.getElementById('areaFilter').value='';selectedDeptGroups.clear();renderGroupChips('');filterJobs();}});
   if (rank)   chips.push({label:rank,        clear:()=>{document.getElementById('rankFilter').value='';filterJobs();}});
   if (search) chips.push({label:`"${search}"`,          clear:()=>{document.getElementById('searchInput').value='';filterJobs();}});
