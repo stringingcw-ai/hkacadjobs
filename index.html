@@ -842,10 +842,9 @@ async function loadData() {
     const text = await res.text();
     const rows = parseCSV(text);
     if (!rows.length) throw new Error('jobs.csv is empty');
-    // Cutoff = yesterday midnight HKT (UTC+8)
-    const _hktNow = new Date(Date.now() + 8 * 3600000);
-    const _cutoff = new Date(Date.UTC(_hktNow.getUTCFullYear(), _hktNow.getUTCMonth(), _hktNow.getUTCDate() - 1) - 8 * 3600000);
-    ALL_JOBS = rows.map((r, i) => ({ ...r, _id: r.id || String(i), is_new: r.date_added ? new Date(r.date_added) >= _cutoff && String(r.is_new).toLowerCase() !== 'false' : String(r.is_new).toLowerCase() === 'true', area: classifyArea(r.department), deptGroup: classifyDeptGroup(r.department) }));
+    // Derive latest scrape date first so NEW badge matches the header count exactly
+    const _latestDate = rows.map(r => r.date_added).filter(Boolean).sort().at(-1) || null;
+    ALL_JOBS = rows.map((r, i) => ({ ...r, _id: r.id || String(i), is_new: _latestDate && r.date_added === _latestDate && String(r.is_new).toLowerCase() !== 'false', area: classifyArea(r.department), deptGroup: classifyDeptGroup(r.department) }));
     initUI();
     maybeShowToast();
   } catch (err) {
