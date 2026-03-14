@@ -845,7 +845,7 @@ async function loadData() {
     // Cutoff = yesterday midnight HKT (UTC+8)
     const _hktNow = new Date(Date.now() + 8 * 3600000);
     const _cutoff = new Date(Date.UTC(_hktNow.getUTCFullYear(), _hktNow.getUTCMonth(), _hktNow.getUTCDate() - 1) - 8 * 3600000);
-    ALL_JOBS = rows.map((r, i) => ({ ...r, _id: r.id || String(i), is_new: r.date_added ? new Date(r.date_added) >= _cutoff : String(r.is_new).toLowerCase() === 'true', area: classifyArea(r.department), deptGroup: classifyDeptGroup(r.department) }));
+    ALL_JOBS = rows.map((r, i) => ({ ...r, _id: r.id || String(i), is_new: r.date_added ? new Date(r.date_added) >= _cutoff && String(r.is_new).toLowerCase() !== 'false' : String(r.is_new).toLowerCase() === 'true', area: classifyArea(r.department), deptGroup: classifyDeptGroup(r.department) }));
     initUI();
     maybeShowToast();
   } catch (err) {
