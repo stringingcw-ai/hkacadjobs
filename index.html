@@ -1245,12 +1245,12 @@ function renderChips() {
   // Share URL button
   const shareBtn = document.createElement('button');
   shareBtn.className = 'share-url-btn';
-  shareBtn.innerHTML = '&#128279; Copy link';
+  shareBtn.innerHTML = '&#128279; Copy filter';
   shareBtn.onclick = () => {
     navigator.clipboard.writeText(location.href).then(() => {
       shareBtn.textContent = 'Copied!';
       shareBtn.classList.add('copied');
-      setTimeout(() => { shareBtn.innerHTML = '&#128279; Copy link'; shareBtn.classList.remove('copied'); }, 2000);
+      setTimeout(() => { shareBtn.innerHTML = '&#128279; Copy filter'; shareBtn.classList.remove('copied'); }, 2000);
     });
   };
   bar.appendChild(shareBtn);
