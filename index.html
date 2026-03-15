@@ -143,7 +143,7 @@
   .share-url-btn.copied { color: #2a7a2a; border-color: #2a7a2a; }
 
   /* SAVE FILTER */
-  .save-filter-wrap { position: relative; margin-left: auto; flex-shrink: 0; }
+  .save-filter-wrap { position: relative; flex-shrink: 0; }
   .save-filter-btn { display: inline-flex; align-items: center; gap: 5px; background: none; border: 1px solid var(--border); border-radius: 20px; padding: 4px 10px; font-family: 'DM Sans', sans-serif; font-size: 0.84rem; color: var(--muted); cursor: pointer; white-space: nowrap; transition: border-color 0.15s, color 0.15s; }
   .save-filter-btn:hover { border-color: var(--accent); color: var(--accent); }
   .save-filter-btn.saved-ok { color: #2a7a2a; border-color: #2a7a2a; }
@@ -207,6 +207,8 @@
 
   /* UPDATE BANNER */
   .update-banner { background: #edfaf1; border: 1px solid #a3d9b1; border-radius: 6px; padding: 10px 16px; font-size: 0.78rem; color: #1e7a3a; display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+  .banner-reset-btn { margin-left: auto; background: none; border: none; font-family: 'DM Sans', sans-serif; font-size: 0.76rem; color: #1e7a3a; cursor: pointer; padding: 2px 0; text-decoration: underline; white-space: nowrap; opacity: 0.75; }
+  .banner-reset-btn:hover { opacity: 1; }
   .update-banner .dot { width: 7px; height: 7px; background: #1e7a3a; border-radius: 50%; animation: pulse 2s infinite; flex-shrink: 0; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
@@ -1408,6 +1410,16 @@ function updateBanner() {
     document.getElementById('areaFilter')?.value || document.getElementById('searchInput')?.value || selectedDeptGroups.size;
   const suffix = hasFilters ? ' found' : ' found — now including VTC, HKU SPACE, SPEED, THEi &amp; HKCHC';
   document.getElementById('bannerText').innerHTML = `<strong>${n}</strong> position${n!==1?'s':''}${suffix}`;
+  let resetBtn = document.getElementById('bannerResetBtn');
+  if (!resetBtn) {
+    resetBtn = document.createElement('button');
+    resetBtn.id = 'bannerResetBtn';
+    resetBtn.className = 'banner-reset-btn';
+    resetBtn.textContent = 'Reset all filters';
+    resetBtn.onclick = clearAllFilters;
+    banner.appendChild(resetBtn);
+  }
+  resetBtn.style.display = hasFilters ? '' : 'none';
   banner.style.display = 'flex';
 }
 
@@ -1589,13 +1601,6 @@ function renderChips() {
     chip.onclick = c.clear;
     bar.appendChild(chip);
   });
-  // Option A — clear all link
-  const clearBtn = document.createElement('button');
-  clearBtn.className = 'clear-all-btn';
-  clearBtn.textContent = 'Clear all';
-  clearBtn.onclick = clearAllFilters;
-  bar.appendChild(clearBtn);
-
   // Save filter button
   const sfWrap = document.createElement('div');
   sfWrap.className = 'save-filter-wrap';
