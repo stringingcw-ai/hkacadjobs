@@ -447,7 +447,7 @@
 
 <!-- ANNOUNCEMENT TOAST -->
 <div id="announcementToast">
-  <div>🆕 <strong>VTC</strong> (Vocational Training Council) is now included — browse their latest openings below.</div>
+  <div>🆕 <strong>5 new institutions added</strong> — VTC, HKU SPACE, HKCC/SPEED, THEi &amp; HKCHC are now included.</div>
   <button id="announceToastClose" onclick="dismissToast()" aria-label="Dismiss">×</button>
 </div>
 
@@ -1404,7 +1404,10 @@ function updateBanner() {
   const banner = document.getElementById('updateBanner');
   const n = filtered.length;
   if (currentView === 'saved' || n === 0) { banner.style.display = 'none'; return; }
-  document.getElementById('bannerText').innerHTML = `<strong>${n}</strong> position${n!==1?'s':''} found`;
+  const hasFilters = selectedUnis.size || selectedRanks.size || roleFilter ||
+    document.getElementById('areaFilter')?.value || document.getElementById('searchInput')?.value || selectedDeptGroups.size;
+  const suffix = hasFilters ? ' found' : ' found — now including VTC, HKU SPACE, SPEED, THEi &amp; HKCHC';
+  document.getElementById('bannerText').innerHTML = `<strong>${n}</strong> position${n!==1?'s':''}${suffix}`;
   banner.style.display = 'flex';
 }
 
@@ -1730,7 +1733,7 @@ async function submitReport(e) {
 document.addEventListener('keydown', e => { if (e.key==='Escape') closePanel(); });
 
 // Announcement toast
-const TOAST_KEY = 'hkaj_toast_vtc_2026';
+const TOAST_KEY = 'hkaj_toast_newinst_2026b';
 function dismissToast() {
   const el = document.getElementById('announcementToast');
   el.classList.remove('visible');
@@ -1739,7 +1742,7 @@ function dismissToast() {
   localStorage.setItem(TOAST_KEY, '1');
 }
 function maybeShowToast() {
-  if (!localStorage.getItem(TOAST_KEY) && ALL_JOBS.some(j => j.university === 'VTC')) {
+  if (!localStorage.getItem(TOAST_KEY) && ['HKUSPACE','CPCE','HKCHC','THEI'].some(u => ALL_JOBS.some(j => j.university === u))) {
     const el = document.getElementById('announcementToast');
     setTimeout(() => el.classList.add('visible'), 800);
     setTimeout(() => dismissToast(), 7000);
