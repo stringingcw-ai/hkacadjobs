@@ -71,7 +71,7 @@
   /* FILTER BAR */
   .sticky-controls { position: sticky; top: 60px; z-index: 190; background: var(--white); border-bottom: 1px solid var(--border); }
   .saved-view .sticky-controls { display: none; }
-  .filter-bar { background: var(--white); padding: 10px 48px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .filter-bar { background: var(--white); padding: 10px 48px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; position: relative; z-index: 2; }
   .view-tabs { display: flex; background: var(--cream); border-radius: 7px; padding: 3px; border: 1px solid var(--border); }
   .view-tab { padding: 6px 16px; border-radius: 5px; font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.15s; color: var(--muted); display: flex; align-items: center; gap: 6px; border: none; background: none; font-family: 'DM Sans', sans-serif; }
   .view-tab.active { background: var(--white); color: var(--ink); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
