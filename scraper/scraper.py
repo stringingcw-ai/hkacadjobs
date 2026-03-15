@@ -31,7 +31,7 @@ OUTPUT_FILE = Path(__file__).parent.parent / "jobs.csv"
 # ── CSV columns (must match website expectations)
 FIELDNAMES = [
     "id", "title", "rank", "university", "university_full",
-    "department", "deadline", "is_new", "date_added", "reference",
+    "department", "deadline", "is_new", "date_added", "date_posted", "reference",
     "position_type", "salary", "start_date", "apply_url", "description"
 ]
 
@@ -345,14 +345,14 @@ def summarise_description(raw_text, title, dept):
 
 def scrape_polyu_detail(ref, debug=False):
     """
-    Fetch a PolyU job detail page and extract the description.
+    Fetch a PolyU job detail page and extract the description and posting date.
     URL: https://jobs.polyu.edu.hk/job_detail.php?job={ref}
-    Returns a plain-text description string, or "" on failure.
+    Returns (description: str, date_posted: str) — either may be "" on failure.
     """
     url = f"https://jobs.polyu.edu.hk/job_detail.php?job={ref}"
     soup = get_soup(url, timeout=10)
     if not soup:
-        return ""
+        return "", ""
 
     # Remove noise
     for tag in soup.find_all(["nav", "header", "footer", "script", "style"]):
@@ -366,7 +366,14 @@ def scrape_polyu_detail(ref, debug=False):
             t   = clean(tag.get_text(" "))[:100]
             if t:
                 print(f"    <{tag.name} class={cls} id={idd}>: {t}")
-        return ""
+        return "", ""
+
+    # Extract posting date — "Posting date: DD Month YYYY" appears in page body
+    page_text = soup.get_text("\n")
+    date_posted = ""
+    pd_m = re.search(r"Posting date[:\s]+([A-Za-z0-9 ]+)", page_text, re.I)
+    if pd_m:
+        date_posted = parse_date_text(pd_m.group(1).strip())
 
     # PolyU job descriptions live in div.ITS_Content_RichTextEditor
     content = soup.find("div", class_="ITS_Content_RichTextEditor")
@@ -381,7 +388,7 @@ def scrape_polyu_detail(ref, debug=False):
                 seen.add(key)
                 parts.append(t)
         if parts:
-            return "\n\n".join(parts)[:2000]
+            return "\n\n".join(parts)[:2000], date_posted
 
     # Fallback: largest text block
     candidates = [
@@ -390,9 +397,9 @@ def scrape_polyu_detail(ref, debug=False):
         if 150 < len(clean(tag.get_text(" "))) < 5000
     ]
     if candidates:
-        return max(candidates, key=len)[:2000]
+        return max(candidates, key=len)[:2000], date_posted
 
-    return ""
+    return "", date_posted
 
 
 def scrape_polyu_page(url, position_type_override=None):
@@ -515,8 +522,8 @@ def scrape_polyu():
         dept     = j["dept"]
         deadline = j["deadline"]
 
-        apply_url   = f"{base}/job_detail.php?job={ref}"
-        description = scrape_polyu_detail(ref)
+        apply_url                = f"{base}/job_detail.php?job={ref}"
+        description, date_posted = scrape_polyu_detail(ref)
         if not description:
             description = j.get("description") or f"{title} — {dept}. See {apply_url} for full details."
 
@@ -532,6 +539,7 @@ def scrape_polyu():
             "department":       dept,
             "deadline":         deadline,
             "is_new":           "TRUE" if is_active(deadline) else "FALSE",
+            "date_posted":      date_posted,
             "reference":        ref,
             "position_type":    j["pos_type"],
             "salary":           "",
@@ -660,6 +668,10 @@ def scrape_eduhk():
                             if raw.upper() not in ("N/A", "NA", ""):
                                 deadline = parse_date_text(raw)
 
+                        # Ad Date immediately follows the "Ad Date:" anchor
+                        ad_raw = full_text[m.end():m.end()+30].strip().splitlines()[0].strip()
+                        date_posted = parse_date_text(ad_raw) if ad_raw else ""
+
                         apply_url = pdf_links[pdf_idx] if pdf_idx < len(pdf_links) else f"{BASE}/en/current-openings?category={category}&department=&q="
                         pdf_idx += 1
                         jobs.append({
@@ -671,6 +683,7 @@ def scrape_eduhk():
                             "department":       dept or infer_dept_from_title(title) or "Education University of Hong Kong",
                             "deadline":         deadline,
                             "is_new":           "TRUE" if is_active(deadline) else "FALSE",
+                            "date_posted":      date_posted,
                             "reference":        ref,
                             "position_type":    detect_type(title),
                             "salary":           "",
@@ -2935,7 +2948,7 @@ def main():
 
     # Load previous run to detect which jobs are genuinely new today
     today_str = TODAY.strftime("%Y-%m-%d")
-    existing = {}  # id → {date_added, description} from previous CSV
+    existing = {}  # id → {date_added, date_posted, description} from previous CSV
     if OUTPUT_FILE.exists():
         try:
             with open(OUTPUT_FILE, newline="", encoding="utf-8") as f:
@@ -2944,6 +2957,7 @@ def main():
                     if jid:
                         existing[jid] = {
                             "date_added":  row.get("date_added", today_str),
+                            "date_posted": row.get("date_posted", ""),
                             "description": row.get("description", ""),
                         }
             print(f"↳ Previous CSV: {len(existing)} jobs loaded")
@@ -2984,9 +2998,15 @@ def main():
     # Override is_new and set date_added based on previous run.
     # is_new = TRUE only for job IDs not seen in the previous CSV (new today).
     for j in all_jobs:
+        # Ensure date_posted field exists (scrapers that don't set it leave it blank)
+        if "date_posted" not in j:
+            j["date_posted"] = ""
         if j["id"] in existing:
             j["is_new"] = "FALSE"
             j["date_added"] = existing[j["id"]]["date_added"]
+            # Preserve previously captured date_posted if scraper didn't return one this run
+            if not j["date_posted"]:
+                j["date_posted"] = existing[j["id"]].get("date_posted", "")
         else:
             # Don't mark as new if the deadline has already passed
             j["is_new"] = "TRUE" if is_active(j.get("deadline", "")) else "FALSE"
