@@ -1015,6 +1015,7 @@ function deleteFilter(id) {
   persistSavedFilters();
   renderSavedFiltersSection();
   updateBkUI();
+  showActionToast('Filter removed');
 }
 function applyFilterById(id) {
   const f = savedFilters.find(x => x.id === id);
@@ -1136,7 +1137,7 @@ function toggleBookmark(id, e) {
   if (e) e.stopPropagation();
   const adding = !bookmarks.has(id);
   adding ? bookmarks.add(id) : bookmarks.delete(id);
-  if (adding) showActionToast('Position saved');
+  showActionToast(adding ? 'Position saved' : 'Position removed');
   saveBookmarks();
   if (currentView === 'saved') filterJobs(); else renderTable();
   if (openJobId === id) updatePanelSaveBtn(id);
