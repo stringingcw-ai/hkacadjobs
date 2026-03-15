@@ -2999,12 +2999,11 @@ def main():
     # no placeholder text, and length > 80. Any job that doesn't meet this
     # standard is treated as needing a fresh fetch + summarisation.
     POOR_PATTERNS = (
-        PLACEHOLDER_MARKER.lower(),
+        PLACEHOLDER_MARKER.lower(),           # "please visit the application link"
         "see application link",
         "see eduhk website",
-        "please visit",
-        "for full details",
-        "visit the.*website",
+        "please visit the application",       # catches redirect stubs specifically
+        r"please visit.*for full details",    # "please visit ... for full details"
     )
     def _is_poor_content(desc):
         if not desc or len(desc.strip()) <= 300:
