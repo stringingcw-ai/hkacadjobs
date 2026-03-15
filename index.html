@@ -131,6 +131,17 @@
     #announcementToast { bottom: 16px; right: 16px; left: 16px; max-width: none; }
   }
 
+  /* ACTION TOAST */
+  #actionToast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(12px);
+    z-index: 9999; background: #1e2a1e; color: #e8f5e9; border-radius: 8px;
+    padding: 10px 18px; font-size: 0.82rem; font-family: 'DM Sans', sans-serif;
+    white-space: nowrap; pointer-events: none;
+    opacity: 0; transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  #actionToast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+  @media (max-width: 768px) { #actionToast { bottom: 16px; } }
+
   /* ACTIVE FILTERS */
   .active-filters { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 6px 48px 8px; background: var(--white); border-bottom: 1px solid var(--border); }
   .filter-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-soft); color: var(--accent); border: 1px solid #d9b5a8; border-radius: 20px; padding: 4px 10px; font-size: 0.84rem; font-weight: 500; cursor: pointer; }
@@ -452,6 +463,9 @@
   <div>🆕 <strong>5 new institutions added</strong> — VTC, HKU SPACE, HKCC/SPEED, THEi &amp; HKCHC are now included.</div>
   <button id="announceToastClose" onclick="dismissToast()" aria-label="Dismiss">×</button>
 </div>
+
+<!-- ACTION TOAST -->
+<div id="actionToast"></div>
 
 <!-- HERO -->
 <div class="hero">
@@ -1047,8 +1061,7 @@ function confirmSaveFilter() {
   const name = (document.getElementById('sfNameInput')?.value || '').trim() || buildFilterLabel();
   saveFilter(name);
   closeSavePopover();
-  const btn = document.querySelector('.save-filter-btn');
-  if (btn) { btn.textContent = '✓ Saved'; btn.classList.add('saved-ok'); setTimeout(() => { btn.innerHTML = '🔖 Save filter'; btn.classList.remove('saved-ok'); }, 2000); }
+  showActionToast('Filter saved');
 }
 
 function filterCriteriaTags(state) {
@@ -1121,7 +1134,9 @@ function updateBkUI() {
 }
 function toggleBookmark(id, e) {
   if (e) e.stopPropagation();
-  bookmarks.has(id) ? bookmarks.delete(id) : bookmarks.add(id);
+  const adding = !bookmarks.has(id);
+  adding ? bookmarks.add(id) : bookmarks.delete(id);
+  if (adding) showActionToast('Position saved');
   saveBookmarks();
   if (currentView === 'saved') filterJobs(); else renderTable();
   if (openJobId === id) updatePanelSaveBtn(id);
@@ -1736,6 +1751,16 @@ async function submitReport(e) {
 }
 
 document.addEventListener('keydown', e => { if (e.key==='Escape') closePanel(); });
+
+// Action toast
+let _actionToastTimer = null;
+function showActionToast(msg) {
+  const el = document.getElementById('actionToast');
+  el.textContent = msg;
+  el.classList.add('visible');
+  clearTimeout(_actionToastTimer);
+  _actionToastTimer = setTimeout(() => el.classList.remove('visible'), 2500);
+}
 
 // Announcement toast
 const TOAST_KEY = 'hkaj_toast_newinst_2026b';
