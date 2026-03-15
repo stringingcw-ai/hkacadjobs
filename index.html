@@ -70,6 +70,7 @@
 
   /* FILTER BAR */
   .sticky-controls { position: sticky; top: 60px; z-index: 190; background: var(--white); border-bottom: 1px solid var(--border); }
+  .saved-view .sticky-controls { display: none; }
   .filter-bar { background: var(--white); padding: 10px 48px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
   .view-tabs { display: flex; background: var(--cream); border-radius: 7px; padding: 3px; border: 1px solid var(--border); }
   .view-tab { padding: 6px 16px; border-radius: 5px; font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.15s; color: var(--muted); display: flex; align-items: center; gap: 6px; border: none; background: none; font-family: 'DM Sans', sans-serif; }
@@ -83,6 +84,27 @@
   select { padding: 8px 30px 8px 11px; border: 1.5px solid var(--border); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.84rem; background: var(--paper); color: var(--ink); outline: none; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7568' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; transition: border-color 0.2s; }
   select:focus { border-color: var(--accent); }
   .filter-divider { width: 1px; height: 26px; background: var(--border); }
+
+  /* MULTI-SELECT DROPDOWNS */
+  .ms-wrap { position: relative; flex: 1 1 auto; min-width: 140px; }
+  .ms-btn { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 6px; padding: 7px 10px 7px 11px; border: 1.5px solid var(--border); border-radius: 6px; background: var(--paper); font-size: 0.84rem; font-family: 'DM Sans',sans-serif; cursor: pointer; color: var(--ink); transition: border-color 0.2s; box-sizing: border-box; }
+  .ms-btn:hover, .ms-btn:focus { border-color: var(--accent); outline: none; }
+  .ms-btn-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
+  .ms-chevron { font-size: 0.62rem; flex-shrink: 0; transition: transform 0.15s; color: var(--muted); }
+  .ms-wrap.open .ms-chevron { transform: rotate(180deg); }
+  .ms-panel { display: none; position: absolute; top: calc(100% + 4px); left: 0; z-index: 320; background: var(--white); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); min-width: 190px; max-height: 280px; overflow-y: auto; }
+  .ms-wrap.open .ms-panel { display: block; }
+  .ms-item { display: flex; align-items: center; gap: 9px; padding: 7px 14px; cursor: pointer; font-size: 0.82rem; color: var(--ink); user-select: none; }
+  .ms-item:hover { background: var(--cream); }
+  .ms-item input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; margin: 0; }
+  .ms-reset { position: sticky; bottom: 0; background: var(--white); border-top: 1px solid var(--border); padding: 6px 10px; text-align: right; }
+  .ms-reset button { background: none; border: none; font-size: 0.76rem; font-family: 'DM Sans',sans-serif; cursor: pointer; padding: 3px 8px; border-radius: 4px; color: var(--muted); transition: color 0.15s, background 0.15s; }
+  .ms-reset button:not(:disabled):hover { color: var(--accent); background: var(--cream); }
+  .ms-reset button:disabled { opacity: 0.3; cursor: default; }
+  @media (max-width: 768px) {
+    .filter-expandable-inner .ms-wrap { flex: 1 1 calc(50% - 4px); min-width: 0; max-width: 100%; box-sizing: border-box; }
+    .ms-panel { min-width: 160px; max-width: 88vw; }
+  }
 
 
   /* ANNOUNCEMENT TOAST */
@@ -113,11 +135,60 @@
   .active-filters { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 6px 48px 8px; background: var(--white); border-bottom: 1px solid var(--border); }
   .filter-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-soft); color: var(--accent); border: 1px solid #d9b5a8; border-radius: 20px; padding: 4px 10px; font-size: 0.84rem; font-weight: 500; cursor: pointer; }
   .filter-label { font-size: 0.84rem; color: var(--muted); }
-  .clear-all-btn { margin-left: 4px; background: none; border: none; font-family: 'DM Sans', sans-serif; font-size: 0.84rem; color: var(--muted); cursor: pointer; padding: 2px 4px; text-decoration: underline; }
+  /* Option A — clear all in chips bar */
+  .clear-all-btn { background: none; border: none; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; color: var(--muted); cursor: pointer; padding: 2px 6px; text-decoration: underline; white-space: nowrap; }
   .clear-all-btn:hover { color: var(--accent); }
   .share-url-btn { display: inline-flex; align-items: center; gap: 5px; background: none; border: 1px solid var(--border); border-radius: 20px; padding: 4px 10px; font-family: 'DM Sans', sans-serif; font-size: 0.84rem; color: var(--muted); cursor: pointer; margin-left: auto; }
   .share-url-btn:hover { border-color: var(--accent); color: var(--accent); }
   .share-url-btn.copied { color: #2a7a2a; border-color: #2a7a2a; }
+
+  /* SAVE FILTER */
+  .save-filter-wrap { position: relative; margin-left: auto; flex-shrink: 0; }
+  .save-filter-btn { display: inline-flex; align-items: center; gap: 5px; background: none; border: 1px solid var(--border); border-radius: 20px; padding: 4px 10px; font-family: 'DM Sans', sans-serif; font-size: 0.84rem; color: var(--muted); cursor: pointer; white-space: nowrap; transition: border-color 0.15s, color 0.15s; }
+  .save-filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .save-filter-btn.saved-ok { color: #2a7a2a; border-color: #2a7a2a; }
+  .save-filter-popover { display: none; position: fixed; background: var(--white); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.13); padding: 14px; width: 270px; z-index: 9999; }
+  .save-filter-popover.open { display: block; }
+  .sf-popover-hint { font-size: 0.76rem; color: var(--muted); margin-bottom: 8px; }
+  .sf-popover-input { width: 100%; padding: 7px 10px; border: 1.5px solid var(--border); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.84rem; color: var(--ink); background: var(--paper); box-sizing: border-box; outline: none; }
+  .sf-popover-input:focus { border-color: var(--accent); }
+  .sf-popover-actions { display: flex; gap: 8px; margin-top: 10px; }
+  .sf-popover-save { flex: 1; padding: 7px; background: var(--accent); color: white; border: none; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 500; cursor: pointer; transition: opacity 0.15s; }
+  .sf-popover-save:hover { opacity: 0.88; }
+  .sf-popover-cancel { padding: 7px 12px; background: none; border: 1px solid var(--border); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; cursor: pointer; color: var(--muted); }
+  .sf-popover-cancel:hover { border-color: var(--muted); }
+
+  /* SAVED FILTERS SECTION (saved page) */
+  .saved-filters-section { margin-bottom: 24px; }
+  .sf-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .sf-section-title { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+  .sf-section-title + .sf-section-title, .sf-card-grid + .sf-section-title, .sf-empty + .sf-section-title { margin-top: 28px; }
+  /* Option A – Pill strip */
+  .sf-opt-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); background: var(--cream); border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px; margin-bottom: 10px; display: inline-block; }
+  .sf-pill-strip { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .sf-pill { display: inline-flex; align-items: center; gap: 0; background: var(--white); border: 1.5px solid var(--border); border-radius: 20px; font-size: 0.82rem; overflow: hidden; transition: border-color 0.15s; }
+  .sf-pill:hover { border-color: var(--accent); }
+  .sf-pill-name { padding: 5px 10px 5px 12px; font-weight: 500; color: var(--ink); white-space: nowrap; max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
+  .sf-pill-apply { padding: 5px 8px; background: none; border: none; border-left: 1px solid var(--border); font-family: 'DM Sans', sans-serif; font-size: 0.76rem; color: var(--accent); cursor: pointer; white-space: nowrap; }
+  .sf-pill-apply:hover { background: #fef4f0; }
+  .sf-pill-del { padding: 5px 9px; background: none; border: none; border-left: 1px solid var(--border); font-size: 0.9rem; color: var(--muted); cursor: pointer; line-height: 1; }
+  .sf-pill-del:hover { color: var(--accent); background: #fef4f0; }
+  /* Option B – Card grid */
+  .sf-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-bottom: 8px; }
+  .sf-card { background: var(--white); border: 1.5px solid var(--border); border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; transition: border-color 0.15s, box-shadow 0.15s; }
+  .sf-card:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+  .sf-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .sf-card-name { font-weight: 600; font-size: 0.85rem; color: var(--ink); line-height: 1.3; }
+  .sf-card-date { font-size: 0.7rem; color: var(--muted); white-space: nowrap; flex-shrink: 0; }
+  .sf-card-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .sf-card-tag { background: var(--cream); border-radius: 4px; padding: 2px 7px; font-size: 0.74rem; color: var(--ink); }
+  .sf-card-tag.sf-all { color: var(--muted); font-style: italic; }
+  .sf-card-actions { display: flex; gap: 7px; margin-top: auto; }
+  .sf-card-apply { flex: 1; padding: 6px 0; background: var(--ink); color: var(--paper); border: none; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 500; cursor: pointer; transition: background 0.15s; }
+  .sf-card-apply:hover { background: var(--accent); }
+  .sf-card-del { padding: 6px 10px; background: none; border: 1px solid var(--border); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; cursor: pointer; color: var(--muted); }
+  .sf-card-del:hover { color: var(--accent); border-color: var(--accent); }
+  .sf-empty { text-align: center; padding: 28px 20px; color: var(--muted); font-size: 0.84rem; background: var(--cream); border-radius: 8px; border: 1px dashed var(--border); margin-bottom: 20px; }
 
   /* MAIN */
   .main-layout { max-width: 100%; padding: 28px 48px 64px; }
@@ -168,6 +239,7 @@
   .days-left.soon { color: #c9960a; font-weight: 600; }
   .days-left.ok { color: #27ae60; }
   .new-badge { display: inline-block; background: var(--accent); color: white; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 6px; border-radius: 3px; margin-right: 6px; vertical-align: middle; }
+
   .bk-btn { background: none; border: none; cursor: pointer; padding: 4px 6px; border-radius: 4px; transition: transform 0.15s; line-height: 1; opacity: 0.6; color: var(--bookmark); }
   .bk-btn:hover { transform: scale(1.25); opacity: 1; }
   .bk-btn.saved { opacity: 1; }
@@ -401,21 +473,20 @@
   </button>
   <div class="filter-expandable" id="filterExpandable">
     <div class="filter-expandable-inner">
-      <select id="uniFilter" onchange="onUniChange()"><option value="">All Institutions</option></select>
-      <select id="areaFilter" onchange="onAreaChange()"><option value="">All Areas</option></select>
-      <select id="rankFilter" onchange="filterJobs()">
-        <option value="">All Ranks</option>
-        <option>Senior Management</option>
-        <option>Professor</option>
-        <option>Associate Professor</option>
-        <option>Assistant Professor</option>
-        <option>Tenure-Track</option>
-        <option>Postdoctoral</option>
-        <option>Senior Lecturer/Lecturer</option>
-        <option>Research Assistant/Associate</option>
-        <option>Teaching Assistant</option>
-        <option>Non-Academic</option>
+      <select id="roleFilter" onchange="setRoleFilter(this.value)">
+        <option value="">All Types</option>
+        <option value="academic">Academic</option>
+        <option value="non-academic">Non-Academic</option>
       </select>
+      <div class="ms-wrap" id="uniMsWrap">
+        <button class="ms-btn" onclick="toggleMsDropdown('uniMsWrap')"><span class="ms-btn-label" id="uniMsLabel">All Institutions</span><span class="ms-chevron">▼</span></button>
+        <div class="ms-panel" id="uniPanel"></div>
+      </div>
+      <select id="areaFilter" onchange="onAreaChange()"><option value="">All Areas</option></select>
+      <div class="ms-wrap" id="rankMsWrap">
+        <button class="ms-btn" onclick="toggleMsDropdown('rankMsWrap')"><span class="ms-btn-label" id="rankMsLabel">All Ranks</span><span class="ms-chevron">▼</span></button>
+        <div class="ms-panel" id="rankPanel"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -508,7 +579,7 @@
         <li>Vocational Training Council (VTC)</li>
         <li>HKU School of Professional and Continuing Education (HKU SPACE)</li>
         <li>HKCC / SPEED — College of Professional and Continuing Education (CPCE)</li>
-        <li>Hong Kong Chu Hai College (Chu Hai)</li>
+        <li>Hong Kong Chu Hai College (HKCHC)</li>
         <li>Technological and Higher Education Institute of Hong Kong (THEi)</li>
       </ul>
     </div>
@@ -521,10 +592,11 @@
     <div class="modal-section">
       <h3>How to use</h3>
       <ul>
-        <li>Search by keyword, university, department, area, or rank</li>
+        <li>Search by keyword, then filter by institution (multi-select), academic area, rank (multi-select), or role type</li>
         <li>Click any row to open the full job detail panel</li>
         <li>Star a position to save it for later — saved locally in your browser</li>
-        <li>Click the Saved button in the top bar to view your saved positions</li>
+        <li>Apply filters and click <strong>🔖 Save filter</strong> to bookmark a search — access it anytime from the Saved tab</li>
+        <li>Click the Saved button in the top bar to view your saved positions and saved filters</li>
       </ul>
     </div>
 
@@ -755,11 +827,293 @@ let currentPage = 1;
 const PAGE_SIZE = 20;
 let selectedDeptGroups = new Set();
 
+const ACADEMIC_RANKS = new Set(['Professor','Associate Professor','Assistant Professor','Tenure-Track','Postdoctoral','Senior Lecturer/Lecturer','Lecturer','Senior Management','Teaching Assistant','Research Assistant/Associate','Other']);
+let roleFilter = ''; // '' | 'academic' | 'non-academic'
+let selectedUnis  = new Set();
+let selectedRanks = new Set();
+const RANK_OPTIONS = ['Senior Management','Professor','Associate Professor','Assistant Professor','Tenure-Track','Postdoctoral','Senior Lecturer/Lecturer','Research Assistant/Associate','Teaching Assistant','Non-Academic'];
+
+function setRoleFilter(val) {
+  const prev = roleFilter;
+  roleFilter = val;
+  const sel = document.getElementById('roleFilter');
+  if (sel) sel.value = val;
+  syncRankPanelToRole(prev);
+  filterJobs();
+}
+
+function syncRankPanelToRole(prevRole = '') {
+  const rankWrap = document.getElementById('rankMsWrap');
+  if (!rankWrap) return;
+  const btn = rankWrap.querySelector('.ms-btn');
+
+  if (roleFilter === 'non-academic') {
+    // Fixate rank to Non-Academic — clear other selections, auto-select it, lock the dropdown
+    selectedRanks.clear();
+    selectedRanks.add('Non-Academic');
+    updateMsCheckboxes('rankPanel', selectedRanks);
+    updateMsBtn('rankMsWrap', selectedRanks, 'All Ranks');
+    updateMsResetBtn('rankPanel', selectedRanks);
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+    btn.style.cursor = 'default';
+  } else if (roleFilter === 'academic') {
+    // Remove Non-Academic from selections if present
+    if (selectedRanks.has('Non-Academic')) {
+      selectedRanks.delete('Non-Academic');
+      updateMsCheckboxes('rankPanel', selectedRanks);
+      updateMsBtn('rankMsWrap', selectedRanks, 'All Ranks');
+      updateMsResetBtn('rankPanel', selectedRanks);
+    }
+    // Hide Non-Academic item in panel
+    document.querySelectorAll('#rankPanel .ms-item').forEach(item => {
+      const cb = item.querySelector('input[type=checkbox]');
+      if (cb && cb.value === 'Non-Academic') item.style.display = 'none';
+    });
+    btn.disabled = false;
+    btn.style.opacity = '';
+    btn.style.cursor = '';
+  } else {
+    // All Types — only clear ranks when coming from non-academic (where rank was auto-set)
+    if (prevRole === 'non-academic') {
+      selectedRanks.clear();
+      updateMsCheckboxes('rankPanel', selectedRanks);
+      updateMsBtn('rankMsWrap', selectedRanks, 'All Ranks');
+      updateMsResetBtn('rankPanel', selectedRanks);
+    }
+    document.querySelectorAll('#rankPanel .ms-item').forEach(item => { item.style.display = ''; });
+    btn.disabled = false;
+    btn.style.opacity = '';
+    btn.style.cursor = '';
+  }
+}
+
+// ── Multi-select dropdown helpers
+function toggleMsDropdown(wrapId) {
+  const wrap = document.getElementById(wrapId);
+  const wasOpen = wrap.classList.contains('open');
+  document.querySelectorAll('.ms-wrap.open').forEach(w => w.classList.remove('open'));
+  const expandable = document.getElementById('filterExpandable');
+  if (!wasOpen) {
+    wrap.classList.add('open');
+    if (expandable) expandable.style.overflow = 'visible';
+  } else {
+    if (expandable) expandable.style.overflow = '';
+  }
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.ms-wrap')) {
+    document.querySelectorAll('.ms-wrap.open').forEach(w => w.classList.remove('open'));
+    const expandable = document.getElementById('filterExpandable');
+    if (expandable) expandable.style.overflow = '';
+  }
+  if (!e.target.closest('.save-filter-wrap')) closeSavePopover();
+});
+function updateMsBtn(wrapId, set, placeholder) {
+  const label = document.getElementById(wrapId).querySelector('.ms-btn-label');
+  if (!label) return;
+  if (set.size === 0) label.textContent = placeholder;
+  else if (set.size === 1) {
+    const v = [...set][0];
+    label.textContent = wrapId === 'uniMsWrap' ? uniDisplay(v) : v;
+  } else label.textContent = `${set.size} selected`;
+}
+function updateMsCheckboxes(panelId, set) {
+  document.querySelectorAll(`#${panelId} input[type=checkbox]`).forEach(cb => { cb.checked = set.has(cb.value); });
+}
+function updateMsResetBtn(panelId, set) {
+  const btn = document.querySelector(`#${panelId} .ms-reset button`);
+  if (btn) btn.disabled = set.size === 0;
+}
+function initUniPanel(unis) {
+  const panel = document.getElementById('uniPanel');
+  if (!panel) return;
+  panel.innerHTML = '';
+  [...unis].sort((a,b) => uniDisplay(a).localeCompare(uniDisplay(b))).forEach(u => {
+    const label = document.createElement('label');
+    label.className = 'ms-item';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox'; cb.value = u;
+    cb.addEventListener('change', () => { u && (cb.checked ? selectedUnis.add(u) : selectedUnis.delete(u)); updateMsBtn('uniMsWrap', selectedUnis, 'All Institutions'); updateMsResetBtn('uniPanel', selectedUnis); filterJobs(); });
+    const span = document.createElement('span'); span.textContent = uniDisplay(u);
+    label.appendChild(cb); label.appendChild(span);
+    panel.appendChild(label);
+  });
+  const footer = document.createElement('div');
+  footer.className = 'ms-reset';
+  footer.innerHTML = '<button disabled onclick="event.stopPropagation();selectedUnis.clear();updateMsCheckboxes(\'uniPanel\',selectedUnis);updateMsBtn(\'uniMsWrap\',selectedUnis,\'All Institutions\');updateMsResetBtn(\'uniPanel\',selectedUnis);filterJobs()">Reset</button>';
+  panel.appendChild(footer);
+}
+function initRankPanel() {
+  const panel = document.getElementById('rankPanel');
+  if (!panel) return;
+  panel.innerHTML = '';
+  RANK_OPTIONS.forEach(r => {
+    const label = document.createElement('label');
+    label.className = 'ms-item';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox'; cb.value = r;
+    cb.addEventListener('change', () => { cb.checked ? selectedRanks.add(r) : selectedRanks.delete(r); updateMsBtn('rankMsWrap', selectedRanks, 'All Ranks'); updateMsResetBtn('rankPanel', selectedRanks); filterJobs(); });
+    const span = document.createElement('span'); span.textContent = r;
+    label.appendChild(cb); label.appendChild(span);
+    panel.appendChild(label);
+  });
+  const footer = document.createElement('div');
+  footer.className = 'ms-reset';
+  footer.innerHTML = '<button disabled onclick="event.stopPropagation();selectedRanks.clear();updateMsCheckboxes(\'rankPanel\',selectedRanks);updateMsBtn(\'rankMsWrap\',selectedRanks,\'All Ranks\');updateMsResetBtn(\'rankPanel\',selectedRanks);filterJobs()">Reset</button>';
+  panel.appendChild(footer);
+}
+
+// ── Saved Filters
+let savedFilters = JSON.parse(localStorage.getItem('hkaj_sf') || '[]');
+function persistSavedFilters() { localStorage.setItem('hkaj_sf', JSON.stringify(savedFilters)); }
+
+function buildFilterLabel() {
+  const parts = [];
+  if (roleFilter) parts.push(roleFilter === 'academic' ? 'Academic' : 'Non-Academic');
+  if (selectedUnis.size) parts.push([...selectedUnis].map(uniDisplay).join(', '));
+  const area = document.getElementById('areaFilter')?.value;
+  if (area) parts.push(area);
+  if (roleFilter !== 'non-academic' && selectedRanks.size) parts.push([...selectedRanks].join(', '));
+  const q = document.getElementById('searchInput')?.value;
+  if (q) parts.push(`"${q}"`);
+  const label = parts.join(' · ') || 'All Jobs';
+  return label.length > 52 ? label.slice(0, 49) + '…' : label;
+}
+function buildFilterState() {
+  return {
+    search: document.getElementById('searchInput')?.value || '',
+    unis: [...selectedUnis], ranks: [...selectedRanks],
+    area: document.getElementById('areaFilter')?.value || '',
+    role: roleFilter, deptGroups: [...selectedDeptGroups]
+  };
+}
+function saveFilter(name) {
+  savedFilters.unshift({ id: Date.now(), label: name, state: buildFilterState(), createdAt: new Date().toISOString().slice(0,10) });
+  persistSavedFilters();
+  renderSavedFiltersSection();
+  updateBkUI();
+}
+function deleteFilter(id) {
+  savedFilters = savedFilters.filter(f => f.id !== id);
+  persistSavedFilters();
+  renderSavedFiltersSection();
+  updateBkUI();
+}
+function applyFilterById(id) {
+  const f = savedFilters.find(x => x.id === id);
+  if (!f) return;
+  const s = f.state;
+  document.getElementById('searchInput').value = s.search || '';
+  selectedUnis = new Set(s.unis || []);
+  updateMsCheckboxes('uniPanel', selectedUnis); updateMsBtn('uniMsWrap', selectedUnis, 'All Institutions'); updateMsResetBtn('uniPanel', selectedUnis);
+  selectedRanks = new Set(s.ranks || []);
+  updateMsCheckboxes('rankPanel', selectedRanks); updateMsBtn('rankMsWrap', selectedRanks, 'All Ranks'); updateMsResetBtn('rankPanel', selectedRanks);
+  document.getElementById('areaFilter').value = s.area || '';
+  selectedDeptGroups = new Set(s.deptGroups || []);
+  renderGroupChips(s.area || '');
+  setRoleFilter(s.role || '');
+  switchTab('all');
+}
+
+function toggleSavePopover() {
+  const pop = document.getElementById('saveFilterPopover');
+  const btn = document.querySelector('.save-filter-btn');
+  if (!pop || !btn) return;
+  const isOpen = pop.classList.contains('open');
+  if (!isOpen) {
+    document.getElementById('sfNameInput').value = buildFilterLabel();
+    // Position fixed below the button, right-aligned, clamped to viewport
+    const rect = btn.getBoundingClientRect();
+    const popW = 270;
+    let left = rect.right - popW;
+    if (left < 8) left = 8;
+    if (left + popW > window.innerWidth - 8) left = window.innerWidth - popW - 8;
+    pop.style.top  = (rect.bottom + 6) + 'px';
+    pop.style.left = left + 'px';
+    pop.classList.add('open');
+    setTimeout(() => document.getElementById('sfNameInput').select(), 40);
+  } else {
+    pop.classList.remove('open');
+  }
+}
+function closeSavePopover() {
+  const pop = document.getElementById('saveFilterPopover');
+  if (pop) pop.classList.remove('open');
+}
+function confirmSaveFilter() {
+  const name = (document.getElementById('sfNameInput')?.value || '').trim() || buildFilterLabel();
+  saveFilter(name);
+  closeSavePopover();
+  const btn = document.querySelector('.save-filter-btn');
+  if (btn) { btn.textContent = '✓ Saved'; btn.classList.add('saved-ok'); setTimeout(() => { btn.innerHTML = '🔖 Save filter'; btn.classList.remove('saved-ok'); }, 2000); }
+}
+
+function filterCriteriaTags(state) {
+  const tags = [];
+  if (state.role) tags.push(state.role === 'academic' ? 'Academic' : 'Non-Academic');
+  if (state.unis?.length) state.unis.forEach(u => tags.push(uniDisplay(u)));
+  if (state.area) tags.push(state.area);
+  if (state.role !== 'non-academic' && state.ranks?.length) state.ranks.forEach(r => tags.push(r));
+  if (state.search) tags.push(`"${state.search}"`);
+  return tags;
+}
+
+function renderSavedFiltersSection() {
+  const existing = document.getElementById('savedFiltersSection');
+  if (existing) existing.remove();
+  if (currentView !== 'saved') return;
+
+  const section = document.createElement('div');
+  section.id = 'savedFiltersSection';
+  section.className = 'saved-filters-section';
+
+  const title = document.createElement('div');
+  title.className = 'sf-section-title';
+  title.textContent = 'Saved Filters';
+  section.appendChild(title);
+
+  if (savedFilters.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'sf-empty';
+    empty.innerHTML = 'No saved filters yet — apply some filters and click <strong>🔖 Save filter</strong> to save a search.';
+    section.appendChild(empty);
+  } else {
+    const grid = document.createElement('div'); grid.className = 'sf-card-grid';
+    savedFilters.forEach(f => {
+      const card = document.createElement('div'); card.className = 'sf-card';
+      const tags = filterCriteriaTags(f.state);
+      const tagsHTML = tags.length
+        ? tags.map(t => `<span class="sf-card-tag">${t}</span>`).join('')
+        : '<span class="sf-card-tag sf-all">All jobs</span>';
+      card.innerHTML = `
+        <div class="sf-card-top"><span class="sf-card-name">${f.label}</span></div>
+        <div class="sf-card-tags">${tagsHTML}</div>
+        <div class="sf-card-actions">
+          <button class="sf-card-apply">Apply filter</button>
+          <button class="sf-card-del">Delete</button>
+        </div>`;
+      card.querySelector('.sf-card-apply').onclick = () => applyFilterById(f.id);
+      card.querySelector('.sf-card-del').onclick = () => deleteFilter(f.id);
+      grid.appendChild(card);
+    });
+    section.appendChild(grid);
+  }
+
+  const posTitle = document.createElement('div');
+  posTitle.className = 'sf-section-title';
+  posTitle.textContent = 'Saved Positions';
+  section.appendChild(posTitle);
+
+  const tableWrap = document.getElementById('tableWrap');
+  if (tableWrap) tableWrap.parentNode.insertBefore(section, tableWrap);
+}
+
 // ── Bookmarks (localStorage)
 let bookmarks = new Set(JSON.parse(localStorage.getItem('hkacad_bk') || '[]'));
 function saveBookmarks() { localStorage.setItem('hkacad_bk', JSON.stringify([...bookmarks])); updateBkUI(); }
 function updateBkUI() {
-  const n = bookmarks.size;
+  const n = bookmarks.size + savedFilters.length;
   document.getElementById('navBkCount').textContent = n;
   document.getElementById('navBkCount').classList.toggle('visible', n > 0);
 }
@@ -901,8 +1255,8 @@ function initUI() {
 
 
   // Populate filter dropdowns
-  const uniSel  = document.getElementById('uniFilter');
-  [...unis].sort((a,b) => uniDisplay(a).localeCompare(uniDisplay(b))).forEach(u => { const o = document.createElement('option'); o.value = u; o.textContent = uniDisplay(u); uniSel.appendChild(o); });
+  initUniPanel(unis);
+  initRankPanel();
 
   // Populate areaFilter with areas that have at least one job
   const areaFilter = document.getElementById('areaFilter');
@@ -914,14 +1268,23 @@ function initUI() {
   const urlParams = new URLSearchParams(location.search);
   if (urlParams.has('q'))     document.getElementById('searchInput').value = urlParams.get('q');
   if (urlParams.has('uni')) {
-    document.getElementById('uniFilter').value = urlParams.get('uni');
-    onUniChange();
+    urlParams.get('uni').split(',').filter(Boolean).forEach(u => selectedUnis.add(u));
+    updateMsCheckboxes('uniPanel', selectedUnis);
+    updateMsBtn('uniMsWrap', selectedUnis, 'All Institutions');
+    updateMsResetBtn('uniPanel', selectedUnis);
   }
   if (urlParams.has('area')) {
     document.getElementById('areaFilter').value = urlParams.get('area');
     renderGroupChips(urlParams.get('area'));
   }
-  if (urlParams.has('rank'))   document.getElementById('rankFilter').value = urlParams.get('rank');
+  if (urlParams.has('rank') && !urlParams.has('role')) {
+    urlParams.get('rank').split(',').filter(Boolean).forEach(r => selectedRanks.add(r));
+    updateMsCheckboxes('rankPanel', selectedRanks);
+    updateMsBtn('rankMsWrap', selectedRanks, 'All Ranks');
+    updateMsResetBtn('rankPanel', selectedRanks);
+  }
+  // role applied last so syncRankPanelToRole() overrides any rank state
+  if (urlParams.has('role')) setRoleFilter(urlParams.get('role'));
   if (urlParams.has('groups')) {
     urlParams.get('groups').split(',').filter(Boolean).forEach(g => selectedDeptGroups.add(g));
     renderGroupChips(document.getElementById('areaFilter').value);
@@ -969,22 +1332,22 @@ function switchTab(tab) {
   currentView = tab;
   currentPage = 1;
   document.getElementById('savedNavBtn').classList.toggle('active', tab === 'saved');
+  document.body.classList.toggle('saved-view', tab === 'saved');
   filterJobs();
+  renderSavedFiltersSection();
 }
 
-function onUniChange() {
-  filterJobs();
-}
 
 function filterJobs() {
   const search = document.getElementById('searchInput').value.toLowerCase();
-  const uni    = document.getElementById('uniFilter').value;
   const area   = document.getElementById('areaFilter').value;
-  const rank   = document.getElementById('rankFilter').value;
   const pool   = currentView === 'saved' ? ALL_JOBS.filter(j => bookmarks.has(j._id)) : ALL_JOBS;
   filtered = pool.filter(j => {
     const ms = !search || (j.title||'').toLowerCase().includes(search) || (j.department||'').toLowerCase().includes(search) || (j.university||'').toLowerCase().includes(search) || (j.university_full||'').toLowerCase().includes(search);
-    return ms && (!uni||j.university===uni) && (!area||j.area===area) && (!selectedDeptGroups.size||selectedDeptGroups.has(j.deptGroup)) && (!rank||j.rank===rank);
+    const roleOk = !roleFilter || (roleFilter === 'academic' ? ACADEMIC_RANKS.has(j.rank) : !ACADEMIC_RANKS.has(j.rank));
+    const uniOk  = !selectedUnis.size  || selectedUnis.has(j.university);
+    const rankOk = !selectedRanks.size || selectedRanks.has(j.rank);
+    return ms && roleOk && uniOk && (!area||j.area===area) && (!selectedDeptGroups.size||selectedDeptGroups.has(j.deptGroup)) && rankOk;
   });
   // 1. New jobs first; 2. University order; 3. Latest date_added first within each university
   filtered.sort((a, b) => {
@@ -1008,10 +1371,17 @@ function filterJobs() {
 
 function clearAllFilters() {
   document.getElementById('searchInput').value = '';
-  document.getElementById('uniFilter').value = '';
   document.getElementById('areaFilter').value = '';
-  document.getElementById('rankFilter').value = '';
   selectedDeptGroups.clear();
+  selectedUnis.clear();
+  selectedRanks.clear();
+  updateMsBtn('uniMsWrap', selectedUnis, 'All Institutions');
+  updateMsBtn('rankMsWrap', selectedRanks, 'All Ranks');
+  updateMsCheckboxes('uniPanel', selectedUnis);
+  updateMsCheckboxes('rankPanel', selectedRanks);
+  updateMsResetBtn('uniPanel', selectedUnis);
+  updateMsResetBtn('rankPanel', selectedRanks);
+  setRoleFilter('');
   renderGroupChips('');
   filterJobs();
 }
@@ -1019,13 +1389,12 @@ function clearAllFilters() {
 function syncFiltersToURL() {
   const params = new URLSearchParams();
   const search = document.getElementById('searchInput').value;
-  const uni    = document.getElementById('uniFilter').value;
   const area   = document.getElementById('areaFilter').value;
-  const rank   = document.getElementById('rankFilter').value;
-  if (search) params.set('q', search);
-  if (uni)    params.set('uni', uni);
-  if (area)   params.set('area', area);
-  if (rank)   params.set('rank', rank);
+  if (search)           params.set('q', search);
+  if (selectedUnis.size)  params.set('uni',  [...selectedUnis].join(','));
+  if (roleFilter)       params.set('role', roleFilter);
+  if (area)             params.set('area', area);
+  if (selectedRanks.size && roleFilter !== 'non-academic') params.set('rank', [...selectedRanks].join(','));
   if (selectedDeptGroups.size) params.set('groups', [...selectedDeptGroups].join(','));
   const newURL = params.toString() ? `${location.pathname}?${params}` : location.pathname;
   history.replaceState(null, '', newURL);
@@ -1049,10 +1418,9 @@ function updateFilterToggleBtn() {
   if (!btn) return;
   const count = [
     document.getElementById('searchInput').value,
-    document.getElementById('uniFilter').value,
     document.getElementById('areaFilter').value,
-    document.getElementById('rankFilter').value,
-  ].filter(Boolean).length + (selectedDeptGroups ? selectedDeptGroups.size : 0);
+    roleFilter,
+  ].filter(Boolean).length + selectedUnis.size + selectedRanks.size + (selectedDeptGroups ? selectedDeptGroups.size : 0);
   btn.classList.toggle('has-filters', count > 0);
   badge.textContent = count || '';
   badge.classList.toggle('visible', count > 0);
@@ -1114,7 +1482,10 @@ function renderTable() {
     savedMpty.style.display = 'block'; empty.style.display = 'none'; return;
   }
   savedMpty.style.display = 'none';
-  if (!filtered.length) { empty.style.display = 'block'; return; }
+  if (!filtered.length) {
+    if (currentView === 'saved') { savedMpty.style.display = 'block'; } else { empty.style.display = 'block'; }
+    return;
+  }
   empty.style.display = 'none';
 
   const start = (currentPage - 1) * PAGE_SIZE;
@@ -1195,13 +1566,15 @@ function renderPagination() {
 function renderChips() {
   const bar = document.getElementById('activeFilters');
   const chips = [];
-  const uni = document.getElementById('uniFilter').value;
-  const rank = document.getElementById('rankFilter').value;
   const search = document.getElementById('searchInput').value;
   const area = document.getElementById('areaFilter').value;
-  if (uni)    chips.push({label:uniDisplay(uni),   clear:()=>{document.getElementById('uniFilter').value='';filterJobs();}});
+  if (roleFilter) chips.push({label: roleFilter === 'academic' ? 'Academic' : 'Non-Academic', clear:()=>{ setRoleFilter(''); }});
+  selectedUnis.forEach(u => chips.push({label: uniDisplay(u), clear:()=>{ selectedUnis.delete(u); updateMsCheckboxes('uniPanel', selectedUnis); updateMsBtn('uniMsWrap', selectedUnis, 'All Institutions'); updateMsResetBtn('uniPanel', selectedUnis); filterJobs(); }}));
   if (area)   chips.push({label:area,        clear:()=>{document.getElementById('areaFilter').value='';selectedDeptGroups.clear();renderGroupChips('');filterJobs();}});
-  if (rank)   chips.push({label:rank,        clear:()=>{document.getElementById('rankFilter').value='';filterJobs();}});
+  // Skip rank chip when it's auto-set by the non-academic role filter (redundant)
+  if (roleFilter !== 'non-academic') {
+    selectedRanks.forEach(r => chips.push({label: r, clear:()=>{ selectedRanks.delete(r); updateMsCheckboxes('rankPanel', selectedRanks); updateMsBtn('rankMsWrap', selectedRanks, 'All Ranks'); updateMsResetBtn('rankPanel', selectedRanks); filterJobs(); }}));
+  }
   if (search) chips.push({label:`"${search}"`,          clear:()=>{document.getElementById('searchInput').value='';filterJobs();}});
   if (!chips.length) { bar.style.display='none'; return; }
   bar.style.display = 'flex';
@@ -1213,18 +1586,28 @@ function renderChips() {
     chip.onclick = c.clear;
     bar.appendChild(chip);
   });
-  // Share URL button
-  const shareBtn = document.createElement('button');
-  shareBtn.className = 'share-url-btn';
-  shareBtn.innerHTML = '&#128279; Copy filter';
-  shareBtn.onclick = () => {
-    navigator.clipboard.writeText(location.href).then(() => {
-      shareBtn.textContent = 'Copied!';
-      shareBtn.classList.add('copied');
-      setTimeout(() => { shareBtn.innerHTML = '&#128279; Copy filter'; shareBtn.classList.remove('copied'); }, 2000);
-    });
-  };
-  bar.appendChild(shareBtn);
+  // Option A — clear all link
+  const clearBtn = document.createElement('button');
+  clearBtn.className = 'clear-all-btn';
+  clearBtn.textContent = 'Clear all';
+  clearBtn.onclick = clearAllFilters;
+  bar.appendChild(clearBtn);
+
+  // Save filter button
+  const sfWrap = document.createElement('div');
+  sfWrap.className = 'save-filter-wrap';
+  sfWrap.innerHTML = `
+    <button class="save-filter-btn" onclick="toggleSavePopover()">🔖 Save filter</button>
+    <div class="save-filter-popover" id="saveFilterPopover">
+      <div class="sf-popover-hint">Name this filter</div>
+      <input id="sfNameInput" class="sf-popover-input" type="text" maxlength="60" placeholder="e.g. PolyU Professor roles"
+             onkeydown="if(event.key==='Enter')confirmSaveFilter();if(event.key==='Escape')closeSavePopover()">
+      <div class="sf-popover-actions">
+        <button class="sf-popover-cancel" onclick="closeSavePopover()">Cancel</button>
+        <button class="sf-popover-save" onclick="confirmSaveFilter()">Save</button>
+      </div>
+    </div>`;
+  bar.appendChild(sfWrap);
 }
 
 // ── Detail Panel

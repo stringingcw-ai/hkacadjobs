@@ -4,6 +4,36 @@ All notable changes to HKAcadJobs are recorded here, grouped by date.
 
 ---
 
+## 2026-03-15
+
+### New Institutions
+- Added **HKU SPACE** (HKU School of Professional and Continuing Education) — scrapes career listings page with Playwright
+- Added **CPCE / HKCC / SPEED** (College of Professional and Continuing Education, PolyU) — scrapes listing page; deadline format `DD-Mon-YYYY` normalised to `YYYY-MM-DD`; uses PolyU logo
+- Added **HKCHC** (Hong Kong Chu Hai College) — renamed from previous `CHUHAI` code throughout scraper, CSV, and frontend
+- Added **THEi** (Technological and Higher Education Institute of Hong Kong) — Playwright scraper handles two Elementor Loop Grid sections (infinite scroll + click-to-load); fetches detail pages for reference numbers
+
+### UI — Filters
+- **Multi-select for Institutions and Ranks** — replaced single-select dropdowns with custom checkbox panels; button label updates to show selected count ("3 selected") or single name; each panel has a sticky Reset button
+- **Rank / Role type sync** — selecting Academic hides Non-Academic from the rank panel; selecting Non-Academic locks rank to Non-Academic and disables the dropdown; switching back to All Types restores full panel and clears auto-selected rank
+- **Academic / Non-Academic filter** — dropdown (All Types / Academic / Non-Academic) with active chip and `?role=` URL param
+- **Removed department filter** — department dropdown removed from filter bar
+- **Clear all** — "Clear all" text link appears in the active chips bar whenever any filter is active
+- Multi-select state reflected in shareable URL: `?uni=PolyU,CityU&rank=Professor,Lecturer`
+
+### UI — Saved tab
+- **Save filter** — 🔖 Save filter button replaces "Copy filter" in the active chips bar; clicking opens a named-save popover (pre-filled auto-label, Enter to save); popover uses `position: fixed` so it renders correctly on mobile
+- **Saved filters section** — saved filter cards appear at the top of the Saved tab showing name, criteria tags, Apply and Delete actions
+- **Saved tab layout** — search and filter bar hidden on saved page; "Saved Filters" and "Saved Positions" section titles added; empty state shows correct message
+- **Header count** — Saved nav button count now reflects saved positions + saved filters combined
+
+### Bug fixes
+- Fixed expired jobs incorrectly showing NEW badge — scraper now checks `is_active()` before setting `is_new = TRUE` on newly scraped jobs
+- Fixed "New today" header count diverging from NEW badge count — removed localStorage caching; both now derive from `date_added === latestScrapeDate`
+- Fixed CPCE dates stored as `DD-Mon-YYYY` bypassing `is_active()` — added `%d-%b-%Y` / `%d-%B-%Y` to `parse_date_text()` formats and normalised 31 affected rows in CSV
+- Fixed institution dropdown still showing "Chu Hai" after HKCHC rename — removed stale `UNI_DISPLAY` override so it falls back to the code
+
+---
+
 ## 2026-03-10
 
 ### UI

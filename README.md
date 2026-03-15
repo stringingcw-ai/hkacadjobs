@@ -2,7 +2,7 @@
 
 > Every university opening in Hong Kong, in one place.
 
-A static job board aggregating academic and university positions from 13 Hong Kong institutions, updated daily via GitHub Actions. No login required, no paywalls — just a fast, searchable list of open positions pulled straight from official university career portals.
+A static job board aggregating academic and university positions from 17 Hong Kong institutions, updated daily via GitHub Actions. No login required, no paywalls — just a fast, searchable list of open positions pulled straight from official university career portals.
 
 **Live site:** https://www.hkacadjobs.org/
 
@@ -25,27 +25,31 @@ A static job board aggregating academic and university positions from 13 Hong Ko
 | SFU | Saint Francis University |
 | HKSYU | Hong Kong Shue Yan University |
 | VTC | Vocational Training Council |
+| HKUSPACE | HKU School of Professional and Continuing Education |
+| CPCE | HKCC / SPEED — College of Professional and Continuing Education (PolyU) |
+| HKCHC | Hong Kong Chu Hai College |
+| THEI | Technological and Higher Education Institute of Hong Kong |
 
 ---
 
 ## Features
 
-- **Daily refresh** — scraper runs at 10:00 HKT every day via GitHub Actions
-- **New badge** — positions flagged as NEW for the first 2 days after they appear (today and yesterday)
+- **Daily refresh** — scraper runs at 02:00 HKT every day via GitHub Actions
+- **New badge** — positions flagged as NEW on the day they first appear; count matches the "New Today" header stat exactly
 - **Smart sort** — new jobs float to the top; results then sorted by academic area (Medicine & Health → Engineering → CS & AI → Science → Business → Arts → Social Sciences → Education → Law → Architecture → Administration), then by institution and date
-- **Search & filter** — by keyword, institution, department, academic area, and rank
-- **Department filter** — appears after selecting a university; narrows to that university's departments
-- **Area → dept group chips** — cascading filter: pick an area, then multi-select department clusters
+- **Search & filter** — keyword search plus multi-select institution and rank filters, role type toggle (Academic / Non-Academic), and cascading area → department group chips
+- **Rank filter sync** — selecting Academic hides Non-Academic from the rank list; selecting Non-Academic locks rank to Non-Academic automatically
+- **Active filter chips** — dismissible pills show every active filter; "Clear all" link resets all at once; filters are reflected in the URL for shareable links
+- **Save filter** — apply any combination of filters and click 🔖 Save filter to name and bookmark that search; saved filters appear as cards in the Saved tab
+- **Saved tab** — dedicated view showing saved positions and saved filter cards; search and filter bar hidden for a cleaner browse experience
 - **Sortable deadline column** — click the Deadline header to sort; N/A deadlines sorted last
 - **Detail panel** — click any row for full job info and a dynamic apply link (e.g. "Apply on PolyU")
-- **Results banner** — green animated banner shows the number of positions matching the current filters; hidden when no results or in saved view
-- **Save for later** — star positions to save locally (persisted in browser storage); toggle the Saved button in the nav to switch between saved and all results
+- **Results banner** — shows the number of positions matching current filters
 - **Deadline tracker** — colour-coded reminder badge: yellow for upcoming deadlines, red for closed
 - **University logos** — each listing shows the university favicon for quick identification
-- **Mobile responsive** — card layout on small screens with apply button, deadline, and reminder
-- **Collapsing filter bar** — on mobile, filter dropdowns collapse to a search bar + "Filters" pill on any downward scroll; tap to expand, auto-expands at top of page; GPU-accelerated animation for smooth iOS performance
-- **Animated hero stats** — Open Positions and New Today count up on page load with a dramatic ease-out deceleration effect
-- **New institution toast** — one-time dismissible toast notifies users when a new institution is added; self-gates until data is present
+- **Mobile responsive** — card layout on small screens; collapsing filter bar collapses on scroll with GPU-accelerated animation
+- **Animated hero stats** — Open Positions and New Today count up on page load with ease-out deceleration
+- **New institution toast** — one-time dismissible toast notifies users when a new institution is added
 - **AI summaries with labelled key dates** — each job summary extracts and labels all dates found on the detail page (closing date, review date, start date etc.)
 
 ---
@@ -84,7 +88,7 @@ Jobs with a known deadline are retained for up to **14 days after expiry**, then
 ├── HKBU.png            # HKBU logo (local asset)
 ├── CHANGELOG.md        # Full update history by date
 ├── scraper/
-│   └── scraper.py      # Python scraper for all 12 universities
+│   └── scraper.py      # Python scraper for all 17 institutions
 └── .github/
     └── workflows/
         └── scrape.yml  # GitHub Actions workflow (daily + manual trigger)
@@ -130,7 +134,7 @@ python scraper/scraper.py
 python scraper/scraper.py --uni hku
 
 # Available university keys
-# polyu, eduhk, lingnan, hku, hkust, cityu, hkbu, cuhk, hkmu, hsu, sfu, hksyu
+# polyu, eduhk, lingnan, hku, hkust, cityu, hkbu, cuhk, hkmu, hsu, sfu, hksyu, vtc, hkuspace, cpce, hkchc, thei
 ```
 
 The scraper compares each run against the previous `jobs.csv` to determine which jobs are new (`is_new = TRUE`) and to preserve each job's original `date_added`.
