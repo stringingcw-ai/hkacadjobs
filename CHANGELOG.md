@@ -17,14 +17,25 @@ All notable changes to HKAcadJobs are recorded here, grouped by date.
 - **Rank / Role type sync** — selecting Academic hides Non-Academic from the rank panel; selecting Non-Academic locks rank to Non-Academic and disables the dropdown; switching back to All Types restores full panel and clears auto-selected rank
 - **Academic / Non-Academic filter** — dropdown (All Types / Academic / Non-Academic) with active chip and `?role=` URL param
 - **Removed department filter** — department dropdown removed from filter bar
-- **Clear all** — "Clear all" text link appears in the active chips bar whenever any filter is active
+- **Save filter CTA** — filled yellow star icon ★ button appears inline after the last active chip; clicking opens a named-save popover (pre-filled auto-label, Enter to save); "Clear all" link removed in favour of inline positioning
 - Multi-select state reflected in shareable URL: `?uni=PolyU,CityU&rank=Professor,Lecturer`
 
 ### UI — Saved tab
-- **Save filter** — 🔖 Save filter button replaces "Copy filter" in the active chips bar; clicking opens a named-save popover (pre-filled auto-label, Enter to save); popover uses `position: fixed` so it renders correctly on mobile
-- **Saved filters section** — saved filter cards appear at the top of the Saved tab showing name, criteria tags, Apply and Delete actions
+- **Save filter** — star icon save button replaces "Copy filter" in the active chips bar; popover uses `position: fixed` so it renders correctly on mobile
+- **Saved filters section** — saved filter cards appear at the top of the Saved tab showing name, criteria tags, Search, Share, and Delete actions
+- **Share saved filter** — Share button on each saved filter card; uses Web Share API on mobile, clipboard fallback on desktop; constructs a shareable URL from the saved filter state
+- **Delete icon** — bin SVG icon on saved filter delete button for compact layout
+- **Search button** — "Apply filter" renamed to "Search" on saved filter cards
 - **Saved tab layout** — search and filter bar hidden on saved page; "Saved Filters" and "Saved Positions" section titles added; empty state shows correct message
 - **Header count** — Saved nav button count now reflects saved positions + saved filters combined
+
+### UI — Feedback & CTA polish
+- **Action toasts** — toast notification shown when saving a filter, saving a position, removing a saved filter, or removing a saved position
+- **Filters applied toast** — clicking Search on a saved filter card shows a "Filters applied" toast on the results screen
+- **Accent button colour** — Apply and Search button backgrounds updated to brand accent orange
+- **Reset all filters in banner** — "Reset all filters" text link appears right-aligned inside the positions-found banner whenever any filter is active; also added below the empty-state no-results message
+- **New institutions banner** — banner text appends "now including VTC, HKU SPACE, SPEED, THEi & HKCHC" when no filters are active
+- **New institutions toast** — dismissible toast announces new institutions on first visit (self-gates until institution data is present; one-time per user via localStorage)
 
 ### Bug fixes
 - Fixed expired jobs incorrectly showing NEW badge — scraper now checks `is_active()` before setting `is_new = TRUE` on newly scraped jobs

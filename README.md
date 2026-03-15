@@ -39,9 +39,11 @@ A static job board aggregating academic and university positions from 17 Hong Ko
 - **Smart sort** — new jobs float to the top; results then sorted by academic area (Medicine & Health → Engineering → CS & AI → Science → Business → Arts → Social Sciences → Education → Law → Architecture → Administration), then by institution and date
 - **Search & filter** — keyword search plus multi-select institution and rank filters, role type toggle (Academic / Non-Academic), and cascading area → department group chips
 - **Rank filter sync** — selecting Academic hides Non-Academic from the rank list; selecting Non-Academic locks rank to Non-Academic automatically
-- **Active filter chips** — dismissible pills show every active filter; "Clear all" link resets all at once; filters are reflected in the URL for shareable links
-- **Save filter** — apply any combination of filters and click 🔖 Save filter to name and bookmark that search; saved filters appear as cards in the Saved tab
+- **Active filter chips** — dismissible pills show every active filter; inline ★ Save filter button appears after the last chip; filters reflected in the URL for shareable links
+- **Save filter** — apply any combination of filters and click the star icon to name and bookmark that search; saved filters appear as cards in the Saved tab
+- **Share saved filter** — each saved filter card has a Share button; uses native share sheet on mobile, copies URL to clipboard on desktop
 - **Saved tab** — dedicated view showing saved positions and saved filter cards; search and filter bar hidden for a cleaner browse experience
+- **Action toasts** — brief confirmation toast shown when saving or removing a position or filter, and when applying a saved filter
 - **Sortable deadline column** — click the Deadline header to sort; N/A deadlines sorted last
 - **Detail panel** — click any row for full job info and a dynamic apply link (e.g. "Apply on PolyU")
 - **Results banner** — shows the number of positions matching current filters
