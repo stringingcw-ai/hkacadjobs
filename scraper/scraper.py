@@ -1061,13 +1061,18 @@ def scrape_hku():
                             if any(m in text.lower() for m in BOT_MARKERS):
                                 if _has_good_desc(j["id"]):
                                     j["description"] = _existing_descriptions[j["id"]]
+                                else:
+                                    j["description"] = PLACEHOLDER_MARKER
                                 continue
                             lines = [l.strip() for l in text.splitlines() if len(l.strip()) > 60]
-                            if lines:
+                            # Guard against short/error pages slipping through WAF check
+                            if lines and len(" ".join(lines)) >= 200:
                                 j["description"] = "\n\n".join(lines[:20])[:3000]
                                 found += 1
+                            else:
+                                j["description"] = PLACEHOLDER_MARKER
                         except Exception:
-                            pass
+                            j["description"] = PLACEHOLDER_MARKER
                         if idx % 10 == 0 or idx == len(active):
                             print(f"  ↳ {idx}/{len(active)} done")
                     detail_page.close()
