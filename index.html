@@ -355,6 +355,16 @@
   .panel-save.saved { background: #fff8e5; border-color: var(--bookmark); color: var(--bookmark); }
 
   footer { background: var(--ink); color: #666; text-align: center; padding: 24px 48px; font-size: 0.75rem; letter-spacing: 0.03em; }
+  .faq-section { background: var(--cream); border-top: 1px solid var(--border); padding: 48px 24px; }
+  .faq-inner { max-width: 860px; margin: 0 auto; }
+  .faq-section h2 { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--ink); margin-bottom: 28px; }
+  .faq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 32px; }
+  @media (max-width: 640px) { .faq-grid { grid-template-columns: 1fr; } }
+  .faq-item { background: var(--white); border-radius: 8px; padding: 18px 20px; border: 1px solid var(--border); }
+  .faq-item h3 { font-size: 0.88rem; font-weight: 600; color: var(--ink); margin-bottom: 8px; line-height: 1.4; }
+  .faq-item p { font-size: 0.82rem; color: var(--muted); line-height: 1.65; margin: 0; }
+  .faq-unis { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+  .faq-uni-tag { background: var(--white); border: 1px solid var(--border); border-radius: 100px; padding: 5px 14px; font-size: 0.78rem; color: var(--ink); }
   footer a { color: var(--accent); text-decoration: none; }
 
   /* ABOUT MODAL */
@@ -589,6 +599,48 @@
 
   <div class="pagination" id="pagination" style="display:none;"></div>
 </div>
+
+<section class="faq-section" aria-label="Frequently asked questions">
+  <div class="faq-inner">
+    <h2>About Academic Jobs in Hong Kong</h2>
+    <div class="faq-grid">
+      <div class="faq-item">
+        <h3>Where can I find PhD and postdoc positions in Hong Kong?</h3>
+        <p>HKAcadJobs aggregates PhD, postdoctoral, and research positions daily from all eight University Grants Committee (UGC)-funded universities in Hong Kong, including HKU, CUHK, HKUST, PolyU, CityU, HKBaptist, EdUHK, and Lingnan.</p>
+      </div>
+      <div class="faq-item">
+        <h3>What types of academic jobs are listed?</h3>
+        <p>Listings include tenure-track and tenured professor roles, associate and assistant professor positions, lecturers, research assistants and associates, postdoctoral fellows, and senior research staff across all academic disciplines.</p>
+      </div>
+      <div class="faq-item">
+        <h3>How often are jobs updated?</h3>
+        <p>Job listings are scraped and refreshed every day at 02:00 HKT directly from official university career portals, so you always see the latest openings without having to check multiple websites.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Are teaching jobs at Hong Kong universities listed here?</h3>
+        <p>Yes. Lecturer, senior lecturer, and teaching-focused positions are included alongside research-track roles. Use the Rank filter to narrow down to lecturer or research staff categories.</p>
+      </div>
+      <div class="faq-item">
+        <h3>How do I find research assistant or postdoc jobs at a specific university?</h3>
+        <p>Select the university from the Institutions dropdown and choose Research Assistant/Associate or Postdoctoral Fellow from the Rank filter. Results update instantly as you select.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Can I save or share job listings?</h3>
+        <p>Click the star icon on any listing to bookmark it — saved jobs persist in your browser and appear in the Saved view. You can also save a combination of filters and share them via a link.</p>
+      </div>
+    </div>
+    <div class="faq-unis" aria-label="Covered universities">
+      <span class="faq-uni-tag">HKU</span>
+      <span class="faq-uni-tag">CUHK</span>
+      <span class="faq-uni-tag">HKUST</span>
+      <span class="faq-uni-tag">PolyU</span>
+      <span class="faq-uni-tag">CityU</span>
+      <span class="faq-uni-tag">HKBU</span>
+      <span class="faq-uni-tag">EdUHK</span>
+      <span class="faq-uni-tag">Lingnan</span>
+    </div>
+  </div>
+</section>
 </main>
 
 <footer>
@@ -909,6 +961,7 @@ function setRoleFilter(val) {
   if (sel) sel.value = val;
   syncRankPanelToRole(prev);
   filterJobs();
+  if (val !== prev) trackEvent('filter_active', { filter_type: 'role', value: val || 'all' });
 }
 
 function syncRankPanelToRole(prevRole = '') {
@@ -1007,7 +1060,7 @@ function initUniPanel(unis) {
     label.className = 'ms-item';
     const cb = document.createElement('input');
     cb.type = 'checkbox'; cb.value = u;
-    cb.addEventListener('change', () => { u && (cb.checked ? selectedUnis.add(u) : selectedUnis.delete(u)); updateMsBtn('uniMsWrap', selectedUnis, 'All Institutions'); updateMsResetBtn('uniPanel', selectedUnis); filterJobs(); });
+    cb.addEventListener('change', () => { u && (cb.checked ? selectedUnis.add(u) : selectedUnis.delete(u)); updateMsBtn('uniMsWrap', selectedUnis, 'All Institutions'); updateMsResetBtn('uniPanel', selectedUnis); filterJobs(); trackEvent('filter_active', { filter_type: 'institution', value: u, active: cb.checked }); });
     const span = document.createElement('span'); span.textContent = uniDisplay(u);
     label.appendChild(cb);
     label.insertAdjacentHTML('beforeend', uniLogoHtml(u, 'panel-uni-logo'));
@@ -1028,7 +1081,7 @@ function initRankPanel() {
     label.className = 'ms-item';
     const cb = document.createElement('input');
     cb.type = 'checkbox'; cb.value = r;
-    cb.addEventListener('change', () => { cb.checked ? selectedRanks.add(r) : selectedRanks.delete(r); updateMsBtn('rankMsWrap', selectedRanks, 'All Ranks'); updateMsResetBtn('rankPanel', selectedRanks); filterJobs(); });
+    cb.addEventListener('change', () => { cb.checked ? selectedRanks.add(r) : selectedRanks.delete(r); updateMsBtn('rankMsWrap', selectedRanks, 'All Ranks'); updateMsResetBtn('rankPanel', selectedRanks); filterJobs(); trackEvent('filter_active', { filter_type: 'rank', value: r, active: cb.checked }); });
     const span = document.createElement('span'); span.textContent = r;
     label.appendChild(cb); label.appendChild(span);
     panel.appendChild(label);
@@ -1409,6 +1462,7 @@ function onAreaChange() {
   const area = document.getElementById('areaFilter').value;
   renderGroupChips(area);
   filterJobs();
+  trackEvent('filter_active', { filter_type: 'area', value: area || 'all' });
 }
 
 function renderGroupChips(area) {
