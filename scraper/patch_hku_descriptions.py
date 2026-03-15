@@ -28,7 +28,7 @@ QUEUE_FILE  = SCRIPT_DIR / ".hku_patch_queue.txt"   # persists between runs
 
 FIELDNAMES = [
     "id", "title", "rank", "university", "university_full",
-    "department", "deadline", "is_new", "date_added", "reference",
+    "department", "deadline", "is_new", "date_added", "date_posted", "reference",
     "position_type", "salary", "start_date", "apply_url", "description"
 ]
 
@@ -62,7 +62,11 @@ def is_poor(desc: str) -> bool:
 
 
 def is_good(desc: str) -> bool:
-    return not is_poor(desc)
+    """True only if description has real structured content (AI summary markers)."""
+    if is_poor(desc):
+        return False
+    # Must have AI summary markers so the main scraper's _has_good_desc recognises it
+    return "**" in desc and "•" in desc
 
 
 def load_csv() -> dict:
