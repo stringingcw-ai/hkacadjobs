@@ -1385,14 +1385,17 @@ function switchTab(tab) {
 function filterJobs() {
   const search = document.getElementById('searchInput').value.toLowerCase();
   const area   = document.getElementById('areaFilter').value;
-  const pool   = currentView === 'saved' ? ALL_JOBS.filter(j => bookmarks.has(j._id)) : ALL_JOBS;
-  filtered = pool.filter(j => {
-    const ms = !search || (j.title||'').toLowerCase().includes(search) || (j.department||'').toLowerCase().includes(search) || (j.university||'').toLowerCase().includes(search) || (j.university_full||'').toLowerCase().includes(search);
-    const roleOk = !roleFilter || (roleFilter === 'academic' ? ACADEMIC_RANKS.has(j.rank) : !ACADEMIC_RANKS.has(j.rank));
-    const uniOk  = !selectedUnis.size  || selectedUnis.has(j.university);
-    const rankOk = !selectedRanks.size || selectedRanks.has(j.rank);
-    return ms && roleOk && uniOk && (!area||j.area===area) && (!selectedDeptGroups.size||selectedDeptGroups.has(j.deptGroup)) && rankOk;
-  });
+  if (currentView === 'saved') {
+    filtered = ALL_JOBS.filter(j => bookmarks.has(j._id));
+  } else {
+    filtered = ALL_JOBS.filter(j => {
+      const ms = !search || (j.title||'').toLowerCase().includes(search) || (j.department||'').toLowerCase().includes(search) || (j.university||'').toLowerCase().includes(search) || (j.university_full||'').toLowerCase().includes(search);
+      const roleOk = !roleFilter || (roleFilter === 'academic' ? ACADEMIC_RANKS.has(j.rank) : !ACADEMIC_RANKS.has(j.rank));
+      const uniOk  = !selectedUnis.size  || selectedUnis.has(j.university);
+      const rankOk = !selectedRanks.size || selectedRanks.has(j.rank);
+      return ms && roleOk && uniOk && (!area||j.area===area) && (!selectedDeptGroups.size||selectedDeptGroups.has(j.deptGroup)) && rankOk;
+    });
+  }
   // 1. New jobs first; 2. University order; 3. Latest date_added first within each university
   filtered.sort((a, b) => {
     const newDiff = (b.is_new ? 1 : 0) - (a.is_new ? 1 : 0);
