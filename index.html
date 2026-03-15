@@ -878,6 +878,19 @@ let ALL_JOBS = [];
 let filtered  = [];
 let currentView = 'all';
 let openJobId   = null;
+
+// ── Analytics
+function trackEvent(name, params) {
+  if (typeof gtag === 'function') gtag('event', name, params || {});
+}
+// Debounced search tracking — fires 1s after user stops typing
+let _searchTrackTimer = null;
+function trackSearch(query, resultCount) {
+  clearTimeout(_searchTrackTimer);
+  _searchTrackTimer = setTimeout(() => {
+    if (query.length >= 2) trackEvent('search', { search_term: query, result_count: resultCount });
+  }, 1000);
+}
 let sortDir     = {};
 let currentPage = 1;
 const PAGE_SIZE = 20;
@@ -1057,6 +1070,8 @@ function saveFilter(name) {
   updateBkUI();
 }
 function deleteFilter(id) {
+  const f = savedFilters.find(x => x.id === id);
+  trackEvent('filter_deleted', { filter_label: f?.label });
   savedFilters = savedFilters.filter(f => f.id !== id);
   persistSavedFilters();
   renderSavedFiltersSection();
@@ -1066,6 +1081,7 @@ function deleteFilter(id) {
 function applyFilterById(id) {
   const f = savedFilters.find(x => x.id === id);
   if (!f) return;
+  trackEvent('filter_applied', { filter_label: f.label });
   const s = f.state;
   document.getElementById('searchInput').value = s.search || '';
   selectedUnis = new Set(s.unis || []);
@@ -1110,6 +1126,7 @@ function confirmSaveFilter() {
   saveFilter(name);
   closeSavePopover();
   showActionToast('Filter saved');
+  trackEvent('filter_saved', { filter_label: name });
 }
 
 function buildFilterURL(state) {
@@ -1126,6 +1143,8 @@ function shareFilter(id) {
   const f = savedFilters.find(x => x.id === id);
   if (!f) return;
   const url = buildFilterURL(f.state);
+  const method = navigator.share ? 'native' : 'clipboard';
+  trackEvent('filter_shared', { filter_label: f.label, method });
   if (navigator.share) {
     navigator.share({ title: f.label, text: f.label, url }).catch(() => {});
   } else {
@@ -1208,6 +1227,8 @@ function toggleBookmark(id, e) {
   const adding = !bookmarks.has(id);
   adding ? bookmarks.add(id) : bookmarks.delete(id);
   showActionToast(adding ? 'Position saved' : 'Position removed');
+  const j = ALL_JOBS.find(x => x._id === id);
+  trackEvent(adding ? 'job_saved' : 'job_removed', { job_id: id, university: j?.university, rank: j?.rank });
   saveBookmarks();
   if (currentView === 'saved') filterJobs(); else renderTable();
   if (openJobId === id) updatePanelSaveBtn(id);
@@ -1458,6 +1479,11 @@ function filterJobs() {
   updateBanner();
   updateFilterToggleBtn();
   syncFiltersToURL();
+  // Track search queries (debounced, only when user typed something)
+  if (currentView !== 'saved') {
+    const q = document.getElementById('searchInput').value.trim();
+    if (q) trackSearch(q, filtered.length);
+  }
 }
 
 function clearAllFilters() {
@@ -1712,6 +1738,7 @@ function openPanel(id) {
   const j = ALL_JOBS.find(x => x._id === id);
   if (!j) return;
   openJobId = id;
+  trackEvent('job_detail_viewed', { job_id: id, university: j.university, rank: j.rank, title: j.title });
   renderTable();
   const col = uniColor(j.university);
   const d = daysLeft(j.deadline); const dl = daysLabel(d);
