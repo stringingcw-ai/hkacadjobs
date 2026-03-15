@@ -197,9 +197,9 @@
   .sf-card-actions { display: flex; gap: 7px; margin-top: auto; }
   .sf-card-apply { flex: 1; padding: 6px 0; background: var(--accent); color: var(--paper); border: none; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 500; cursor: pointer; transition: background 0.15s; }
   .sf-card-apply:hover { background: #8f3415; }
-  .sf-card-del { padding: 6px 10px; background: none; border: 1px solid var(--border); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; cursor: pointer; color: var(--muted); }
+  .sf-card-del { padding: 6px 10px; background: none; border: 1px solid var(--border); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; cursor: pointer; color: var(--muted); display: inline-flex; align-items: center; gap: 5px; }
   .sf-card-del:hover { color: var(--accent); border-color: var(--accent); }
-  .sf-card-share { padding: 6px 9px; background: none; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--muted); display: inline-flex; align-items: center; transition: color 0.15s, border-color 0.15s; }
+  .sf-card-share { padding: 6px 10px; background: none; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--muted); display: inline-flex; align-items: center; gap: 5px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; transition: color 0.15s, border-color 0.15s; }
   .sf-card-share:hover { color: var(--accent); border-color: var(--accent); }
   .sf-empty { text-align: center; padding: 28px 20px; color: var(--muted); font-size: 0.84rem; background: var(--cream); border-radius: 8px; border: 1px dashed var(--border); margin-bottom: 20px; }
 
@@ -1130,8 +1130,8 @@ function renderSavedFiltersSection() {
         <div class="sf-card-tags">${tagsHTML}</div>
         <div class="sf-card-actions">
           <button class="sf-card-apply">Apply filter</button>
-          <button class="sf-card-share" title="Share filter"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
-          <button class="sf-card-del" title="Delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+          <button class="sf-card-share"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Share</button>
+          <button class="sf-card-del"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg> Delete</button>
         </div>`;
       card.querySelector('.sf-card-apply').onclick = () => applyFilterById(f.id);
       card.querySelector('.sf-card-share').onclick = () => shareFilter(f.id);
