@@ -199,6 +199,8 @@
   .sf-card-apply:hover { background: #8f3415; }
   .sf-card-del { padding: 6px 10px; background: none; border: 1px solid var(--border); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; cursor: pointer; color: var(--muted); }
   .sf-card-del:hover { color: var(--accent); border-color: var(--accent); }
+  .sf-card-share { padding: 6px 9px; background: none; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--muted); display: inline-flex; align-items: center; transition: color 0.15s, border-color 0.15s; }
+  .sf-card-share:hover { color: var(--accent); border-color: var(--accent); }
   .sf-empty { text-align: center; padding: 28px 20px; color: var(--muted); font-size: 0.84rem; background: var(--cream); border-radius: 8px; border: 1px dashed var(--border); margin-bottom: 20px; }
 
   /* MAIN */
@@ -1065,6 +1067,27 @@ function confirmSaveFilter() {
   showActionToast('Filter saved');
 }
 
+function buildFilterURL(state) {
+  const params = new URLSearchParams();
+  if (state.search) params.set('q', state.search);
+  if (state.unis?.length) params.set('uni', state.unis.join(','));
+  if (state.role) params.set('role', state.role);
+  if (state.area) params.set('area', state.area);
+  if (state.ranks?.length && state.role !== 'non-academic') params.set('rank', state.ranks.join(','));
+  if (state.deptGroups?.length) params.set('groups', state.deptGroups.join(','));
+  return `${location.origin}${location.pathname}${params.toString() ? '?' + params : ''}`;
+}
+function shareFilter(id) {
+  const f = savedFilters.find(x => x.id === id);
+  if (!f) return;
+  const url = buildFilterURL(f.state);
+  if (navigator.share) {
+    navigator.share({ title: f.label, text: f.label, url }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(url).then(() => showActionToast('Link copied'));
+  }
+}
+
 function filterCriteriaTags(state) {
   const tags = [];
   if (state.role) tags.push(state.role === 'academic' ? 'Academic' : 'Non-Academic');
@@ -1107,9 +1130,11 @@ function renderSavedFiltersSection() {
         <div class="sf-card-tags">${tagsHTML}</div>
         <div class="sf-card-actions">
           <button class="sf-card-apply">Apply filter</button>
+          <button class="sf-card-share" title="Share filter"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
           <button class="sf-card-del">Delete</button>
         </div>`;
       card.querySelector('.sf-card-apply').onclick = () => applyFilterById(f.id);
+      card.querySelector('.sf-card-share').onclick = () => shareFilter(f.id);
       card.querySelector('.sf-card-del').onclick = () => deleteFilter(f.id);
       grid.appendChild(card);
     });
