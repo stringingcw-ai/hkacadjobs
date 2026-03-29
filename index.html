@@ -180,6 +180,40 @@
   #actionToast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
   @media (max-width: 768px) { #actionToast { bottom: 16px; } }
 
+  /* FEEDBACK POPUP */
+  #feedbackPopup {
+    position: fixed; bottom: 24px; right: 24px; z-index: 800;
+    width: 300px; background: var(--white); border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.14), 0 1.5px 4px rgba(0,0,0,0.08);
+    border: 1px solid var(--border); font-family: 'DM Sans', sans-serif;
+    transform: translateY(20px); opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  #feedbackPopup.visible { opacity: 1; transform: translateY(0); pointer-events: all; }
+  #feedbackPopup.hiding { opacity: 0; transform: translateY(20px); pointer-events: none; }
+  .fbk-header { padding: 16px 16px 0; display: flex; justify-content: space-between; align-items: flex-start; }
+  .fbk-title { font-size: 0.88rem; font-weight: 700; color: var(--ink); line-height: 1.3; }
+  .fbk-close { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 1rem; padding: 0; line-height: 1; flex-shrink: 0; margin-top: -2px; }
+  .fbk-close:hover { color: var(--ink); }
+  .fbk-body { padding: 12px 16px 16px; }
+  .fbk-sub { font-size: 0.78rem; color: var(--muted); margin-bottom: 14px; line-height: 1.5; }
+  .fbk-emojis { display: flex; justify-content: space-between; margin-bottom: 14px; }
+  .fbk-emoji-btn { background: none; border: 2px solid transparent; border-radius: 10px; padding: 6px 8px; cursor: pointer; font-size: 1.4rem; line-height: 1; transition: border-color 0.15s, background 0.15s, transform 0.15s; }
+  .fbk-emoji-btn:hover { background: var(--cream); transform: scale(1.15); }
+  .fbk-emoji-btn.selected { border-color: var(--accent); background: var(--cream); transform: scale(1.15); }
+  .fbk-emoji-label { font-size: 0.65rem; color: var(--muted); text-align: center; margin-top: 2px; }
+  .fbk-emoji-wrap { display: flex; flex-direction: column; align-items: center; }
+  .fbk-textarea { width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; color: var(--ink); background: var(--paper); resize: none; height: 70px; outline: none; transition: border-color 0.2s; line-height: 1.5; }
+  .fbk-textarea:focus { border-color: var(--accent); }
+  .fbk-textarea::placeholder { color: var(--muted); }
+  .fbk-submit { margin-top: 10px; width: 100%; padding: 9px; background: var(--ink); color: var(--paper); border: none; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+  .fbk-submit:hover { background: var(--accent); }
+  .fbk-submit:disabled { opacity: 0.45; cursor: not-allowed; }
+  .fbk-thanks { text-align: center; padding: 8px 0 4px; }
+  .fbk-thanks p { font-size: 0.85rem; color: var(--ink); font-weight: 600; margin-bottom: 4px; }
+  .fbk-thanks small { font-size: 0.76rem; color: var(--muted); }
+  @media (max-width: 480px) { #feedbackPopup { right: 12px; left: 12px; width: auto; bottom: 16px; } }
+
   /* ACTIVE FILTERS */
   .active-filters { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 6px 48px 8px; background: var(--white); border-bottom: 1px solid var(--border); }
   .filter-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-soft); color: var(--accent); border: 1px solid #d9b5a8; border-radius: 20px; padding: 4px 10px; font-size: 0.84rem; font-weight: 500; cursor: pointer; }
@@ -385,6 +419,18 @@
   .report-success .success-icon { font-size: 2rem; margin-bottom: 10px; }
   .report-success p { font-size: 0.88rem; color: var(--ink); line-height: 1.6; }
   .report-success .success-sub { font-size: 0.78rem; color: var(--muted); margin-top: 6px; }
+
+  /* ALERT MODAL */
+  .alert-form label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 5px; margin-top: 16px; }
+  .alert-form label:first-child { margin-top: 0; }
+  .alert-form input { width: 100%; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: var(--ink); background: var(--paper); outline: none; transition: border-color 0.2s; box-sizing: border-box; }
+  .alert-form input:focus { border-color: var(--accent); }
+  .alert-filter-preview { background: var(--cream); border-radius: 6px; padding: 10px 14px; font-size: 0.8rem; color: var(--muted); margin-top: 6px; line-height: 1.6; }
+  .alert-submit { margin-top: 20px; width: 100%; padding: 11px; background: var(--ink); color: var(--paper); border: none; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+  .alert-submit:hover { background: var(--accent); }
+  .alert-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  .sf-card-alert { padding: 6px 10px; background: none; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--muted); display: inline-flex; align-items: center; gap: 5px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; transition: color 0.15s, border-color 0.15s; }
+  .sf-card-alert:hover { color: var(--accent); border-color: var(--accent); }
 
   /* GROUP CHIPS BAR */
   .group-chips-bar { background: var(--white); padding: 4px 48px 6px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -658,6 +704,29 @@
     </div>
 
     <p class="modal-disclaimer">This site is not affiliated with any Hong Kong university. Data is sourced from official public career portals. AI summaries are generated automatically and may contain inaccuracies — always refer to the official university career portal for the most accurate information.</p>
+  </div>
+</div>
+
+<!-- ALERT MODAL -->
+<div class="modal-overlay" id="alertOverlay" onclick="closeAlertModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeAlertModal()">✕</button>
+    <h2>Get Job Alerts</h2>
+    <p class="modal-sub">We'll email you when new jobs matching this filter are posted.</p>
+    <div id="alertFormWrap">
+      <form class="alert-form" id="alertForm" onsubmit="submitAlert(event)">
+        <label>Filter</label>
+        <div class="alert-filter-preview" id="alertFilterPreview">All jobs</div>
+        <label>Your email</label>
+        <input type="email" id="alertEmail" placeholder="you@example.com" required autocomplete="email">
+        <button type="submit" class="alert-submit" id="alertSubmitBtn">Subscribe to alerts</button>
+      </form>
+    </div>
+    <div id="alertSuccess" style="display:none;" class="report-success">
+      <div class="success-icon">✅</div>
+      <p>You're subscribed!</p>
+      <p class="success-sub">You'll receive an email when new matching jobs are posted.<br>Check your inbox for a confirmation.</p>
+    </div>
   </div>
 </div>
 
@@ -1196,10 +1265,12 @@ function renderSavedFiltersSection() {
         <div class="sf-card-tags">${tagsHTML}</div>
         <div class="sf-card-actions">
           <button class="sf-card-apply">Search</button>
+          <button class="sf-card-alert"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Alert</button>
           <button class="sf-card-share"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Share</button>
           <button class="sf-card-del"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg> Delete</button>
         </div>`;
       card.querySelector('.sf-card-apply').onclick = () => applyFilterById(f.id);
+      card.querySelector('.sf-card-alert').onclick = () => openAlertModal(f.id);
       card.querySelector('.sf-card-share').onclick = () => shareFilter(f.id);
       card.querySelector('.sf-card-del').onclick = () => deleteFilter(f.id);
       grid.appendChild(card);
@@ -1399,6 +1470,19 @@ function initUI() {
   if (urlParams.has('groups')) {
     urlParams.get('groups').split(',').filter(Boolean).forEach(g => selectedDeptGroups.add(g));
     renderGroupChips(document.getElementById('areaFilter').value);
+  }
+
+  // Unsubscribe link handler
+  if (urlParams.has('unsubscribe')) {
+    const token = urlParams.get('unsubscribe');
+    fetch(`${SUPABASE_URL}/rest/v1/subscriptions?token=eq.${encodeURIComponent(token)}`, {
+      method: 'DELETE',
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
+    }).then(r => {
+      const msg = r.ok ? 'You\'ve been unsubscribed from job alerts.' : 'Unsubscribe link was invalid or already used.';
+      showActionToast(msg);
+      history.replaceState(null, '', location.pathname);
+    });
   }
 
   filterJobs();
@@ -1856,6 +1940,73 @@ async function submitReport(e) {
 
 document.addEventListener('keydown', e => { if (e.key==='Escape') closePanel(); });
 
+// ── Job Alerts (Supabase)
+const SUPABASE_URL      = 'https://xdlarqwycodfoahmkvha.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhkbGFycXd5Y29kZm9haG1rdmhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMjE3NjcsImV4cCI6MjA4OTU5Nzc2N30.f3LuayMU3IuuV500w0Yn_K1sD0gcBMhi_3XOugbBoz8';
+
+let _alertFilterId = null;
+
+function openAlertModal(filterId) {
+  _alertFilterId = filterId;
+  const f = savedFilters.find(x => x.id === filterId);
+  if (!f) return;
+  const tags = filterCriteriaTags(f.state);
+  document.getElementById('alertFilterPreview').textContent =
+    tags.length ? tags.join(' · ') : 'All jobs';
+  document.getElementById('alertEmail').value = '';
+  document.getElementById('alertFormWrap').style.display = '';
+  document.getElementById('alertSuccess').style.display = 'none';
+  document.getElementById('alertSubmitBtn').disabled = false;
+  document.getElementById('alertSubmitBtn').textContent = 'Subscribe to alerts';
+  document.getElementById('alertOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('alertEmail').focus(), 100);
+}
+function closeAlertModal() {
+  document.getElementById('alertOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+async function submitAlert(e) {
+  e.preventDefault();
+  const btn   = document.getElementById('alertSubmitBtn');
+  const email = document.getElementById('alertEmail').value.trim();
+  const f     = savedFilters.find(x => x.id === _alertFilterId);
+  if (!f || !email) return;
+
+  btn.disabled = true;
+  btn.textContent = 'Subscribing…';
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/subscriptions`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify({
+        email,
+        filter_label: f.label,
+        filter_state: f.state,
+      }),
+    });
+    if (res.ok || res.status === 201) {
+      document.getElementById('alertFormWrap').style.display = 'none';
+      document.getElementById('alertSuccess').style.display = 'block';
+      trackEvent('alert_subscribed', { filter_label: f.label });
+    } else {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || `HTTP ${res.status}`);
+    }
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = 'Subscribe to alerts';
+    alert(`Subscription failed: ${err.message}`);
+  }
+}
+
 // Action toast
 let _actionToastTimer = null;
 function showActionToast(msg) {
@@ -1894,6 +2045,108 @@ function maybeShowToast() {
 // ── Init
 updateBkUI();
 loadData();
+
+// ── Feedback Popup
+(function() {
+  const STORAGE_KEY = 'hkaj_fbk';
+  const SNOOZE_DAYS = 7;   // dismiss → hide for 1 week
+  const SUBMIT_DAYS = 30;  // submit  → hide for 30 days
+  const TRIGGER_DELAY_MS = 30000; // show after 30s
+
+  function shouldShow() {
+    const val = localStorage.getItem(STORAGE_KEY);
+    if (!val) return true;
+    const { submittedAt, snoozed } = JSON.parse(val);
+    if (submittedAt && (Date.now() - submittedAt) < SUBMIT_DAYS * 86400000) return false;
+    if (snoozed && (Date.now() - snoozed) < SNOOZE_DAYS * 86400000) return false;
+    return true;
+  }
+
+  function markSnoozed() {
+    const prev = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...prev, snoozed: Date.now() }));
+  }
+
+  function markSubmitted() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ submittedAt: Date.now() }));
+  }
+
+  if (!shouldShow()) return;
+
+  // Inject HTML
+  const popup = document.createElement('div');
+  popup.id = 'feedbackPopup';
+  popup.innerHTML = `
+    <div class="fbk-header">
+      <span class="fbk-title">How's your experience so far?</span>
+      <button class="fbk-close" id="fbkClose" aria-label="Dismiss">✕</button>
+    </div>
+    <div class="fbk-body">
+      <p class="fbk-sub">Takes 20 seconds — helps us improve HKAcadJobs.</p>
+      <div class="fbk-emojis" id="fbkEmojis">
+        <div class="fbk-emoji-wrap"><button class="fbk-emoji-btn" data-val="1" aria-label="Very dissatisfied">😞</button><div class="fbk-emoji-label">Not great</div></div>
+        <div class="fbk-emoji-wrap"><button class="fbk-emoji-btn" data-val="2" aria-label="Neutral">😐</button><div class="fbk-emoji-label">It's okay</div></div>
+        <div class="fbk-emoji-wrap"><button class="fbk-emoji-btn" data-val="3" aria-label="Satisfied">😊</button><div class="fbk-emoji-label">Pretty good</div></div>
+        <div class="fbk-emoji-wrap"><button class="fbk-emoji-btn" data-val="4" aria-label="Very satisfied">🤩</button><div class="fbk-emoji-label">Love it!</div></div>
+      </div>
+      <textarea class="fbk-textarea" id="fbkText" placeholder="Any suggestions to improve? (optional)"></textarea>
+      <button class="fbk-submit" id="fbkSubmit" disabled>Send feedback</button>
+    </div>
+    <div class="fbk-thanks" id="fbkThanks" style="display:none;padding:20px 16px;">
+      <p>Thanks so much! 🙏</p>
+      <small>Your feedback helps make HKAcadJobs better for everyone.</small>
+    </div>`;
+  document.body.appendChild(popup);
+
+  let selectedRating = null;
+
+  // Emoji selection
+  popup.querySelectorAll('.fbk-emoji-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      popup.querySelectorAll('.fbk-emoji-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedRating = btn.dataset.val;
+      document.getElementById('fbkSubmit').disabled = false;
+    });
+  });
+
+  // Close / snooze
+  document.getElementById('fbkClose').addEventListener('click', () => {
+    popup.classList.add('hiding');
+    setTimeout(() => popup.remove(), 300);
+    markSnoozed();
+  });
+
+  // Submit
+  document.getElementById('fbkSubmit').addEventListener('click', async () => {
+    const btn = document.getElementById('fbkSubmit');
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+    const comment = document.getElementById('fbkText').value.trim();
+    const labels = { '1': 'Not great 😞', '2': "It's okay 😐", '3': 'Pretty good 😊', '4': 'Love it! 🤩' };
+
+    try {
+      await fetch('https://formspree.io/f/xqeyabkq', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          issue_type: 'User satisfaction survey',
+          rating: labels[selectedRating] || selectedRating,
+          message: comment || '(no comment)',
+        }),
+      });
+    } catch (_) {}
+
+    markSubmitted();
+    popup.querySelector('.fbk-body').style.display = 'none';
+    document.getElementById('fbkThanks').style.display = 'block';
+    trackEvent('feedback_submitted', { rating: selectedRating });
+    setTimeout(() => { popup.classList.add('hiding'); setTimeout(() => popup.remove(), 300); }, 2500);
+  });
+
+  // Show after delay
+  setTimeout(() => { popup.classList.add('visible'); }, TRIGGER_DELAY_MS);
+})();
 </script>
 </body>
 </html>
