@@ -261,6 +261,8 @@ def main():
             print(f"  ... and {len(queue)-40} more")
         return
 
+    MAX_RETRIES = 5  # give up on a job after this many failed attempts
+    retry_counts: dict = {}
     batch_num   = 0
     total_fixed = 0
 
@@ -278,10 +280,16 @@ def main():
         save_csv(jobs)
         print(f"  ✅ CSV saved ({total_fixed} total descriptions improved so far)")
 
-        # Re-validate entire queue against updated CSV
-        processed_ids = {j["id"] for j in batch}
-        still_poor_jobs = [j for j in batch if is_poor(jobs[j["id"]].get("description", ""))]
-        remaining_queue = queue[args.batch:] + still_poor_jobs  # unprocessed + re-queued failures
+        # Re-validate — re-queue failures up to MAX_RETRIES, then abandon
+        still_poor_jobs = []
+        for j in batch:
+            if is_poor(jobs[j["id"]].get("description", "")):
+                retry_counts[j["id"]] = retry_counts.get(j["id"], 0) + 1
+                if retry_counts[j["id"]] < MAX_RETRIES:
+                    still_poor_jobs.append(j)
+                else:
+                    print(f"  ⚠️  Giving up on '{j['title'][:55]}' after {MAX_RETRIES} attempts")
+        remaining_queue = queue[args.batch:] + still_poor_jobs
 
         print(f"  Queue: {len(queue[args.batch:])} unprocessed + {len(still_poor_jobs)} re-queued = {len(remaining_queue)} remaining")
         save_persisted_queue(remaining_queue)
