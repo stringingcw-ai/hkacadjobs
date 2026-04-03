@@ -2356,7 +2356,9 @@ async function _syncSavedJobsToDb(userId) {
 async function _syncSavedFiltersToDb(userId) {
   if (!savedFilters.length) { console.log('[auth] syncFilters: nothing to sync'); return; }
   const rows = savedFilters.map(f => ({
-    user_id: userId, label: f.label, filter_state: f.state, local_id: String(f.id),
+    user_id: userId, label: f.label,
+    filter_state: { ...(f.state || {}), _alertEnabled: !!f.alertEnabled },
+    local_id: String(f.id),
     created_at: f.createdAt || new Date().toISOString().slice(0, 10),
     alert_enabled: !!f.alertEnabled,
   }));
@@ -2425,13 +2427,22 @@ async function _loadSavedFiltersFromDb(userId) {
         }).catch(() => {});
     }
     // Replace local list with DB data (live entries only)
-    savedFilters = liveFilters.map(r => ({
-      id: r.local_id ? (Number(r.local_id) || r.local_id) : r.id,
-      dbId: r.id,
-      label: r.label, state: r.filter_state,
-      createdAt: r.created_at,
-      alertEnabled: !!r.alert_enabled || alertedLabels.has(r.label),
-    }));
+    savedFilters = liveFilters.map(r => {
+      // alert state: prefer _alertEnabled embedded in filter_state JSON (no migration needed),
+      // fall back to alert_enabled column (if migration was run), then subscriptions join.
+      const embeddedAlert = !!(r.filter_state && r.filter_state._alertEnabled);
+      const alertEnabled  = embeddedAlert || !!r.alert_enabled || alertedLabels.has(r.label);
+      // Strip internal key from the state object exposed to the rest of the app
+      const state = r.filter_state ? { ...r.filter_state } : {};
+      delete state._alertEnabled;
+      return {
+        id: r.local_id ? (Number(r.local_id) || r.local_id) : r.id,
+        dbId: r.id,
+        label: r.label, state,
+        createdAt: r.created_at,
+        alertEnabled,
+      };
+    });
   } else {
     // No DB data yet — keep local filters but apply alert state from subscriptions
     savedFilters.forEach(f => { f.alertEnabled = !!f.alertEnabled || alertedLabels.has(f.label); });
@@ -2469,12 +2480,14 @@ async function toggleFilterAlert(filterId) {
         .eq('user_id', _currentUser.id).eq('filter_label', f.label);
       if (error) { console.error('[auth] delete sub error:', error); throw error; }
     }
-    // Persist alert_enabled directly on saved_filters row so it survives re-login
-    // even if the subscriptions cross-table join fails.
+    // Embed _alertEnabled in filter_state so it persists on re-login without
+    // needing a new DB column or a working subscriptions SELECT policy.
     if (f.dbId) {
-      _sb.from('saved_filters').update({ alert_enabled: turning_on })
+      const newState = { ...(f.state || {}), _alertEnabled: turning_on };
+      _sb.from('saved_filters').update({ filter_state: newState, alert_enabled: turning_on })
         .eq('id', f.dbId).then(({ error }) => {
-          if (error) console.error('[auth] update saved_filter alert_enabled error:', error);
+          if (error) console.error('[auth] update saved_filter error:', error);
+          else f.state = newState; // keep local copy in sync
         });
     }
     localStorage.setItem('hkaj_sf', JSON.stringify(savedFilters));
