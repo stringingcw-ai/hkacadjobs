@@ -171,29 +171,6 @@
   }
 
 
-  /* ANNOUNCEMENT TOAST */
-  #announcementToast {
-    position: fixed; bottom: 24px; right: 24px; z-index: 9999;
-    display: flex; align-items: flex-start; gap: 12px;
-    background: #fdf1ed; color: var(--accent); border: 1px solid #e8b9a8;
-    padding: 14px 16px; border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.18);
-    max-width: 320px; font-size: 0.84rem; line-height: 1.45;
-    opacity: 0; transform: translateY(16px);
-    transition: opacity 0.35s ease, transform 0.35s ease;
-    pointer-events: none;
-  }
-  #announcementToast.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
-  #announcementToast.hiding { opacity: 0; transform: translateY(16px); pointer-events: none; }
-  #announcementToast strong { color: var(--accent); }
-  #announceToastClose {
-    flex-shrink: 0; background: none; border: none; cursor: pointer;
-    color: var(--accent); opacity: 0.5; font-size: 1rem; padding: 0; line-height: 1; margin-top: 1px;
-  }
-  #announceToastClose:hover { opacity: 1; }
-  @media (max-width: 768px) {
-    #announcementToast { bottom: 16px; right: 16px; left: 16px; max-width: none; }
-  }
 
   /* ACTION TOAST */
   #actionToast {
@@ -598,11 +575,6 @@
   </div>
 </nav>
 
-<!-- ANNOUNCEMENT TOAST -->
-<div id="announcementToast">
-  <div>🆕 <strong>5 new institutions added</strong> — VTC, HKU SPACE, HKCC/SPEED, THEi &amp; HKCHC are now included.</div>
-  <button id="announceToastClose" onclick="dismissToast()" aria-label="Dismiss">×</button>
-</div>
 
 <!-- ACTION TOAST -->
 <div id="actionToast"></div>
@@ -1551,7 +1523,6 @@ async function loadData() {
     const _latestDate = rows.map(r => r.date_added).filter(Boolean).sort().at(-1) || null;
     ALL_JOBS = rows.map((r, i) => ({ ...r, _id: r.id || String(i), is_new: _latestDate && r.date_added === _latestDate && String(r.is_new).toLowerCase() !== 'false', area: classifyArea(r.department), deptGroup: classifyDeptGroup(r.department) }));
     initUI();
-    maybeShowToast();
   } catch (err) {
     clearTimeout(timer);
     showError(err.name === 'AbortError' ? 'Request timed out — please reload the page.' : err.message);
@@ -1768,7 +1739,7 @@ function updateBanner() {
   if (currentView === 'saved' || n === 0) { banner.style.display = 'none'; return; }
   const hasFilters = selectedUnis.size || selectedRanks.size || roleFilter ||
     document.getElementById('areaFilter')?.value || document.getElementById('searchInput')?.value || selectedDeptGroups.size;
-  const suffix = hasFilters ? ' found' : ' found — now including VTC, HKU SPACE, SPEED, THEi &amp; HKCHC';
+  const suffix = ' found';
   document.getElementById('bannerText').innerHTML = `<strong>${n}</strong> position${n!==1?'s':''}${suffix}`;
   let resetBtn = document.getElementById('bannerResetBtn');
   if (!resetBtn) {
@@ -2163,22 +2134,6 @@ function showActionToast(msg) {
   _actionToastTimer = setTimeout(() => el.classList.remove('visible'), 2500);
 }
 
-// Announcement toast
-const TOAST_KEY = 'hkaj_toast_newinst_2026b';
-function dismissToast() {
-  const el = document.getElementById('announcementToast');
-  el.classList.remove('visible');
-  el.classList.add('hiding');
-  setTimeout(() => el.style.display = 'none', 350);
-  localStorage.setItem(TOAST_KEY, '1');
-}
-function maybeShowToast() {
-  if (!localStorage.getItem(TOAST_KEY) && ['HKUSPACE','CPCE','HKCHC','THEI'].some(u => ALL_JOBS.some(j => j.university === u))) {
-    const el = document.getElementById('announcementToast');
-    setTimeout(() => el.classList.add('visible'), 800);
-    setTimeout(() => dismissToast(), 7000);
-  }
-}
 
 // Hero entrance animations
 (function() {
