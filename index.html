@@ -2167,7 +2167,17 @@ async function submitAlert(e) {
       const { error } = await _sb.from('subscriptions').insert(payload);
       if (error) throw error;
     }
-    // Local: simulate success without hitting Supabase
+    // Mark filter as alerted locally and persist
+    f.alertEnabled = true;
+    persistSavedFilters();
+    // Persist alert_enabled on saved_filters row in DB for re-login resilience
+    if (_currentUser && f.dbId) {
+      _sb.from('saved_filters').update({ alert_enabled: true })
+        .eq('id', f.dbId).then(({ error }) => {
+          if (error) console.error('[auth] update saved_filter alert_enabled error:', error);
+        });
+    }
+    renderSavedFiltersSection();
     document.getElementById('alertFormWrap').style.display = 'none';
     document.getElementById('alertSuccess').style.display = 'block';
     trackEvent('alert_subscribed', { filter_label: f.label });
@@ -2348,6 +2358,7 @@ async function _syncSavedFiltersToDb(userId) {
   const rows = savedFilters.map(f => ({
     user_id: userId, label: f.label, filter_state: f.state, local_id: String(f.id),
     created_at: f.createdAt || new Date().toISOString().slice(0, 10),
+    alert_enabled: !!f.alertEnabled,
   }));
   const { error } = await _sb.from('saved_filters').upsert(rows, { onConflict: 'user_id,local_id', ignoreDuplicates: true });
   if (error) console.error('[auth] syncFilters error:', error);
@@ -2419,11 +2430,11 @@ async function _loadSavedFiltersFromDb(userId) {
       dbId: r.id,
       label: r.label, state: r.filter_state,
       createdAt: r.created_at,
-      alertEnabled: alertedLabels.has(r.label),
+      alertEnabled: !!r.alert_enabled || alertedLabels.has(r.label),
     }));
   } else {
     // No DB data yet — keep local filters but apply alert state from subscriptions
-    savedFilters.forEach(f => { f.alertEnabled = alertedLabels.has(f.label); });
+    savedFilters.forEach(f => { f.alertEnabled = !!f.alertEnabled || alertedLabels.has(f.label); });
   }
 
   localStorage.setItem('hkaj_sf', JSON.stringify(savedFilters));
@@ -2457,6 +2468,14 @@ async function toggleFilterAlert(filterId) {
       const { error } = await _sb.from('subscriptions').delete()
         .eq('user_id', _currentUser.id).eq('filter_label', f.label);
       if (error) { console.error('[auth] delete sub error:', error); throw error; }
+    }
+    // Persist alert_enabled directly on saved_filters row so it survives re-login
+    // even if the subscriptions cross-table join fails.
+    if (f.dbId) {
+      _sb.from('saved_filters').update({ alert_enabled: turning_on })
+        .eq('id', f.dbId).then(({ error }) => {
+          if (error) console.error('[auth] update saved_filter alert_enabled error:', error);
+        });
     }
     localStorage.setItem('hkaj_sf', JSON.stringify(savedFilters));
   } catch (err) {
