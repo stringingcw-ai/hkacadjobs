@@ -411,6 +411,23 @@
   .modal-section ul li { font-size: 0.85rem; line-height: 1.8; color: #2a2a2a; }
   .modal-disclaimer { font-size: 0.75rem; color: var(--muted); line-height: 1.6; border-top: 1px solid var(--cream); padding-top: 16px; margin-top: 8px; }
 
+  /* WELCOME MODAL */
+  .welcome-modal { width: min(480px, 92vw); padding: 0; overflow: hidden; }
+  .welcome-modal-header { background: var(--accent); color: var(--paper); padding: 32px 32px 24px; text-align: center; }
+  .welcome-modal-header h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; margin-bottom: 6px; color: var(--paper); }
+  .welcome-modal-header p { font-size: 0.82rem; color: rgba(255,255,255,0.75); }
+  .welcome-modal-body { padding: 28px 32px 24px; }
+  .welcome-feature { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 22px; }
+  .welcome-feature:last-of-type { margin-bottom: 0; }
+  .welcome-feature-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--cream); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+  .welcome-feature-text h4 { font-size: 0.88rem; font-weight: 700; color: var(--ink); margin-bottom: 3px; }
+  .welcome-feature-text p { font-size: 0.8rem; color: var(--muted); line-height: 1.55; }
+  .welcome-modal-footer { padding: 0 32px 28px; display: flex; flex-direction: column; gap: 10px; }
+  .welcome-cta { width: 100%; padding: 11px; background: var(--accent); color: var(--paper); border: none; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+  .welcome-cta:hover { background: #8f3415; }
+  .welcome-skip { background: none; border: none; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; color: var(--muted); cursor: pointer; text-align: center; padding: 4px; }
+  .welcome-skip:hover { color: var(--ink); }
+
   /* REPORT MODAL */
   .report-form label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 5px; margin-top: 16px; }
   .report-form label:first-child { margin-top: 0; }
@@ -775,6 +792,43 @@
       <h3>Check your inbox</h3>
       <p>We sent a sign-in link to <strong id="authSentEmail"></strong>.<br>Click it to sign in — the link expires in 1 hour.</p>
       <p style="margin-top:14px;font-size:0.78rem;color:var(--muted);">The link will open in a new tab. You can close this one.</p>
+    </div>
+  </div>
+</div>
+
+<!-- WELCOME MODAL -->
+<div class="modal-overlay" id="welcomeOverlay" onclick="closeWelcomeModal()">
+  <div class="modal welcome-modal" onclick="event.stopPropagation()">
+    <div class="welcome-modal-header">
+      <h2>What's new on HKAcadJobs</h2>
+      <p>New features to help you track opportunities</p>
+    </div>
+    <div class="welcome-modal-body">
+      <div class="welcome-feature">
+        <div class="welcome-feature-icon">🔑</div>
+        <div class="welcome-feature-text">
+          <h4>Account sign-in</h4>
+          <p>Sign in with just your email — no password needed. Your data syncs across all your devices.</p>
+        </div>
+      </div>
+      <div class="welcome-feature">
+        <div class="welcome-feature-icon">🔔</div>
+        <div class="welcome-feature-text">
+          <h4>Job alerts</h4>
+          <p>Save a filter and subscribe to email alerts. Get notified whenever new matching roles are posted.</p>
+        </div>
+      </div>
+      <div class="welcome-feature">
+        <div class="welcome-feature-icon">🔖</div>
+        <div class="welcome-feature-text">
+          <h4>Saved filters &amp; bookmarks</h4>
+          <p>Sign in to keep your saved searches and bookmarked jobs permanently — even after clearing your browser.</p>
+        </div>
+      </div>
+    </div>
+    <div class="welcome-modal-footer">
+      <button class="welcome-cta" onclick="closeWelcomeModal(); openAuthModal();">Sign in to get started</button>
+      <button class="welcome-skip" onclick="closeWelcomeModal()">Maybe later</button>
     </div>
   </div>
 </div>
@@ -1616,6 +1670,7 @@ function initUI() {
 
   filterJobs();
   updateBkUI();
+  maybeShowWelcome();
 }
 
 // ── Area/Group cascade
@@ -2204,6 +2259,22 @@ function openAuthModal() {
 function closeAuthModal() {
   document.getElementById('authOverlay').classList.remove('open');
   document.body.style.overflow = '';
+}
+
+// ── Welcome modal
+const WELCOME_KEY = 'hkaj_welcome_v1';
+function closeWelcomeModal() {
+  document.getElementById('welcomeOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  localStorage.setItem(WELCOME_KEY, '1');
+}
+function maybeShowWelcome() {
+  if (_currentUser) return; // already signed in — no need to show
+  if (localStorage.getItem(WELCOME_KEY)) return;
+  setTimeout(() => {
+    document.getElementById('welcomeOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }, 1200);
 }
 
 async function sendMagicLink(e) {
