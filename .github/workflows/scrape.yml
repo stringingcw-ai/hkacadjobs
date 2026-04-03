@@ -31,6 +31,11 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python scraper/scraper.py
 
+      - name: Patch HKU missing descriptions
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python scraper/patch_hku_descriptions.py --reset-queue --all
+
       - name: Commit and push jobs.csv
         run: |
           git config user.name "github-actions[bot]"
