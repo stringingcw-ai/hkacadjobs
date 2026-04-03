@@ -61,6 +61,7 @@
   gtag('config', 'G-GSSYS240VQ');
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
   /* ─────────────────────────────────────────────
      CONFIGURATION — edit SHEET_CSV_URL below
@@ -92,6 +93,31 @@
   .bookmark-nav-btn.active { border-color: var(--bookmark); box-shadow: 0 0 0 2px var(--bookmark); }
   .bk-count { background: var(--bookmark); color: var(--ink); font-size: 0.68rem; font-weight: 700; border-radius: 10px; padding: 1px 6px; min-width: 18px; text-align: center; display: none; }
   .bk-count.visible { display: inline-block; }
+  /* ACCOUNT NAV */
+  .account-nav-btn { display: flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); color: var(--paper); padding: 7px 14px; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; cursor: pointer; transition: background 0.2s; }
+  .account-nav-btn:hover { background: rgba(255,255,255,0.14); }
+  .account-avatar { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 0.72rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  /* ACCOUNT DROPDOWN */
+  .account-dropdown { position: absolute; top: calc(100% + 8px); right: 0; background: var(--white); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); min-width: 200px; z-index: 300; overflow: hidden; }
+  .account-dropdown-header { padding: 14px 16px 10px; border-bottom: 1px solid var(--border); }
+  .account-dropdown-email { font-size: 0.8rem; color: var(--ink); font-weight: 600; word-break: break-all; }
+  .account-dropdown-sub { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+  .account-dropdown-item { display: flex; align-items: center; gap: 10px; padding: 10px 16px; font-size: 0.82rem; color: var(--ink); cursor: pointer; transition: background 0.15s; border: none; background: none; width: 100%; font-family: 'DM Sans', sans-serif; text-align: left; }
+  .account-dropdown-item:hover { background: var(--cream); }
+  .account-dropdown-item.danger { color: var(--accent); }
+  .acct-wrap { position: relative; }
+  /* AUTH MODAL */
+  .auth-modal-icon { font-size: 2rem; text-align: center; margin-bottom: 8px; }
+  .auth-input { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; color: var(--ink); background: var(--paper); outline: none; transition: border-color 0.2s; box-sizing: border-box; margin-top: 6px; }
+  .auth-input:focus { border-color: var(--accent); }
+  .auth-submit { margin-top: 14px; width: 100%; padding: 11px; background: var(--ink); color: var(--paper); border: none; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+  .auth-submit:hover { background: var(--accent); }
+  .auth-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  .auth-note { font-size: 0.75rem; color: var(--muted); text-align: center; margin-top: 12px; line-height: 1.5; }
+  .auth-sent { text-align: center; padding: 12px 0; }
+  .auth-sent-icon { font-size: 2.5rem; margin-bottom: 10px; }
+  .auth-sent h3 { font-size: 1rem; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+  .auth-sent p { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
 
   /* HERO */
   .hero { background: var(--ink); color: var(--paper); padding: 48px 48px 40px; border-bottom: 3px solid var(--accent); }
@@ -260,19 +286,21 @@
   .sf-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-bottom: 8px; }
   .sf-card { background: var(--white); border: 1.5px solid var(--border); border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; transition: border-color 0.15s, box-shadow 0.15s; }
   .sf-card:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
-  .sf-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .sf-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
   .sf-card-name { font-weight: 600; font-size: 0.85rem; color: var(--ink); line-height: 1.3; }
-  .sf-card-date { font-size: 0.7rem; color: var(--muted); white-space: nowrap; flex-shrink: 0; }
   .sf-card-tags { display: flex; flex-wrap: wrap; gap: 4px; }
   .sf-card-tag { background: var(--cream); border-radius: 4px; padding: 2px 7px; font-size: 0.74rem; color: var(--ink); }
   .sf-card-tag.sf-all { color: var(--muted); font-style: italic; }
-  .sf-card-actions { display: flex; gap: 7px; margin-top: auto; }
-  .sf-card-apply { flex: 1; padding: 6px 0; background: var(--accent); color: var(--paper); border: none; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 500; cursor: pointer; transition: background 0.15s; white-space: nowrap; }
+  .sf-card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; gap: 8px; }
+  .sf-card-apply { padding: 7px 16px; background: var(--accent); color: var(--paper); border: none; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: background 0.15s; white-space: nowrap; }
   .sf-card-apply:hover { background: #8f3415; }
-  .sf-card-del { padding: 6px 10px; background: none; border: 1px solid var(--border); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; cursor: pointer; color: var(--muted); display: inline-flex; align-items: center; gap: 5px; }
-  .sf-card-del:hover { color: var(--accent); border-color: var(--accent); }
-  .sf-card-share { padding: 6px 10px; background: none; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--muted); display: inline-flex; align-items: center; gap: 5px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; transition: color 0.15s, border-color 0.15s; }
-  .sf-card-share:hover { color: var(--accent); border-color: var(--accent); }
+  .sf-card-icon-btns { display: flex; gap: 4px; }
+  .sf-card-icon-btn { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; cursor: pointer; color: var(--muted); display: inline-flex; align-items: center; transition: color 0.15s, border-color 0.15s; }
+  .sf-card-icon-btn:hover { color: var(--accent); border-color: var(--accent); }
+  .sf-alert-btn { background: none; border: none; cursor: pointer; padding: 3px 5px; border-radius: 5px; color: var(--muted); display: flex; align-items: center; transition: color 0.15s, background 0.15s; flex-shrink: 0; }
+  .sf-alert-btn:hover { color: var(--accent); background: #fef4f0; }
+  .sf-alert-btn.active { color: var(--accent); }
+  .sf-alert-btn.active svg { fill: var(--accent); stroke: var(--accent); }
   .sf-empty { text-align: center; padding: 28px 20px; color: var(--muted); font-size: 0.84rem; background: var(--cream); border-radius: 8px; border: 1px dashed var(--border); margin-bottom: 20px; }
 
   /* MAIN */
@@ -421,6 +449,18 @@
   .report-success .success-sub { font-size: 0.78rem; color: var(--muted); margin-top: 6px; }
 
 
+  /* ALERT MODAL */
+  .alert-form label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 5px; margin-top: 16px; }
+  .alert-form label:first-child { margin-top: 0; }
+  .alert-form input { width: 100%; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: var(--ink); background: var(--paper); outline: none; transition: border-color 0.2s; box-sizing: border-box; }
+  .alert-form input:focus { border-color: var(--accent); }
+  .alert-filter-preview { background: var(--cream); border-radius: 6px; padding: 10px 14px; font-size: 0.8rem; color: var(--muted); margin-top: 6px; line-height: 1.6; }
+  .alert-submit { margin-top: 20px; width: 100%; padding: 11px; background: var(--ink); color: var(--paper); border: none; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+  .alert-submit:hover { background: var(--accent); }
+  .alert-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  .sf-card-alert { padding: 6px 10px; background: none; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--muted); display: inline-flex; align-items: center; gap: 5px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; transition: color 0.15s, border-color 0.15s; }
+  .sf-card-alert:hover { color: var(--accent); border-color: var(--accent); }
+
   /* GROUP CHIPS BAR */
   .group-chips-bar { background: var(--white); padding: 4px 48px 6px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .group-bar-label { font-size: 0.72rem; color: var(--muted); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; }
@@ -521,15 +561,40 @@
 
   // Set after CSV loads — derived from the date_added field in the data
   let LAST_UPDATED = "";
+  // Auth state — populated by Supabase onAuthStateChange
+  let _currentUser = null;
 </script>
 
 <!-- NAV -->
 <nav>
   <div class="logo">HK<span>Acad</span>Jobs</div>
   <div class="nav-right">
-    <button class="bookmark-nav-btn" id="savedNavBtn" onclick="switchTab(currentView==='saved'?'all':'saved')">
+    <button class="bookmark-nav-btn" id="savedNavBtn" style="display:none;" onclick="switchTab(currentView==='saved'?'all':'saved')">
       <span style="color:var(--bookmark)">★</span> Saved <span class="bk-count" id="navBkCount">0</span>
     </button>
+    <div class="acct-wrap" id="acctWrap">
+      <button class="account-nav-btn" id="acctBtn" onclick="toggleAccountMenu()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span id="acctLabel">Sign in</span>
+      </button>
+      <div class="account-dropdown" id="acctDropdown" style="display:none;">
+        <div class="account-dropdown-header">
+          <div class="account-dropdown-email" id="acctDropdownEmail"></div>
+          <div class="account-dropdown-sub">Signed in</div>
+        </div>
+        <button class="account-dropdown-item danger" id="signOutBtn" onclick="_promptSignOut()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sign out
+        </button>
+        <div id="signOutConfirm" style="display:none;padding:10px 16px;border-top:1px solid var(--border);">
+          <p style="font-size:0.78rem;color:var(--muted);margin-bottom:8px;">Sign out of HKAcadJobs?</p>
+          <div style="display:flex;gap:8px;">
+            <button onclick="signOut()" style="flex:1;padding:6px;background:var(--ink);color:var(--paper);border:none;border-radius:6px;font-size:0.78rem;font-family:'DM Sans',sans-serif;cursor:pointer;">Yes, sign out</button>
+            <button onclick="_cancelSignOut()" style="flex:1;padding:6px;background:var(--cream);color:var(--ink);border:1px solid var(--border);border-radius:6px;font-size:0.78rem;font-family:'DM Sans',sans-serif;cursor:pointer;">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </nav>
 
@@ -693,6 +758,52 @@
     </div>
 
     <p class="modal-disclaimer">This site is not affiliated with any Hong Kong university. Data is sourced from official public career portals. AI summaries are generated automatically and may contain inaccuracies — always refer to the official university career portal for the most accurate information.</p>
+  </div>
+</div>
+
+<!-- ALERT MODAL -->
+<div class="modal-overlay" id="alertOverlay" onclick="closeAlertModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeAlertModal()">✕</button>
+    <h2>Get Job Alerts</h2>
+    <p class="modal-sub">We'll email you when new jobs matching this filter are posted.</p>
+    <div id="alertFormWrap">
+      <form class="alert-form" id="alertForm" onsubmit="submitAlert(event)">
+        <label>Filter</label>
+        <div class="alert-filter-preview" id="alertFilterPreview">All jobs</div>
+        <label>Your email</label>
+        <input type="email" id="alertEmail" placeholder="you@example.com" required autocomplete="email">
+        <button type="submit" class="alert-submit" id="alertSubmitBtn">Subscribe to alerts</button>
+      </form>
+    </div>
+    <div id="alertSuccess" style="display:none;" class="report-success">
+      <div class="success-icon">✅</div>
+      <p>You're subscribed!</p>
+      <p class="success-sub">You'll receive an email when new matching jobs are posted.</p>
+    </div>
+  </div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="authOverlay" onclick="closeAuthModal()">
+  <div class="modal" style="max-width:380px;" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeAuthModal()">✕</button>
+    <div id="authFormWrap">
+      <div class="auth-modal-icon">🔑</div>
+      <h2 style="text-align:center;margin-bottom:4px;">Sign in to HKAcadJobs</h2>
+      <p class="modal-sub" style="text-align:center;">Sign in to save positions, filters &amp; job alerts across devices. No password needed.</p>
+      <form onsubmit="sendMagicLink(event)">
+        <input class="auth-input" type="email" id="authEmail" placeholder="your@email.com" required autocomplete="email">
+        <button type="submit" class="auth-submit" id="authSubmitBtn">Send magic link</button>
+      </form>
+      <p class="auth-note">We'll send a one-click sign-in link to your inbox.</p>
+    </div>
+    <div id="authSentWrap" style="display:none;" class="auth-sent">
+      <div class="auth-sent-icon">📬</div>
+      <h3>Check your inbox</h3>
+      <p>We sent a sign-in link to <strong id="authSentEmail"></strong>.<br>Click it to sign in — the link expires in 1 hour.</p>
+      <p style="margin-top:14px;font-size:0.78rem;color:var(--muted);">The link will open in a new tab. You can close this one.</p>
+    </div>
   </div>
 </div>
 
@@ -1078,7 +1189,19 @@ function initRankPanel() {
 
 // ── Saved Filters
 let savedFilters = JSON.parse(localStorage.getItem('hkaj_sf') || '[]');
-function persistSavedFilters() { localStorage.setItem('hkaj_sf', JSON.stringify(savedFilters)); }
+function persistSavedFilters() {
+  localStorage.setItem('hkaj_sf', JSON.stringify(savedFilters));
+  if (_currentUser) _syncSavedFiltersToDb(_currentUser.id).catch(() => {});
+}
+
+// ── Deletion tombstones — track items explicitly deleted by the user so they
+//    cannot reappear on re-login if the DB delete was delayed or failed.
+//    Filters: store 'db:<uuid>' and/or 'local:<localId>' strings.
+//    Jobs:    store job_id strings.
+let _tombFilters = new Set(JSON.parse(localStorage.getItem('hkaj_tomb_f') || '[]'));
+let _tombJobs    = new Set(JSON.parse(localStorage.getItem('hkaj_tomb_j') || '[]'));
+function _saveTombFilters() { localStorage.setItem('hkaj_tomb_f', JSON.stringify([..._tombFilters])); }
+function _saveTombJobs()    { localStorage.setItem('hkaj_tomb_j', JSON.stringify([..._tombJobs])); }
 
 function buildFilterLabel() {
   const parts = [];
@@ -1109,11 +1232,31 @@ function saveFilter(name) {
 function deleteFilter(id) {
   const f = savedFilters.find(x => x.id === id);
   trackEvent('filter_deleted', { filter_label: f?.label });
+  const dbId = f?.dbId;
+  // Record tombstone so this filter cannot reappear on re-login even if the
+  // DB delete below is delayed (race condition) or fails (network blip).
+  if (dbId) _tombFilters.add('db:' + dbId);
+  _tombFilters.add('local:' + String(id));
+  _saveTombFilters();
   savedFilters = savedFilters.filter(f => f.id !== id);
   persistSavedFilters();
   renderSavedFiltersSection();
   updateBkUI();
   showActionToast('Filter removed');
+  if (_currentUser) {
+    const p = dbId
+      ? _sb.from('saved_filters').delete().eq('id', dbId)
+      : _sb.from('saved_filters').delete().eq('user_id', _currentUser.id).eq('local_id', String(id));
+    Promise.resolve(p).then(({ error }) => {
+      if (error) { console.error('[auth] deleteFilter error:', error); }
+      else {
+        // DB delete confirmed — clear the tombstone entry
+        if (dbId) _tombFilters.delete('db:' + dbId);
+        _tombFilters.delete('local:' + String(id));
+        _saveTombFilters();
+      }
+    });
+  }
 }
 function applyFilterById(id) {
   const f = savedFilters.find(x => x.id === id);
@@ -1159,6 +1302,7 @@ function closeSavePopover() {
   if (pop) pop.classList.remove('open');
 }
 function confirmSaveFilter() {
+  if (!_currentUser) { closeSavePopover(); openAuthModal(); return; }
   const name = (document.getElementById('sfNameInput')?.value || '').trim() || buildFilterLabel();
   saveFilter(name);
   closeSavePopover();
@@ -1226,17 +1370,32 @@ function renderSavedFiltersSection() {
       const tagsHTML = tags.length
         ? tags.map(t => `<span class="sf-card-tag">${t}</span>`).join('')
         : '<span class="sf-card-tag sf-all">All jobs</span>';
+      const alertOn = !!f.alertEnabled;
+      const alertTitle = !_currentUser
+        ? 'Sign in to enable alerts'
+        : alertOn ? 'Alerts on — click to turn off' : 'Turn on email alerts';
+      const bellFill = alertOn ? 'currentColor' : 'none';
       card.innerHTML = `
-        <div class="sf-card-top"><span class="sf-card-name">${f.label}</span></div>
+        <div class="sf-card-header">
+          <span class="sf-card-name">${f.label}</span>
+          <button class="sf-alert-btn${alertOn ? ' active' : ''}" title="${alertTitle}" aria-label="${alertTitle}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="${bellFill}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </button>
+        </div>
         <div class="sf-card-tags">${tagsHTML}</div>
-        <div class="sf-card-actions">
+        <div class="sf-card-footer">
           <button class="sf-card-apply">Search</button>
-
-          <button class="sf-card-share"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Share</button>
-          <button class="sf-card-del"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg> Delete</button>
+          <div class="sf-card-icon-btns">
+            <button class="sf-card-icon-btn sf-card-share" title="Share filter">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            </button>
+            <button class="sf-card-icon-btn sf-card-del" title="Delete filter">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            </button>
+          </div>
         </div>`;
       card.querySelector('.sf-card-apply').onclick = () => applyFilterById(f.id);
-
+      card.querySelector('.sf-alert-btn').onclick = () => toggleFilterAlert(f.id);
       card.querySelector('.sf-card-share').onclick = () => shareFilter(f.id);
       card.querySelector('.sf-card-del').onclick = () => deleteFilter(f.id);
       grid.appendChild(card);
@@ -1255,7 +1414,32 @@ function renderSavedFiltersSection() {
 
 // ── Bookmarks (localStorage)
 let bookmarks = new Set(JSON.parse(localStorage.getItem('hkacad_bk') || '[]'));
-function saveBookmarks() { localStorage.setItem('hkacad_bk', JSON.stringify([...bookmarks])); updateBkUI(); }
+function saveBookmarks() {
+  localStorage.setItem('hkacad_bk', JSON.stringify([...bookmarks]));
+  updateBkUI();
+  if (_currentUser) _syncSavedJobsToDb(_currentUser.id).catch(() => {});
+}
+
+// ── Cross-tab sync: if another tab modifies saved items or tombstones,
+//    update this tab's in-memory state so it can't re-insert deleted items.
+window.addEventListener('storage', e => {
+  if (e.key === 'hkaj_sf' && e.newValue !== null) {
+    savedFilters = JSON.parse(e.newValue || '[]');
+    renderSavedFiltersSection();
+    updateBkUI();
+  }
+  if (e.key === 'hkacad_bk' && e.newValue !== null) {
+    bookmarks = new Set(JSON.parse(e.newValue || '[]'));
+    updateBkUI();
+    if (currentView === 'saved') renderTable();
+  }
+  if (e.key === 'hkaj_tomb_f' && e.newValue !== null) {
+    _tombFilters = new Set(JSON.parse(e.newValue || '[]'));
+  }
+  if (e.key === 'hkaj_tomb_j' && e.newValue !== null) {
+    _tombJobs = new Set(JSON.parse(e.newValue || '[]'));
+  }
+});
 function updateBkUI() {
   const n = bookmarks.size + savedFilters.length;
   document.getElementById('navBkCount').textContent = n;
@@ -1263,14 +1447,34 @@ function updateBkUI() {
 }
 function toggleBookmark(id, e) {
   if (e) e.stopPropagation();
+  if (!_currentUser) { openAuthModal(); return; }
   const adding = !bookmarks.has(id);
   adding ? bookmarks.add(id) : bookmarks.delete(id);
   showActionToast(adding ? 'Position saved' : 'Position removed');
   const j = ALL_JOBS.find(x => x._id === id);
   trackEvent(adding ? 'job_saved' : 'job_removed', { job_id: id, university: j?.university, rank: j?.rank });
   saveBookmarks();
+  if (!adding) {
+    // Record tombstone immediately so the position cannot reappear on re-login
+    // even if the DB delete below is delayed or fails.
+    _tombJobs.add(String(id));
+    _saveTombJobs();
+    if (_currentUser) {
+      _sb.from('saved_jobs').delete()
+        .eq('user_id', _currentUser.id).eq('job_id', id)
+        .then(({ error }) => {
+          if (error) { console.error('[auth] deleteJob error:', error); }
+          else {
+            // DB delete confirmed — clear tombstone
+            _tombJobs.delete(String(id));
+            _saveTombJobs();
+          }
+        });
+    }
+  }
   if (currentView === 'saved') filterJobs(); else renderTable();
-  if (openJobId === id) updatePanelSaveBtn(id);
+  // Always refresh panel button — openJobId may equal id or panel may have re-rendered
+  if (openJobId) updatePanelSaveBtn(openJobId);
 }
 function toggleBookmarkPanel() { toggleBookmark(openJobId, null); }
 function updatePanelSaveBtn(id) {
@@ -1894,6 +2098,60 @@ async function submitReport(e) {
 
 document.addEventListener('keydown', e => { if (e.key==='Escape') closePanel(); });
 
+// ── Job Alerts
+const SUPABASE_URL      = 'https://xdlarqwycodfoahmkvha.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhkbGFycXd5Y29kZm9haG1rdmhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMjE3NjcsImV4cCI6MjA4OTU5Nzc2N30.f3LuayMU3IuuV500w0Yn_K1sD0gcBMhi_3XOugbBoz8';
+const IS_LOCAL = location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+
+let _alertFilterId = null;
+
+function openAlertModal(filterId) {
+  _alertFilterId = filterId;
+  const f = savedFilters.find(x => x.id === filterId);
+  if (!f) return;
+  const tags = filterCriteriaTags(f.state);
+  document.getElementById('alertFilterPreview').textContent = tags.length ? tags.join(' · ') : 'All jobs';
+  // Pre-fill email if signed in
+  document.getElementById('alertEmail').value = _currentUser ? _currentUser.email : '';
+  document.getElementById('alertFormWrap').style.display = '';
+  document.getElementById('alertSuccess').style.display = 'none';
+  document.getElementById('alertSubmitBtn').disabled = false;
+  document.getElementById('alertSubmitBtn').textContent = 'Subscribe to alerts';
+  document.getElementById('alertOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById(_currentUser ? 'alertSubmitBtn' : 'alertEmail').focus(), 100);
+}
+function closeAlertModal() {
+  document.getElementById('alertOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+async function submitAlert(e) {
+  e.preventDefault();
+  const btn   = document.getElementById('alertSubmitBtn');
+  const email = document.getElementById('alertEmail').value.trim();
+  const f     = savedFilters.find(x => x.id === _alertFilterId);
+  if (!f || !email) return;
+  btn.disabled = true;
+  btn.textContent = 'Subscribing…';
+  try {
+    if (!IS_LOCAL) {
+      const payload = { email, filter_label: f.label, filter_state: f.state };
+      if (_currentUser) payload.user_id = _currentUser.id;
+      const { error } = await _sb.from('subscriptions').insert(payload);
+      if (error) throw error;
+    }
+    // Local: simulate success without hitting Supabase
+    document.getElementById('alertFormWrap').style.display = 'none';
+    document.getElementById('alertSuccess').style.display = 'block';
+    trackEvent('alert_subscribed', { filter_label: f.label });
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = 'Subscribe to alerts';
+    alert(`Subscription failed: ${err.message}`);
+  }
+}
+
 
 // Action toast
 let _actionToastTimer = null;
@@ -1933,6 +2191,290 @@ function maybeShowToast() {
 // ── Init
 updateBkUI();
 loadData();
+
+// ── Auth / Account (Supabase)
+const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    // Bypass Web Locks API — causes AbortError storms on static sites with no service workers
+    lock: async (_name, _acquireTimeout, fn) => fn(),
+  }
+});
+let _acctDropdownOpen = false;
+
+// Close dropdown when clicking outside
+document.addEventListener('click', e => {
+  if (_acctDropdownOpen && !document.getElementById('acctWrap').contains(e.target)) {
+    _setDropdownOpen(false);
+  }
+});
+
+function _setDropdownOpen(open) {
+  _acctDropdownOpen = open;
+  document.getElementById('acctDropdown').style.display = open ? 'block' : 'none';
+  if (!open) _cancelSignOut(); // reset confirm state when dropdown closes
+}
+
+function _promptSignOut() {
+  document.getElementById('signOutBtn').style.display = 'none';
+  document.getElementById('signOutConfirm').style.display = 'block';
+}
+
+function _cancelSignOut() {
+  const btn = document.getElementById('signOutBtn');
+  const confirm = document.getElementById('signOutConfirm');
+  if (btn) btn.style.display = '';
+  if (confirm) confirm.style.display = 'none';
+}
+
+function toggleAccountMenu() {
+  if (!_currentUser) {
+    // Not signed in — open auth modal
+    openAuthModal();
+  } else {
+    _setDropdownOpen(!_acctDropdownOpen);
+  }
+}
+
+function openAuthModal() {
+  document.getElementById('authFormWrap').style.display = '';
+  document.getElementById('authSentWrap').style.display = 'none';
+  document.getElementById('authEmail').value = '';
+  document.getElementById('authSubmitBtn').disabled = false;
+  document.getElementById('authSubmitBtn').textContent = 'Send magic link';
+  document.getElementById('authOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('authEmail').focus(), 80);
+}
+
+function closeAuthModal() {
+  document.getElementById('authOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+async function sendMagicLink(e) {
+  e.preventDefault();
+  const btn   = document.getElementById('authSubmitBtn');
+  const email = document.getElementById('authEmail').value.trim();
+  if (!email) return;
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  try {
+    const { error } = await _sb.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: location.href.split('?')[0].split('#')[0] },
+    });
+    if (error) throw error;
+    document.getElementById('authSentEmail').textContent = email;
+    document.getElementById('authFormWrap').style.display = 'none';
+    document.getElementById('authSentWrap').style.display = '';
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = 'Send magic link';
+    alert('Could not send magic link: ' + (err.message || err));
+  }
+}
+
+function signOut() {
+  // Clear user data from memory and localStorage
+  bookmarks.clear();
+  savedFilters = [];
+  localStorage.removeItem('hkacad_bk');
+  localStorage.removeItem('hkaj_sf');
+  // Reset UI immediately — don't wait for network
+  _currentUser = null;
+  _setDropdownOpen(false);
+  _updateNavForUser(null);
+  if (currentView === 'saved') switchTab('all');
+  updateBkUI();
+  renderSavedFiltersSection();
+  renderTable();
+  showActionToast('Signed out');
+  // Clear Supabase session in background
+  _sb.auth.signOut().catch(() => {});
+}
+
+function _updateNavForUser(user) {
+  const label = document.getElementById('acctLabel');
+  if (user) {
+    label.textContent = user.email.split('@')[0];
+    document.getElementById('acctDropdownEmail').textContent = user.email;
+    document.getElementById('savedNavBtn').style.display = '';
+  } else {
+    label.textContent = 'Sign in';
+    document.getElementById('savedNavBtn').style.display = 'none';
+  }
+}
+
+// ── Sync helpers: localStorage ↔ Supabase DB
+
+async function _syncSavedJobsToDb(userId) {
+  if (!bookmarks.size) { console.log('[auth] syncJobs: nothing to sync'); return; }
+  const rows = [...bookmarks].map(job_id => ({ user_id: userId, job_id }));
+  const { error } = await _sb.from('saved_jobs').upsert(rows, { onConflict: 'user_id,job_id', ignoreDuplicates: true });
+  if (error) console.error('[auth] syncJobs error:', error);
+  else console.log('[auth] syncJobs: synced', rows.length, 'jobs');
+}
+
+async function _syncSavedFiltersToDb(userId) {
+  if (!savedFilters.length) { console.log('[auth] syncFilters: nothing to sync'); return; }
+  const rows = savedFilters.map(f => ({
+    user_id: userId, label: f.label, filter_state: f.state, local_id: String(f.id),
+    created_at: f.createdAt || new Date().toISOString().slice(0, 10),
+  }));
+  const { error } = await _sb.from('saved_filters').upsert(rows, { onConflict: 'user_id,local_id', ignoreDuplicates: true });
+  if (error) console.error('[auth] syncFilters error:', error);
+  else console.log('[auth] syncFilters: synced', rows.length, 'filters');
+}
+
+async function _loadSavedJobsFromDb(userId) {
+  const { data, error } = await _sb.from('saved_jobs').select('job_id').eq('user_id', userId);
+  if (error) { console.error('[auth] loadJobs error:', error); return; }
+  const allJobs = data || [];
+  // Filter out jobs the user has explicitly deleted (tombstones).
+  // This prevents a position reappearing on re-login if the DB delete
+  // was delayed by a race condition or failed due to a network error.
+  const zombieJobs = allJobs.filter(r => _tombJobs.has(String(r.job_id)));
+  const liveJobs   = allJobs.filter(r => !_tombJobs.has(String(r.job_id)));
+  // Retry DB deletes for any tombstoned jobs still present in DB
+  if (zombieJobs.length) {
+    _sb.from('saved_jobs').delete().eq('user_id', userId)
+      .in('job_id', zombieJobs.map(r => r.job_id))
+      .then(({ error: delErr }) => {
+        if (!delErr) {
+          zombieJobs.forEach(r => _tombJobs.delete(String(r.job_id)));
+          _saveTombJobs();
+        }
+      }).catch(() => {});
+  }
+  // Replace (not merge) so DB is the source of truth after sync
+  bookmarks.clear();
+  liveJobs.forEach(r => bookmarks.add(r.job_id));
+  localStorage.setItem('hkacad_bk', JSON.stringify([...bookmarks]));
+  updateBkUI();
+}
+
+async function _loadSavedFiltersFromDb(userId) {
+  const [filtersRes, subsRes] = await Promise.all([
+    _sb.from('saved_filters').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+    _sb.from('subscriptions').select('filter_label').eq('user_id', userId),
+  ]);
+  if (filtersRes.error) console.error('[auth] loadFilters error:', filtersRes.error);
+  if (subsRes.error) console.error('[auth] loadSubs error:', subsRes.error);
+
+  const alertedLabels = new Set((subsRes.data || []).map(s => s.filter_label));
+
+  if (filtersRes.data?.length) {
+    // Filter out filters the user has explicitly deleted (tombstones).
+    // This prevents a filter reappearing on re-login if the DB delete
+    // was delayed by a race condition or failed due to a network error.
+    const isTombstoned = r =>
+      _tombFilters.has('db:' + r.id) || _tombFilters.has('local:' + r.local_id);
+    const zombieFilters = filtersRes.data.filter(isTombstoned);
+    const liveFilters   = filtersRes.data.filter(r => !isTombstoned(r));
+    // Retry DB deletes for tombstoned filters still present in DB
+    if (zombieFilters.length) {
+      _sb.from('saved_filters').delete().eq('user_id', userId)
+        .in('id', zombieFilters.map(r => r.id))
+        .then(({ error: delErr }) => {
+          if (!delErr) {
+            zombieFilters.forEach(r => {
+              _tombFilters.delete('db:' + r.id);
+              _tombFilters.delete('local:' + r.local_id);
+            });
+            _saveTombFilters();
+          }
+        }).catch(() => {});
+    }
+    // Replace local list with DB data (live entries only)
+    savedFilters = liveFilters.map(r => ({
+      id: r.local_id ? (Number(r.local_id) || r.local_id) : r.id,
+      dbId: r.id,
+      label: r.label, state: r.filter_state,
+      createdAt: r.created_at,
+      alertEnabled: alertedLabels.has(r.label),
+    }));
+  } else {
+    // No DB data yet — keep local filters but apply alert state from subscriptions
+    savedFilters.forEach(f => { f.alertEnabled = alertedLabels.has(f.label); });
+  }
+
+  localStorage.setItem('hkaj_sf', JSON.stringify(savedFilters));
+  renderSavedFiltersSection();
+  updateBkUI();
+}
+
+async function toggleFilterAlert(filterId) {
+  console.log('[auth] toggleFilterAlert', filterId, 'user:', _currentUser?.email);
+  // Robust lookup — match on id OR dbId to handle type differences after DB load
+  const f = savedFilters.find(x => x.id === filterId || x.dbId === filterId || String(x.id) === String(filterId));
+  console.log('[auth] found filter:', f?.label, 'alertEnabled:', f?.alertEnabled);
+  if (!f) { console.error('[auth] filter not found for id', filterId); return; }
+  if (!_currentUser) { openAuthModal(); return; }
+  const turning_on = !f.alertEnabled;
+  // Optimistic UI update — show change immediately
+  f.alertEnabled = turning_on;
+  renderSavedFiltersSection();
+  showActionToast(turning_on ? 'Alerts on' : 'Alerts off');
+  try {
+    if (turning_on) {
+      const token = (typeof crypto !== 'undefined' && crypto.randomUUID)
+        ? crypto.randomUUID()
+        : Math.random().toString(36).slice(2) + Date.now().toString(36);
+      const { error } = await _sb.from('subscriptions').insert({
+        user_id: _currentUser.id, email: _currentUser.email,
+        filter_label: f.label, filter_state: f.state, token,
+      });
+      if (error) { console.error('[auth] insert sub error:', error); throw error; }
+    } else {
+      const { error } = await _sb.from('subscriptions').delete()
+        .eq('user_id', _currentUser.id).eq('filter_label', f.label);
+      if (error) { console.error('[auth] delete sub error:', error); throw error; }
+    }
+    localStorage.setItem('hkaj_sf', JSON.stringify(savedFilters));
+  } catch (err) {
+    // Revert optimistic update on failure
+    f.alertEnabled = !turning_on;
+    renderSavedFiltersSection();
+    showActionToast('Could not update alert');
+  }
+}
+
+// Auth state listener — fires on page load and on sign-in/sign-out.
+// IMPORTANT: DB operations are deferred with setTimeout(…, 0) to avoid a
+// deadlock with the Supabase JS v2 client's internal auth lock. Making
+// _sb.from() calls directly inside onAuthStateChange can hang forever
+// because the client holds a lock while invoking the callback.
+let _authHandlerRunning = false;
+_sb.auth.onAuthStateChange((event, session) => {
+  if (event === 'SIGNED_OUT') return; // handled synchronously by signOut()
+  // Always update _currentUser and nav so DB syncs work in any tab/event.
+  const user = session?.user ?? null;
+  _currentUser = user;
+  _updateNavForUser(user);
+  if (!user) return;
+  // Only do a full data reload on actual sign-in events.
+  // TOKEN_REFRESHED fires after every DB call and would re-add recently
+  // deleted items before the delete propagates to the DB.
+  if (event !== 'SIGNED_IN' && event !== 'INITIAL_SESSION') return;
+  // Prevent concurrent DB operations if multiple auth events fire in quick succession
+  if (_authHandlerRunning) return;
+  _authHandlerRunning = true;
+  if (event === 'SIGNED_IN') closeAuthModal();
+  // Defer DB work outside the auth lock context
+  setTimeout(async () => {
+    try {
+      if (event === 'SIGNED_IN') {
+        await _syncSavedJobsToDb(user.id);
+        await _syncSavedFiltersToDb(user.id);
+      }
+      await _loadSavedJobsFromDb(user.id);
+      await _loadSavedFiltersFromDb(user.id);
+      renderTable();
+    } finally {
+      _authHandlerRunning = false;
+    }
+  }, 0);
+});
 
 // ── Feedback Popup
 (function() {
