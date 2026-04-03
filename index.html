@@ -2263,6 +2263,7 @@ function closeAuthModal() {
 
 // ── Welcome modal
 const WELCOME_KEY = 'hkaj_welcome_v1';
+const WELCOME_EXPIRY = new Date('2026-04-10T00:00:00+08:00').getTime(); // 1 week from launch
 function closeWelcomeModal() {
   document.getElementById('welcomeOverlay').classList.remove('open');
   document.body.style.overflow = '';
@@ -2270,6 +2271,7 @@ function closeWelcomeModal() {
 }
 function maybeShowWelcome() {
   if (_currentUser) return; // already signed in — no need to show
+  if (Date.now() > WELCOME_EXPIRY) return; // past 1-week window
   if (localStorage.getItem(WELCOME_KEY)) return;
   setTimeout(() => {
     document.getElementById('welcomeOverlay').classList.add('open');
