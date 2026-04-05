@@ -550,6 +550,15 @@
     td:nth-child(5) { grid-column: 1; grid-row: 3; padding-top: 6px; display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; height: auto; }
     td:nth-child(5) > div { flex-direction: row !important; justify-content: flex-start !important; align-items: center !important; height: auto !important; }
     td:nth-child(6) { display: none; }
+
+    /* Prevent iOS Safari from zooming on input focus (triggers when font-size < 16px) */
+    .search-wrap input,
+    .sf-popover-input,
+    .auth-input,
+    .alert-form input,
+    .report-form input,
+    .report-form select,
+    .report-form textarea { font-size: 16px; }
   }
 </style>
 </head>
