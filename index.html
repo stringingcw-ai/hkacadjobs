@@ -120,7 +120,7 @@
   .auth-sent p { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
 
   /* HERO */
-  .hero { background: var(--ink); color: var(--paper); padding: 48px 48px 40px; border-bottom: 3px solid var(--accent); }
+  .hero { background: var(--ink); color: var(--paper); padding: 18px 48px 28px; border-bottom: 3px solid var(--accent); }
   .hero h1 { font-family: 'Playfair Display', serif; font-size: 2.6rem; line-height: 1.1; max-width: 560px; margin-bottom: 10px; }
   .hero h1 em { color: var(--accent); font-style: normal; }
   .hero p { color: #aaa; font-size: 0.9rem; font-weight: 300; margin-bottom: 28px; }
@@ -131,6 +131,15 @@
   .stat-label { font-size: 0.72rem; color: #888; letter-spacing: 0.06em; text-transform: uppercase; }
   .stat-item { opacity: 0; transform: translateY(10px); transition: opacity 0.5s ease, transform 0.5s ease; }
   .stat-item.visible { opacity: 1; transform: translateY(0); }
+
+  /* HERO QUOTE ROTATOR */
+  .hero-quote-wrap { max-width: 640px; margin-bottom: 16px; }
+  .hero-quote-mark { font-family: 'Playfair Display', serif; font-size: 3rem; line-height: 1; color: var(--accent); opacity: 0.7; margin-bottom: -8px; display: block; }
+  .hero-quote-text { font-family: 'Playfair Display', serif; font-size: 1.4rem; line-height: 1.25; color: var(--paper); font-weight: 500; margin-bottom: 8px; }
+  .hero-quote-text::after { content: '|'; color: var(--accent); opacity: 1; animation: blink 1.05s step-end infinite; margin-left: 2px; }
+  .hero-quote-text.typed::after { display: none; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+  .hero-quote-attr { font-size: 0.78rem; color: #888; font-weight: 300; letter-spacing: 0.05em; font-style: italic; }
 
   /* FILTER BAR */
   .sticky-controls { position: sticky; top: 60px; z-index: 190; background: var(--white); border-bottom: 1px solid var(--border); }
@@ -514,8 +523,11 @@
 
   @media (max-width: 768px) {
     nav { padding: 0 20px; }
-    .hero { padding: 32px 20px 28px; }
-    .hero h1 { font-size: 1.9rem; }
+    .hero { padding: 22px 20px 20px; }
+    .hero-quote-text { font-size: 1.35rem; }
+    .hero-quote-mark { font-size: 2.4rem; }
+    .hero-quote-text { font-size: 1.45rem; }
+    .hero-quote-mark { font-size: 3rem; }
     .filter-bar { padding: 10px 20px; }
     .active-filters { padding: 5px 20px 6px; }
     .main-layout { padding: 20px 16px 48px; }
@@ -598,8 +610,18 @@
 
 <!-- HERO -->
 <div class="hero">
-  <h1 class="hero-animate">Every academic opening<br>in Hong Kong, <em>in one place.</em></h1>
-  <p class="hero-animate">Updated daily from career portals of HK academic institutions. No more missed deadlines.</p>
+  <!-- A/B: variant A — original static headline (shown by default, hidden by JS if variant B) -->
+  <div class="hero-animate" id="heroStaticWrap">
+    <h1 style="font-family:'Playfair Display',serif;font-size:2.6rem;line-height:1.1;max-width:560px;margin-bottom:10px;">
+      Every academic opening<br>in Hong Kong, <em style="color:var(--accent);font-style:normal;">in one place.</em>
+    </h1>
+  </div>
+  <!-- A/B: variant B — daily rotating quote (hidden by default, shown by JS if variant B) -->
+  <div class="hero-quote-wrap hero-animate" id="heroQuoteWrap" style="display:none;">
+    <div class="hero-quote-mark">&ldquo;</div>
+    <h1 class="hero-quote-text" id="heroQuoteText"></h1>
+    <p class="hero-quote-attr" id="heroQuoteAttr"></p>
+  </div>
   <div class="stats-row">
     <div class="stat-item"><div class="stat-num" id="statTotal">—</div><div class="stat-label">Open Positions</div></div>
     <div class="stat-item"><div class="stat-num" id="statNew">—</div><div class="stat-label">New Today</div></div>
@@ -1056,6 +1078,34 @@ let openJobId   = null;
 function trackEvent(name, params) {
   if (typeof gtag === 'function') gtag('event', name, params || {});
 }
+
+// ── A/B engagement signals — fires once per session for each milestone
+// GA4 Explorations: break down ab_hero_variant against these events to compare
+// session depth and return rate between the two hero variants.
+(function() {
+  const variant = localStorage.getItem('hkaj_ab_hero_v1');
+  if (!variant) return;
+  const abParam = { ab_variant: variant, ab_test_name: 'hero_quote_vs_static' };
+
+  // Time-on-page milestones: 30s, 60s, 120s
+  [30, 60, 120].forEach(secs => {
+    setTimeout(() => {
+      trackEvent('ab_time_on_page', { ...abParam, seconds: secs });
+    }, secs * 1000);
+  });
+
+  // Scroll depth milestones: 25%, 50%, 75%
+  const scrollFired = new Set();
+  window.addEventListener('scroll', function onScroll() {
+    const pct = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
+    [25, 50, 75].forEach(threshold => {
+      if (pct >= threshold && !scrollFired.has(threshold)) {
+        scrollFired.add(threshold);
+        trackEvent('ab_scroll_depth', { ...abParam, percent: threshold });
+      }
+    });
+  }, { passive: true });
+})();
 // Debounced search tracking — fires 1s after user stops typing
 let _searchTrackTimer = null;
 function trackSearch(query, resultCount) {
@@ -2199,6 +2249,149 @@ function showActionToast(msg) {
   _actionToastTimer = setTimeout(() => el.classList.remove('visible'), 2500);
 }
 
+
+// ── A/B Test: Hero Quote vs Static headline
+// Variant A = original static headline  |  Variant B = daily rotating academic quote
+// Assignment persists in localStorage so the same user always sees the same variant.
+(function() {
+  const AB_KEY = 'hkaj_ab_hero_v1';
+
+  // Retrieve or assign variant
+  let variant = localStorage.getItem(AB_KEY);
+  if (!variant) {
+    variant = Math.random() < 0.5 ? 'A' : 'B';
+    localStorage.setItem(AB_KEY, variant);
+  }
+
+  // Show the correct hero panel
+  const staticWrap = document.getElementById('heroStaticWrap');
+  const quoteWrap  = document.getElementById('heroQuoteWrap');
+  if (variant === 'A') {
+    staticWrap.style.display = '';
+    quoteWrap.style.display  = 'none';
+  } else {
+    staticWrap.style.display = 'none';
+    quoteWrap.style.display  = '';
+  }
+
+  // Fire GA4 exposure event + set user property so we can segment in GA4 Explorations
+  // Event:         ab_test_exposure  →  filter by ab_variant in Explorations
+  // User property: ab_hero_variant   →  compare engagement/retention between A and B
+  function fireGA4() {
+    if (typeof gtag !== 'function') return;
+    gtag('set', 'user_properties', { ab_hero_variant: variant });
+    gtag('event', 'ab_test_exposure', {
+      ab_test_name: 'hero_quote_vs_static',
+      ab_variant:   variant,
+    });
+  }
+  // gtag may not be ready yet if the async script hasn't loaded — wait for it
+  if (typeof gtag === 'function') {
+    fireGA4();
+  } else {
+    window.addEventListener('load', fireGA4);
+  }
+
+  // Only run the quote logic for variant B
+  if (variant !== 'B') return;
+
+  const QUOTES = [
+    // Verified: from his Nobel lecture and writings on biochemistry
+    { text: "Research is to see what everybody else has seen, and to think what nobody else has thought.", attr: "Albert Szent-Györgyi · Nobel Prize in Physiology or Medicine, 1937" },
+    // Verified: Life magazine interview, May 2, 1955
+    { text: "The important thing is not to stop questioning. Curiosity has its own reason for existing.", attr: "Albert Einstein · Nobel Prize in Physics, 1921" },
+    // Verified: Real Time with Bill Maher, HBO, 2011
+    { text: "The good thing about science is that it's true whether or not you believe in it.", attr: "Neil deGrasse Tyson · Astrophysicist & Director, Hayden Planetarium" },
+    // Verified: widely attributed to his social media and public talks
+    { text: "The universe is under no obligation to make sense to you.", attr: "Neil deGrasse Tyson · Astrophysicist & Director, Hayden Planetarium" },
+    // Verified: Science and Hypothesis (1902), Ch. 9
+    { text: "Science is built up of facts, as a house is built of stones; but an accumulation of facts is no more a science than a heap of stones is a house.", attr: "Henri Poincaré · Mathematician & Theoretical Physicist" },
+    // Verified: Caltech commencement address, 'Cargo Cult Science', 1974
+    { text: "The first principle is that you must not fool yourself — and you are the easiest person to fool.", attr: "Richard Feynman · Nobel Prize in Physics, 1965" },
+    // Verified: letter to Carl Seelig, March 11, 1952
+    { text: "I have no special talent. I am only passionately curious.", attr: "Albert Einstein · Nobel Prize in Physics, 1921" },
+    // Verified: essay 'What I Believe', Forum and Century, 1930
+    { text: "The most beautiful thing we can experience is the mysterious. It is the source of all true art and science.", attr: "Albert Einstein · Nobel Prize in Physics, 1921" },
+    // Verified: widely attributed to Asimov across multiple essays and interviews
+    { text: "The most exciting phrase to hear in science, the one that heralds new discoveries, is not 'Eureka!' but 'That's funny…'", attr: "Isaac Asimov · Professor of Biochemistry, Boston University" },
+    // Verified: The Evolution of Physics (1938), co-authored with Leopold Infeld
+    { text: "To raise new questions, new possibilities, to regard old problems from a new angle, requires creative imagination.", attr: "Albert Einstein · Nobel Prize in Physics, 1921" },
+    // Verified: essay 'Physics and Reality', Journal of the Franklin Institute, 1936
+    { text: "The whole of science is nothing more than a refinement of everyday thinking.", attr: "Albert Einstein · Nobel Prize in Physics, 1921" },
+    // Verified: Plato's Apology, 38a
+    { text: "The unexamined life is not worth living.", attr: "Socrates · as recorded in Plato's Apology, 38a" },
+    // Verified: Nicomachean Ethics, Book II, Ch. 1
+    { text: "For the things we have to learn before we can do them, we learn by doing them.", attr: "Aristotle · Nicomachean Ethics, Book II" },
+    // Verified: Essays, 'Of Studies' (1625)
+    { text: "Reading maketh a full man; conference a ready man; and writing an exact man.", attr: "Francis Bacon · Essays, 'Of Studies' (1625)" },
+    // Verified: Critique of Practical Reason (1788), Conclusion
+    { text: "Two things fill the mind with ever new and increasing admiration and awe: the starry heavens above me and the moral law within me.", attr: "Immanuel Kant · Critique of Practical Reason (1788)" },
+    // Verified: What I Believe (1925)
+    { text: "The good life is one inspired by love and guided by knowledge.", attr: "Bertrand Russell · Nobel Prize in Literature, 1950 · What I Believe (1925)" },
+    // Verified: Preface to The General Theory of Employment, Interest and Money (1936)
+    { text: "The difficulty lies not so much in developing new ideas as in escaping from old ones.", attr: "John Maynard Keynes · The General Theory, Preface (1936)" },
+    // Verified: Four Quartets, 'Little Gidding' (1942)
+    { text: "We shall not cease from exploration, and the end of all our exploring will be to arrive where we started and know the place for the first time.", attr: "T.S. Eliot · Nobel Prize in Literature, 1948 · Four Quartets (1942)" },
+    // Verified: Return to Tipasa, in Summer (L'Été, 1954)
+    { text: "In the depth of winter, I finally learned that within me there lay an invincible summer.", attr: "Albert Camus · Nobel Prize in Literature, 1957 · Return to Tipasa (1954)" },
+    // Verified: Worstward Ho (1983)
+    { text: "Ever tried. Ever failed. No matter. Try again. Fail again. Fail better.", attr: "Samuel Beckett · Nobel Prize in Literature, 1969 · Worstward Ho (1983)" },
+  ];
+
+  const textEl = document.getElementById('heroQuoteText');
+  const attrEl = document.getElementById('heroQuoteAttr');
+  if (!textEl) return;
+
+  // Pick quote deterministically by day — same quote all day, changes at midnight
+  const today = new Date();
+  const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000);
+  const q = QUOTES[dayOfYear % QUOTES.length];
+
+  // Typewriter: type the quote, then fade in the attribution
+  const fullText = q.text;
+  const fullAttr = '— ' + q.attr;
+  let i = 0;
+  attrEl.style.opacity = '0';
+
+  // Lock both elements to their final heights before animation begins
+  // so the hero never reflows during typing or attribution fade-in.
+  textEl.textContent = fullText;
+  textEl.style.height = textEl.offsetHeight + 'px';
+  textEl.style.overflow = 'hidden';
+  textEl.textContent = '';
+
+  attrEl.textContent = fullAttr;
+  attrEl.style.height = attrEl.offsetHeight + 'px';
+  attrEl.style.overflow = 'hidden';
+  attrEl.textContent = '';
+
+  function typeNext() {
+    if (i <= fullText.length) {
+      textEl.textContent = fullText.slice(0, i);
+      i++;
+      // Vary speed slightly for a natural feel (faster on spaces)
+      const ch = fullText[i - 1];
+      const delay = ch === ' ' ? 42 : (ch === ',' || ch === ';' || ch === '—') ? 180 : 57;
+      setTimeout(typeNext, delay);
+    } else {
+      // Done typing — keep cursor blinking, pause, fade in attribution, then remove cursor
+      textEl.style.height = '';
+      textEl.style.overflow = '';
+      setTimeout(() => {
+        attrEl.textContent = fullAttr;
+        attrEl.style.height = '';
+        attrEl.style.overflow = '';
+        attrEl.style.transition = 'opacity 0.8s ease';
+        attrEl.style.opacity = '1';
+        // Remove cursor once attribution fade completes (0.8s transition)
+        setTimeout(() => textEl.classList.add('typed'), 800);
+      }, 600);
+    }
+  }
+
+  // Small pause before starting so the hero entrance animation settles first
+  setTimeout(typeNext, 400);
+})();
 
 // Hero entrance animations
 (function() {
