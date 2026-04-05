@@ -610,14 +610,7 @@
 
 <!-- HERO -->
 <div class="hero">
-  <!-- A/B: variant A — original static headline (shown by default, hidden by JS if variant B) -->
-  <div class="hero-animate" id="heroStaticWrap">
-    <h1 style="font-family:'Playfair Display',serif;font-size:2.6rem;line-height:1.1;max-width:560px;margin-bottom:10px;">
-      Every academic opening<br>in Hong Kong, <em style="color:var(--accent);font-style:normal;">in one place.</em>
-    </h1>
-  </div>
-  <!-- A/B: variant B — daily rotating quote (hidden by default, shown by JS if variant B) -->
-  <div class="hero-quote-wrap hero-animate" id="heroQuoteWrap" style="display:none;">
+  <div class="hero-quote-wrap hero-animate" id="heroQuoteWrap">
     <div class="hero-quote-mark">&ldquo;</div>
     <h1 class="hero-quote-text" id="heroQuoteText"></h1>
     <p class="hero-quote-attr" id="heroQuoteAttr"></p>
@@ -1079,33 +1072,6 @@ function trackEvent(name, params) {
   if (typeof gtag === 'function') gtag('event', name, params || {});
 }
 
-// ── A/B engagement signals — fires once per session for each milestone
-// GA4 Explorations: break down ab_hero_variant against these events to compare
-// session depth and return rate between the two hero variants.
-(function() {
-  const variant = localStorage.getItem('hkaj_ab_hero_v1');
-  if (!variant) return;
-  const abParam = { ab_variant: variant, ab_test_name: 'hero_quote_vs_static' };
-
-  // Time-on-page milestones: 30s, 60s, 120s
-  [30, 60, 120].forEach(secs => {
-    setTimeout(() => {
-      trackEvent('ab_time_on_page', { ...abParam, seconds: secs });
-    }, secs * 1000);
-  });
-
-  // Scroll depth milestones: 25%, 50%, 75%
-  const scrollFired = new Set();
-  window.addEventListener('scroll', function onScroll() {
-    const pct = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
-    [25, 50, 75].forEach(threshold => {
-      if (pct >= threshold && !scrollFired.has(threshold)) {
-        scrollFired.add(threshold);
-        trackEvent('ab_scroll_depth', { ...abParam, percent: threshold });
-      }
-    });
-  }, { passive: true });
-})();
 // Debounced search tracking — fires 1s after user stops typing
 let _searchTrackTimer = null;
 function trackSearch(query, resultCount) {
@@ -2250,51 +2216,8 @@ function showActionToast(msg) {
 }
 
 
-// ── A/B Test: Hero Quote vs Static headline
-// Variant A = original static headline  |  Variant B = daily rotating academic quote
-// Assignment persists in localStorage so the same user always sees the same variant.
+// ── Daily rotating academic quote
 (function() {
-  const AB_KEY = 'hkaj_ab_hero_v1';
-
-  // Retrieve or assign variant
-  let variant = localStorage.getItem(AB_KEY);
-  if (!variant) {
-    variant = Math.random() < 0.5 ? 'A' : 'B';
-    localStorage.setItem(AB_KEY, variant);
-  }
-
-  // Show the correct hero panel
-  const staticWrap = document.getElementById('heroStaticWrap');
-  const quoteWrap  = document.getElementById('heroQuoteWrap');
-  if (variant === 'A') {
-    staticWrap.style.display = '';
-    quoteWrap.style.display  = 'none';
-  } else {
-    staticWrap.style.display = 'none';
-    quoteWrap.style.display  = '';
-  }
-
-  // Fire GA4 exposure event + set user property so we can segment in GA4 Explorations
-  // Event:         ab_test_exposure  →  filter by ab_variant in Explorations
-  // User property: ab_hero_variant   →  compare engagement/retention between A and B
-  function fireGA4() {
-    if (typeof gtag !== 'function') return;
-    gtag('set', 'user_properties', { ab_hero_variant: variant });
-    gtag('event', 'ab_test_exposure', {
-      ab_test_name: 'hero_quote_vs_static',
-      ab_variant:   variant,
-    });
-  }
-  // gtag may not be ready yet if the async script hasn't loaded — wait for it
-  if (typeof gtag === 'function') {
-    fireGA4();
-  } else {
-    window.addEventListener('load', fireGA4);
-  }
-
-  // Only run the quote logic for variant B
-  if (variant !== 'B') return;
-
   const QUOTES = [
     // Verified: from his Nobel lecture and writings on biochemistry
     { text: "Research is to see what everybody else has seen, and to think what nobody else has thought.", attr: "Albert Szent-Györgyi · Nobel Prize in Physiology or Medicine, 1937" },
