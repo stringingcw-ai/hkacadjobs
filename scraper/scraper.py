@@ -2953,25 +2953,25 @@ def main():
 
     # Load previous run to detect which jobs are genuinely new today
     today_str = TODAY.strftime("%Y-%m-%d")
-    existing = {}  # id → {date_added, date_posted, description} from previous CSV
+    existing = {}      # id → full row dict from previous CSV
+    existing_rows = {} # university code → list of full rows (for fallback on scraper failure)
     if OUTPUT_FILE.exists():
         try:
             with open(OUTPUT_FILE, newline="", encoding="utf-8") as f:
                 for row in csv.DictReader(f):
                     jid = row.get("id", "")
                     if jid:
-                        existing[jid] = {
-                            "date_added":  row.get("date_added", today_str),
-                            "date_posted": row.get("date_posted", ""),
-                            "description": row.get("description", ""),
-                        }
+                        existing[jid] = dict(row)
+                        uni = row.get("university", "")
+                        if uni:
+                            existing_rows.setdefault(uni, []).append(dict(row))
             print(f"↳ Previous CSV: {len(existing)} jobs loaded")
         except Exception as e:
             print(f"  ⚠️  Could not read previous CSV: {e}")
 
     # Expose existing descriptions so scrapers can skip re-fetching known jobs
     global _existing_descriptions
-    _existing_descriptions = {jid: d.get("description", "") for jid, d in existing.items()}
+    _existing_descriptions = {jid: row.get("description", "") for jid, row in existing.items()}
 
     all_jobs = []
 
@@ -2983,14 +2983,41 @@ def main():
             sys.exit(1)
         all_jobs = SCRAPERS[uni]()
     else:
+        # Scraper name → university code(s) used in the CSV.
+        # Used to fall back to existing jobs when a scraper returns 0 results.
+        SCRAPER_UNI_CODES = {
+            "polyu": ["PolyU"], "eduhk": ["EdUHK"], "lingnan": ["LU"],
+            "hku": ["HKU"], "hkust": ["HKUST"], "cityu": ["CityU"],
+            "hkbu": ["HKBU"], "cuhk": ["CUHK"], "hkmu": ["HKMU"],
+            "hsu": ["HSU"], "sfu": ["SFU"], "hksyu": ["HKSYU"],
+            "vtc": ["VTC"], "hkuspace": ["HKUSPACE"], "cpce": ["CPCE"],
+            "chuhai": ["HKCHC"], "thei": ["THEI"],
+        }
         # Scrape all
         for name, scraper in SCRAPERS.items():
             try:
                 jobs = scraper()
-                all_jobs.extend(jobs)
+                if not jobs and existing_rows:
+                    # Scraper returned nothing — likely a temporary fetch failure.
+                    # Fall back to the previous day's jobs for this university so
+                    # they don't re-appear as "new" on the next successful run.
+                    uni_codes = SCRAPER_UNI_CODES.get(name, [])
+                    fallback = [r for code in uni_codes for r in existing_rows.get(code, [])]
+                    if fallback:
+                        print(f"  ⚠️  {name} returned 0 jobs — keeping {len(fallback)} existing jobs as fallback")
+                        all_jobs.extend(fallback)
+                    else:
+                        print(f"  ⚠️  {name} returned 0 jobs and no fallback available")
+                else:
+                    all_jobs.extend(jobs)
                 time.sleep(1)  # polite delay between universities
             except Exception as e:
                 print(f"  ❌ {name} crashed: {e}")
+                uni_codes = SCRAPER_UNI_CODES.get(name, [])
+                fallback = [r for code in uni_codes for r in existing_rows.get(code, [])]
+                if fallback:
+                    print(f"     ↳ Keeping {len(fallback)} existing {name} jobs as fallback")
+                    all_jobs.extend(fallback)
 
     all_jobs = deduplicate(all_jobs)
     # Keep: active jobs, no-deadline jobs, and jobs closed within the last 14 days
