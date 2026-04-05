@@ -2297,7 +2297,12 @@ function showActionToast(msg) {
       const delay = ch === ' ' ? 42 : (ch === ',' || ch === ';' || ch === '—') ? 180 : 57;
       setTimeout(typeNext, delay);
     } else {
-      // Done typing — keep cursor blinking, pause, fade in attribution, then remove cursor
+      // Done typing — colour trailing punctuation with accent, then fade in attribution
+      const raw = textEl.textContent;
+      const last = raw.slice(-1);
+      if (last === '.' || last === '…' || last === '!' || last === '?') {
+        textEl.innerHTML = raw.slice(0, -1) + '<span style="color:var(--accent)">' + last + '</span>';
+      }
       textEl.style.height = '';
       textEl.style.overflow = '';
       setTimeout(() => {
