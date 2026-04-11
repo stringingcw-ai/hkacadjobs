@@ -23,7 +23,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install requests beautifulsoup4 playwright anthropic pypdf
+          pip install requests beautifulsoup4 playwright anthropic pypdf certifi
           playwright install chromium --with-deps
 
       - name: Run scraper
@@ -35,6 +35,16 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python scraper/patch_hku_descriptions.py --reset-queue --all
+
+      - name: Send job alert emails
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          ALERT_FROM_EMAIL: ${{ secrets.ALERT_FROM_EMAIL }}
+        run: python scraper/notify.py
 
       - name: Generate job pages + sitemap
         run: python scraper/generate_job_pages.py
