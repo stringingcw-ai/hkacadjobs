@@ -1825,8 +1825,8 @@ function clearAllFilters() {
 }
 
 function syncFiltersToURL() {
-  // Don't overwrite the URL while a job panel is open — the ?job= URL takes precedence
-  if (openJobId) return;
+  // Don't overwrite the URL while a job panel is open or in saved view
+  if (openJobId || currentView === 'saved') return;
   const params = new URLSearchParams();
   const search = document.getElementById('searchInput').value;
   const area   = document.getElementById('areaFilter').value;
