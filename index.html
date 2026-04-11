@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HKAcadJobs — Academic Positions in Hong Kong</title>
 <meta name="description" content="Search for academic job listings across all universities in Hong Kong, all in one place.">
+<link rel="canonical" href="https://www.hkacadjobs.org/">
 <meta name="keywords" content="academic jobs Hong Kong, university positions HK, faculty jobs, research jobs Hong Kong, professor openings Hong Kong, lecturer jobs Hong Kong">
 <meta property="og:title" content="HKAcadJobs — Academic Positions in Hong Kong">
 <meta property="og:description" content="Search for academic job listings across all universities in Hong Kong, all in one place.">
@@ -1693,9 +1694,27 @@ function initUI() {
   }
 
 
+  // Restore saved view if URL says so (e.g. shared ?view=saved link or back-nav)
+  if (urlParams.get('view') === 'saved') {
+    currentView = 'saved';
+    document.getElementById('savedNavBtn').classList.add('active');
+    document.body.classList.add('saved-view');
+    history.replaceState({ view: 'saved' }, '', '?view=saved');
+  }
+
   filterJobs();
   updateBkUI();
   maybeShowWelcome();
+
+  // Deep-link: auto-open panel if ?job=ID is in the URL
+  const jobParam = urlParams.get('job');
+  if (jobParam) {
+    const match = ALL_JOBS.find(x => x._id === jobParam);
+    if (match) {
+      history.replaceState({ jobId: match._id }, '', '?job=' + encodeURIComponent(match._id));
+      openPanel(match._id);
+    }
+  }
 }
 
 // ── Area/Group cascade
@@ -1738,6 +1757,12 @@ function switchTab(tab) {
   currentPage = 1;
   document.getElementById('savedNavBtn').classList.toggle('active', tab === 'saved');
   document.body.classList.toggle('saved-view', tab === 'saved');
+  // Reflect saved view in URL so back button and prevSearch work correctly
+  if (tab === 'saved') {
+    history.pushState({ view: 'saved' }, '', '?view=saved');
+  } else if (location.search === '?view=saved') {
+    history.pushState({}, '', location.pathname);
+  }
   filterJobs();
   renderSavedFiltersSection();
 }
@@ -1800,6 +1825,8 @@ function clearAllFilters() {
 }
 
 function syncFiltersToURL() {
+  // Don't overwrite the URL while a job panel is open — the ?job= URL takes precedence
+  if (openJobId) return;
   const params = new URLSearchParams();
   const search = document.getElementById('searchInput').value;
   const area   = document.getElementById('areaFilter').value;
@@ -2035,6 +2062,10 @@ function openPanel(id) {
   if (!j) return;
   openJobId = id;
   trackEvent('job_detail_viewed', { job_id: id, university: j.university, rank: j.rank, title: j.title });
+  // Update URL so the panel is shareable / deep-linkable.
+  // Stash the current search string so closing the panel can restore it.
+  const _prevSearch = location.search;
+  history.pushState({ jobId: id, prevSearch: _prevSearch }, '', '?job=' + encodeURIComponent(id));
   renderTable();
   const col = uniColor(j.university);
   const d = daysLeft(j.deadline); const dl = daysLabel(d);
@@ -2098,8 +2129,39 @@ function closePanel() {
   document.getElementById('panelOverlay').classList.remove('open');
   document.getElementById('detailPanel').classList.remove('open');
   document.body.style.overflow = '';
+  // Restore the URL that was active before the panel opened (preserves filter params)
+  const prevSearch = history.state?.prevSearch ?? '';
+  history.pushState({}, '', location.pathname + prevSearch);
   renderTable();
 }
+
+// Handle browser back/forward
+window.addEventListener('popstate', e => {
+  const id = e.state?.jobId;
+  if (id && ALL_JOBS.length) {
+    // Navigated to a job state — open the panel
+    openPanel(id);
+  } else {
+    // Navigated away from a job state — close the panel if open
+    if (openJobId) {
+      openJobId = null;
+      document.getElementById('panelOverlay').classList.remove('open');
+      document.getElementById('detailPanel').classList.remove('open');
+      document.body.style.overflow = '';
+      renderTable();
+    }
+    // Reflect saved/all view from URL
+    const isSaved = e.state?.view === 'saved' || new URLSearchParams(location.search).get('view') === 'saved';
+    if (isSaved !== (currentView === 'saved') && ALL_JOBS.length) {
+      currentView = isSaved ? 'saved' : 'all';
+      currentPage = 1;
+      document.getElementById('savedNavBtn').classList.toggle('active', isSaved);
+      document.body.classList.toggle('saved-view', isSaved);
+      filterJobs();
+      renderSavedFiltersSection();
+    }
+  }
+});
 
 function openAbout() {
   document.getElementById('aboutOverlay').classList.add('open');

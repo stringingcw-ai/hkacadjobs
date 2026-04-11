@@ -36,17 +36,22 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python scraper/patch_hku_descriptions.py --reset-queue --all
 
-      - name: Commit and push jobs.csv
+      - name: Generate job pages + sitemap
+        run: python scraper/generate_job_pages.py
+
+      - name: Commit and push jobs.csv + job pages + sitemap
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -f jobs.csv
+          git add -f jobs.csv sitemap.xml
+          git add -f jobs/
           if git diff --cached --quiet; then
-            echo "No changes to jobs.csv — skipping commit"
+            echo "No changes — skipping commit"
           else
             DATE=$(date -u +"%d %b %Y")
             NEW=$(git diff --cached jobs.csv | grep "^+" | grep -c ",TRUE," || true)
-            git commit -m "Data refresh: ${DATE} (${NEW} new)"
+            PAGES=$(find jobs/ -name "index.html" | wc -l | tr -d ' ')
+            git commit -m "Data refresh: ${DATE} (${NEW} new, ${PAGES} job pages)"
             git fetch origin main
             git rebase -X ours origin/main
             git push
