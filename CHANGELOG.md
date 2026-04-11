@@ -4,6 +4,21 @@ All notable changes to HKAcadJobs are recorded here, grouped by date.
 
 ---
 
+## 2026-04-11
+
+### SEO — Static job pages overhaul
+- **Removed JS redirect** from generated `/jobs/<slug>-<id>/` pages — the previous `window.location.replace` was being treated as a soft 404 by Googlebot and prevented the static content from being indexed
+- **Full job description rendered in visible HTML** — each static page now includes the structured description (duties, requirements, appointment, key dates) parsed from the markdown-ish format used in `jobs.csv`, so Googlebot sees real content instead of a stub
+- **Twitter Card tags** added per job (`twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`) for rich previews on Twitter/X
+- **Open Graph image** (`og:image` pointing to `/og-image.png`) added per job so WhatsApp / LinkedIn / Slack previews show a proper card instead of a text-only preview
+- **JobPosting JSON-LD enriched** — added `identifier`, `industry`, `applicantLocationRequirements`, and a 90-day `validThrough` fallback for jobs without an explicit deadline (Google for Jobs requires `validThrough`)
+- **Standalone page layout** — generated pages now have a proper HKAcadJobs nav bar, breadcrumb, info grid, description sections, apply button, and "Browse more positions" link back to the SPA. No longer a bare redirect stub
+- **Canonical URL stays in sync with SPA** — when the main site is loaded with `?job=ID`, the SPA now dynamically updates `<link rel="canonical">` to point at the static page at `/jobs/<slug>-<id>/`, signalling to Google that the query-parameter URL is a duplicate of the canonical static page
+- Added `jobSlug()` / `jobStaticUrl()` helpers in `index.html` that mirror `scraper/generate_job_pages.py::slugify` exactly so the canonical URL is always correct
+- Removed stray duplicate `<link rel="canonical">` tag from homepage `<head>`
+
+---
+
 ## 2026-03-15
 
 ### New Institutions

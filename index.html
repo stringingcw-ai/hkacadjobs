@@ -11,7 +11,6 @@
 <meta property="og:description" content="Search for academic job listings across all universities in Hong Kong, all in one place.">
 <meta property="og:url" content="https://www.hkacadjobs.org/">
 <meta property="og:type" content="website">
-<link rel="canonical" href="https://www.hkacadjobs.org/">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="HKAcadJobs — Academic Positions in Hong Kong">
 <meta name="twitter:description" content="Search for academic job listings across all universities in Hong Kong, all in one place.">
@@ -1712,9 +1711,35 @@ function initUI() {
     const match = ALL_JOBS.find(x => x._id === jobParam);
     if (match) {
       history.replaceState({ jobId: match._id }, '', '?job=' + encodeURIComponent(match._id));
+      // Point Google at the static job page as the canonical URL so the
+      // ?job= deep-link isn't treated as duplicate content with the homepage.
+      updateJobCanonical(match);
       openPanel(match._id);
     }
   }
+}
+
+// Match the slugify used by scraper/generate_job_pages.py so the canonical
+// URL here stays in sync with the generated static pages at /jobs/<slug>-<id>/.
+// Python uses str.encode('ascii', 'ignore') which drops non-ASCII chars
+// entirely (no NFKD transliteration), so we mirror that here.
+function jobSlug(title) {
+  const ascii = (title || '').replace(/[^\x00-\x7F]/g, '');
+  const slug = ascii.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
+  return slug || 'position';
+}
+function jobStaticUrl(job) {
+  return 'https://www.hkacadjobs.org/jobs/' + jobSlug(job.title) + '-' + (job._id || '').toLowerCase() + '/';
+}
+function updateJobCanonical(job) {
+  const url = jobStaticUrl(job);
+  // Replace the existing <link rel="canonical"> so search engines that render
+  // JS treat the static job page as authoritative.
+  document.querySelectorAll('link[rel="canonical"]').forEach(el => el.remove());
+  const link = document.createElement('link');
+  link.rel = 'canonical';
+  link.href = url;
+  document.head.appendChild(link);
 }
 
 // ── Area/Group cascade
@@ -2066,6 +2091,7 @@ function openPanel(id) {
   // Stash the current search string so closing the panel can restore it.
   const _prevSearch = location.search;
   history.pushState({ jobId: id, prevSearch: _prevSearch }, '', '?job=' + encodeURIComponent(id));
+  updateJobCanonical(j);
   renderTable();
   const col = uniColor(j.university);
   const d = daysLeft(j.deadline); const dl = daysLabel(d);
@@ -2132,7 +2158,17 @@ function closePanel() {
   // Restore the URL that was active before the panel opened (preserves filter params)
   const prevSearch = history.state?.prevSearch ?? '';
   history.pushState({}, '', location.pathname + prevSearch);
+  // Restore homepage canonical once the job panel is no longer the active view.
+  resetHomepageCanonical();
   renderTable();
+}
+
+function resetHomepageCanonical() {
+  document.querySelectorAll('link[rel="canonical"]').forEach(el => el.remove());
+  const link = document.createElement('link');
+  link.rel = 'canonical';
+  link.href = 'https://www.hkacadjobs.org/';
+  document.head.appendChild(link);
 }
 
 // Handle browser back/forward
