@@ -66,17 +66,17 @@ Every item lists a concrete entry point so future work can pick it up without re
 
 ## 3. Search friction — Why do users give up mid-search?
 
-### [P0] Search only hits title + department — keyword searches silently return nothing — S
+### [P0] ~~Search only hits title + department — keyword searches silently return nothing~~ ✅ DONE 2026-04-12 — S
 **Symptom:** `job_matches_filter` and its client-side twin only grep title + department. A user searching "machine learning", "climate", "NLP", "quantum" gets zero results if those words only appear in the job description — the single biggest silent dead-end in the UX.
 **Fix:** Extend the search haystack to include `description` (the text the scraper already stores). Weight title matches higher than description matches when sorting. Estimated work: ~20 lines of JS change plus filter logic update.
 **Evidence:** scraper/notify.py:144-148, and the mirror function in index.html — grep `function filterJobs` / the equivalent of `haystack`.
 
-### [P0] Empty-state dead-ends users — no "did you mean" or alternative — S
+### [P0] ~~Empty-state dead-ends users — no "did you mean" or alternative~~ ✅ DONE 2026-04-12 — S
 **Symptom:** When filters + search return zero results, the empty state is a 🔍 emoji and a "Reset all filters" button. No hint that maybe the search term doesn't match any indexed field, no fuzzy suggestion, no link to "Browse by institution" or "Set an alert for this search".
 **Fix:** Extend the empty state to detect which filter is most restrictive and offer a one-click "Remove [filter]" shortcut, plus a permanent "Get alerted when matching jobs appear" CTA (this also drives alert conversions — see item 5.1).
 **Evidence:** index.html:698.
 
-### [P0] "Area" filter label is ambiguous — confuses first-time visitors — S
+### [P0] ~~"Area" filter label is ambiguous — confuses first-time visitors~~ ✅ DONE 2026-04-12 — S
 **Symptom:** A dropdown labelled "All Areas" with no tooltip — users don't know whether it means geography, subject area, or org unit. Actually maps to `position_type` (Academic / Research / Admin / Technical).
 **Fix:** Rename to "All Job Types" or "All Categories". Add placeholder help text under the filter bar on first visit. One-word change in the template.
 **Evidence:** index.html:653.
