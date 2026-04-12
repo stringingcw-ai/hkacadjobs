@@ -109,7 +109,7 @@ Every item lists a concrete entry point so future work can pick it up without re
 
 ## 4. Detail → Apply conversion — Are the jobs actually getting clicked?
 
-### [P0] Apply button outbound click is NOT tracked — blind funnel — S
+### [P0] ~~Apply button outbound click is NOT tracked — blind funnel — S~~ ✅ DONE
 **Symptom:** `trackEvent('job_detail_viewed', ...)` fires when the detail panel opens (index.html:2088), but there is no event on the actual "Apply on [University]" click. The single most important conversion on the site is invisible in GA4. We literally don't know if the site delivers value.
 **Fix:** Add `onclick="trackEvent('apply_click', {job_id: ..., university: ..., rank: ...})"` to the `#panelApplyLink` anchor. Also mirror it on the table-row apply button. Five-line change.
 **Evidence:** index.html:919-920, 1997-1998, 2144-2145.
@@ -158,7 +158,7 @@ Every item lists a concrete entry point so future work can pick it up without re
 
 ## 6. Measurement blind spots — What we can't see, we can't fix
 
-### [P0] `apply_click` missing — see item 4.1 — S
+### [P0] ~~`apply_click` missing — see item 4.1 — S~~ ✅ DONE
 (duplicated here for tracking; fix once, resolves both funnel visibility and retention decisions)
 
 ### [P0] `search_no_results` missing — see item 3.5 — S

@@ -691,7 +691,7 @@
     <span class="sort-bar-label">Sort by:</span>
     <button class="sort-pill active" id="sortDefault" onclick="setSort('default')">Most relevant</button>
     <button class="sort-pill" id="sortNewest" onclick="setSort('newest')">Most recent</button>
-    <button class="sort-pill" id="sortDeadline" onclick="setSort('deadline')">Deadline</button>
+    <button class="sort-pill" id="sortDeadline" onclick="setSort('deadline')">Deadline date</button>
   </div>
   <div class="job-table-wrap" id="tableWrap">
     <div class="loading-state" id="loadingState">
@@ -2085,7 +2085,7 @@ function renderTable() {
         </div>
       </td>
       <td onclick="event.stopPropagation()">
-        <a class="apply-btn" href="${j.apply_url||'#'}" target="_blank" rel="noopener">
+        <a class="apply-btn" href="${j.apply_url||'#'}" target="_blank" rel="noopener" onclick="trackEvent('apply_click',{job_id:'${j.id}',university:'${j.university}',rank:'${(j.rank||'').replace(/'/g,"\\'")}',source:'table_row'})">
           Apply
           <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" width="11" height="11"><path d="M2 6h8M6.5 2.5L10 6l-3.5 3.5"/></svg>
         </a>
@@ -2236,7 +2236,9 @@ function openPanel(id) {
       ${descHtml}
     </div>`;
 
-  document.getElementById('panelApplyLink').href = j.apply_url || '#';
+  const applyLink = document.getElementById('panelApplyLink');
+  applyLink.href = j.apply_url || '#';
+  applyLink.onclick = () => trackEvent('apply_click', { job_id: id, university: j.university, rank: j.rank, source: 'detail_panel' });
   document.getElementById('panelApplyText').textContent = `Apply on ${uniDisplay(j.university)}`;
   updatePanelSaveBtn(id);
   document.getElementById('panelOverlay').classList.add('open');
