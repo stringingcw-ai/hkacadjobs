@@ -246,6 +246,9 @@
   .sf-popover-hint { font-size: 0.76rem; color: var(--muted); margin-bottom: 8px; }
   .sf-popover-input { width: 100%; padding: 7px 10px; border: 1.5px solid var(--border); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.84rem; color: var(--ink); background: var(--paper); box-sizing: border-box; outline: none; }
   .sf-popover-input:focus { border-color: var(--accent); }
+  .sf-popover-alert-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 0.8rem; color: var(--ink); cursor: pointer; user-select: none; white-space: nowrap; }
+  .sf-popover-alert-row input { accent-color: var(--accent); width: 15px; height: 15px; cursor: pointer; margin: 0; flex-shrink: 0; }
+  .sf-popover-alert-row label { cursor: pointer; white-space: nowrap; }
   .sf-popover-actions { display: flex; gap: 8px; margin-top: 10px; }
   .sf-popover-save { flex: 1; padding: 7px; background: var(--accent); color: white; border: none; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 500; cursor: pointer; transition: opacity 0.15s; }
   .sf-popover-save:hover { opacity: 0.88; }
@@ -350,6 +353,13 @@
   .empty-state, .saved-empty { text-align: center; padding: 60px 20px; color: var(--muted); display: none; }
   .empty-state .empty-icon, .saved-empty .empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
   .saved-empty small { font-size: 0.8rem; display: block; margin-top: 6px; }
+
+  /* SORT BAR */
+  .sort-bar { display: flex; align-items: center; gap: 8px; padding: 0 0 12px; font-size: 0.78rem; }
+  .sort-bar-label { color: var(--muted); font-weight: 500; white-space: nowrap; }
+  .sort-pill { padding: 4px 12px; border: 1.5px solid var(--border); border-radius: 16px; background: var(--white); font-family: 'DM Sans', sans-serif; font-size: 0.78rem; color: var(--muted); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+  .sort-pill:hover { border-color: var(--accent); color: var(--accent); }
+  .sort-pill.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 
   /* PAGINATION */
   .pagination { display: flex; justify-content: center; align-items: center; gap: 6px; margin-top: 28px; flex-wrap: wrap; }
@@ -677,6 +687,12 @@
     <span id="bannerText"></span>
   </div>
 
+  <div class="sort-bar" id="sortBar" style="display:none;">
+    <span class="sort-bar-label">Sort by:</span>
+    <button class="sort-pill active" id="sortDefault" onclick="setSort('default')">Most relevant</button>
+    <button class="sort-pill" id="sortNewest" onclick="setSort('newest')">Most recent</button>
+    <button class="sort-pill" id="sortDeadline" onclick="setSort('deadline')">Deadline</button>
+  </div>
   <div class="job-table-wrap" id="tableWrap">
     <div class="loading-state" id="loadingState">
       <div class="spinner"></div>
@@ -1089,6 +1105,7 @@ function trackSearch(query, resultCount) {
   }, 1000);
 }
 let sortDir     = {};
+let activeSort  = 'default'; // 'default' | 'newest' | 'deadline'
 let currentPage = 1;
 const PAGE_SIZE = 20;
 let selectedDeptGroups = new Set();
@@ -1354,10 +1371,14 @@ function closeSavePopover() {
 function confirmSaveFilter() {
   if (!_currentUser) { closeSavePopover(); openAuthModal(); return; }
   const name = (document.getElementById('sfNameInput')?.value || '').trim() || buildFilterLabel();
+  const wantsAlert = document.getElementById('sfAlertToggle')?.checked;
   saveFilter(name);
+  if (wantsAlert && savedFilters.length && !savedFilters[0].alertEnabled) {
+    toggleFilterAlert(savedFilters[0].id);
+  }
   closeSavePopover();
-  showActionToast('Filter saved');
-  trackEvent('filter_saved', { filter_label: name });
+  showActionToast(wantsAlert ? 'Filter saved with alerts on' : 'Filter saved');
+  trackEvent('filter_saved', { filter_label: name, alert_enabled: !!wantsAlert });
 }
 
 function buildFilterURL(state) {
@@ -1620,6 +1641,7 @@ function showError(reason) {
 function initUI() {
   document.getElementById('loadingState').style.display = 'none';
   document.getElementById('jobTable').style.display = 'table';
+  document.getElementById('sortBar').style.display = 'flex';
 
   // Derive LAST_UPDATED from the date_added field written by the scraper
   const addedDates = ALL_JOBS.map(j => j.date_added).filter(Boolean).sort();
@@ -1781,6 +1803,7 @@ function switchTab(tab) {
   currentPage = 1;
   document.getElementById('savedNavBtn').classList.toggle('active', tab === 'saved');
   document.body.classList.toggle('saved-view', tab === 'saved');
+  document.getElementById('sortBar').style.display = tab === 'saved' ? 'none' : 'flex';
   // Reflect saved view in URL so back button and prevSearch work correctly
   if (tab === 'saved') {
     history.pushState({ view: 'saved' }, '', '?view=saved');
@@ -1806,17 +1829,7 @@ function filterJobs() {
       return ms && roleOk && uniOk && (!area||j.area===area) && (!selectedDeptGroups.size||selectedDeptGroups.has(j.deptGroup)) && rankOk;
     });
   }
-  // 1. New jobs first; 2. University order; 3. Latest date_added first within each university
-  filtered.sort((a, b) => {
-    const newDiff = (b.is_new ? 1 : 0) - (a.is_new ? 1 : 0);
-    if (newDiff !== 0) return newDiff;
-    const uiA = UNI_ORDER.indexOf(a.university), uiB = UNI_ORDER.indexOf(b.university);
-    const uniDiff = (uiA === -1 ? 999 : uiA) - (uiB === -1 ? 999 : uiB);
-    if (uniDiff !== 0) return uniDiff;
-    const da = a.date_added ? new Date(a.date_added) : new Date(0);
-    const db = b.date_added ? new Date(b.date_added) : new Date(0);
-    return db - da;
-  });
+  applySortOrder();
   currentPage = 1;
   renderTable();
   renderPagination();
@@ -1931,21 +1944,50 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 
 // ── Sorting
-function sortTable(key) {
-  sortDir[key] = !sortDir[key];
-  filtered.sort((a, b) => {
-    if (key === 'deadline') {
+function applySortOrder() {
+  if (activeSort === 'newest') {
+    filtered.sort((a, b) => {
+      const da = a.date_added ? new Date(a.date_added) : new Date(0);
+      const db = b.date_added ? new Date(b.date_added) : new Date(0);
+      return db - da;
+    });
+  } else if (activeSort === 'deadline') {
+    filtered.sort((a, b) => {
       const da = new Date(a.deadline), db = new Date(b.deadline);
       const va = !isNaN(da), vb = !isNaN(db);
       if (!va && !vb) return 0;
       if (!va) return 1;
       if (!vb) return -1;
-      return sortDir[key] ? da - db : db - da;
-    }
-    const va = String(a[key]||''), vb = String(b[key]||'');
-    return sortDir[key] ? va.localeCompare(vb) : vb.localeCompare(va);
-  });
+      return da - db;
+    });
+  } else {
+    filtered.sort((a, b) => {
+      const newDiff = (b.is_new ? 1 : 0) - (a.is_new ? 1 : 0);
+      if (newDiff !== 0) return newDiff;
+      const uiA = UNI_ORDER.indexOf(a.university), uiB = UNI_ORDER.indexOf(b.university);
+      const uniDiff = (uiA === -1 ? 999 : uiA) - (uiB === -1 ? 999 : uiB);
+      if (uniDiff !== 0) return uniDiff;
+      const da = a.date_added ? new Date(a.date_added) : new Date(0);
+      const db = b.date_added ? new Date(b.date_added) : new Date(0);
+      return db - da;
+    });
+  }
+}
+
+function setSort(mode) {
+  activeSort = mode;
+  document.querySelectorAll('.sort-pill').forEach(p => p.classList.remove('active'));
+  const btn = document.getElementById('sort' + mode.charAt(0).toUpperCase() + mode.slice(1));
+  if (btn) btn.classList.add('active');
+  applySortOrder();
+  currentPage = 1;
   renderTable();
+  renderPagination();
+  trackEvent('sort_changed', { sort_mode: mode });
+}
+
+function sortTable(key) {
+  setSort(key === 'deadline' ? 'deadline' : 'default');
 }
 
 function buildEmptyState() {
@@ -2121,6 +2163,10 @@ function renderChips() {
       <div class="sf-popover-hint">Name this filter</div>
       <input id="sfNameInput" class="sf-popover-input" type="text" maxlength="60" placeholder="e.g. PolyU Professor roles"
              onkeydown="if(event.key==='Enter')confirmSaveFilter();if(event.key==='Escape')closeSavePopover()">
+      <label class="sf-popover-alert-row" for="sfAlertToggle">
+        <input type="checkbox" id="sfAlertToggle" checked>
+        Set up job alert
+      </label>
       <div class="sf-popover-actions">
         <button class="sf-popover-cancel" onclick="closeSavePopover()">Cancel</button>
         <button class="sf-popover-save" onclick="confirmSaveFilter()">Save</button>
