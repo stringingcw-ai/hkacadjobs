@@ -140,10 +140,10 @@ def job_matches_filter(job, state):
     if area and job.get("position_type", "") != area:
         return False
 
-    # Keyword search (title + department)
+    # Keyword search (title + department + description)
     search = state.get("search", "").lower().strip()
     if search:
-        haystack = f"{job['title']} {job.get('department', '')}".lower()
+        haystack = f"{job['title']} {job.get('department', '')} {job.get('description', '')}".lower()
         if not all(word in haystack for word in search.split()):
             return False
 

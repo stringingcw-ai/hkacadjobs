@@ -650,7 +650,7 @@
         <button class="ms-btn" onclick="toggleMsDropdown('uniMsWrap')"><span class="ms-btn-label" id="uniMsLabel">All Institutions</span><span class="ms-chevron">▼</span></button>
         <div class="ms-panel" id="uniPanel"></div>
       </div>
-      <select id="areaFilter" onchange="onAreaChange()"><option value="">All Areas</option></select>
+      <select id="areaFilter" onchange="onAreaChange()"><option value="">All Categories</option></select>
       <div class="ms-wrap" id="rankMsWrap">
         <button class="ms-btn" onclick="toggleMsDropdown('rankMsWrap')"><span class="ms-btn-label" id="rankMsLabel">All Ranks</span><span class="ms-chevron">▼</span></button>
         <div class="ms-panel" id="rankPanel"></div>
@@ -695,7 +695,7 @@
       </thead>
       <tbody id="jobBody"></tbody>
     </table>
-    <div class="empty-state" id="emptyState"><div class="empty-icon">🔍</div><p>No positions match your filters.</p><button class="apply-btn" style="margin-top:12px;" onclick="clearAllFilters()">Reset all filters</button></div>
+    <div class="empty-state" id="emptyState"></div>
     <div class="saved-empty" id="savedEmpty"><div class="empty-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="var(--bookmark)" stroke="var(--bookmark)" stroke-width="2.2" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div><p>No saved positions yet.</p><small>Click <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--bookmark)" stroke-width="2.2" stroke-linejoin="round" style="vertical-align:middle"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> on any row to save it here.</small></div>
   </div>
 
@@ -1799,7 +1799,7 @@ function filterJobs() {
     filtered = ALL_JOBS.filter(j => bookmarks.has(j._id));
   } else {
     filtered = ALL_JOBS.filter(j => {
-      const ms = !search || (j.title||'').toLowerCase().includes(search) || (j.department||'').toLowerCase().includes(search) || (j.university||'').toLowerCase().includes(search) || (j.university_full||'').toLowerCase().includes(search);
+      const ms = !search || (j.title||'').toLowerCase().includes(search) || (j.department||'').toLowerCase().includes(search) || (j.university||'').toLowerCase().includes(search) || (j.university_full||'').toLowerCase().includes(search) || (j.description||'').toLowerCase().includes(search);
       const roleOk = !roleFilter || (roleFilter === 'academic' ? ACADEMIC_RANKS.has(j.rank) : !ACADEMIC_RANKS.has(j.rank));
       const uniOk  = !selectedUnis.size  || selectedUnis.has(j.university);
       const rankOk = !selectedRanks.size || selectedRanks.has(j.rank);
@@ -1948,6 +1948,55 @@ function sortTable(key) {
   renderTable();
 }
 
+function buildEmptyState() {
+  const el = document.getElementById('emptyState');
+  const search = document.getElementById('searchInput').value.trim();
+  const area = document.getElementById('areaFilter').value;
+  const activeFilters = [];
+  if (search) activeFilters.push({ label: `"${search}"`, clear: () => { document.getElementById('searchInput').value = ''; filterJobs(); } });
+  if (roleFilter) activeFilters.push({ label: roleFilter === 'academic' ? 'Academic' : 'Non-Academic', clear: () => { setRoleFilter(''); } });
+  if (selectedUnis.size) activeFilters.push({ label: `${selectedUnis.size} institution${selectedUnis.size>1?'s':''}`, clear: () => { selectedUnis.clear(); updateMsBtn('uniMsWrap', selectedUnis, 'All Institutions'); updateMsCheckboxes('uniPanel', selectedUnis); updateMsResetBtn('uniPanel', selectedUnis); filterJobs(); } });
+  if (area) activeFilters.push({ label: area, clear: () => { document.getElementById('areaFilter').value = ''; selectedDeptGroups.clear(); renderGroupChips(''); filterJobs(); } });
+  if (selectedRanks.size) activeFilters.push({ label: `${selectedRanks.size} rank${selectedRanks.size>1?'s':''}`, clear: () => { selectedRanks.clear(); updateMsBtn('rankMsWrap', selectedRanks, 'All Ranks'); updateMsCheckboxes('rankPanel', selectedRanks); updateMsResetBtn('rankPanel', selectedRanks); filterJobs(); } });
+
+  let html = '<div class="empty-icon">🔍</div><p style="font-size:1rem;font-weight:600;margin-bottom:6px;">No positions match your filters</p>';
+
+  if (activeFilters.length > 1) {
+    html += '<p style="font-size:0.84rem;color:var(--muted);margin-bottom:14px;">Try removing a filter to broaden your search:</p>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px;">';
+    activeFilters.forEach((f, i) => {
+      html += `<button class="empty-filter-chip" data-idx="${i}" style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border:1.5px solid var(--border);border-radius:20px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:0.8rem;color:var(--ink);cursor:pointer;transition:border-color 0.2s,background 0.2s;">✕ ${f.label}</button>`;
+    });
+    html += '</div>';
+  }
+
+  html += '<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;">';
+  html += '<button class="apply-btn" onclick="clearAllFilters()">Reset all filters</button>';
+  if (search) {
+    html += `<button class="apply-btn" style="background:var(--ink);" onclick="promptAlertForSearch()">Get alerted for "${search.length > 20 ? search.slice(0,20) + '…' : search}"</button>`;
+  }
+  html += '</div>';
+
+  el.innerHTML = html;
+
+  el.querySelectorAll('.empty-filter-chip').forEach(btn => {
+    btn.onclick = () => activeFilters[parseInt(btn.dataset.idx)].clear();
+  });
+}
+
+function promptAlertForSearch() {
+  const isLoggedIn = typeof _currentUser !== 'undefined' && _currentUser;
+  if (!isLoggedIn) {
+    openAuthModal();
+    return;
+  }
+  const filterName = document.getElementById('searchInput').value.trim();
+  if (filterName) {
+    document.getElementById('sfNameInput').value = filterName;
+    confirmSaveFilter();
+  }
+}
+
 // ── Render
 function renderTable() {
   const tbody     = document.getElementById('jobBody');
@@ -1960,7 +2009,7 @@ function renderTable() {
   }
   savedMpty.style.display = 'none';
   if (!filtered.length) {
-    if (currentView === 'saved') { savedMpty.style.display = 'block'; } else { empty.style.display = 'block'; }
+    if (currentView === 'saved') { savedMpty.style.display = 'block'; } else { buildEmptyState(); empty.style.display = 'block'; }
     return;
   }
   empty.style.display = 'none';
