@@ -21,6 +21,7 @@ import os
 import re
 import secrets
 import ssl
+import time
 import urllib.request
 import urllib.parse
 from datetime import date
@@ -348,15 +349,30 @@ def main():
     matches = match_jobs_to_subscriptions(new_jobs, subs)
     print(f"Subscribers with matches: {len(matches)}")
 
-    sent = 0
+    # Group by email so each subscriber gets one digest (not one per filter)
+    by_email = {}
     for sub, jobs in matches:
         email = sub["email"]
-        label = sub.get("filter_label", "Your filter")
-        subject = f"HKAcadJobs: {len(jobs)} new job{'s' if len(jobs) != 1 else ''} matching \"{label}\""
-        html, text = render_email(sub, jobs)
+        if email not in by_email:
+            by_email[email] = {"sub": sub, "jobs": [], "labels": []}
+        seen_ids = {j["id"] for j in by_email[email]["jobs"]}
+        for j in jobs:
+            if j["id"] not in seen_ids:
+                by_email[email]["jobs"].append(j)
+                seen_ids.add(j["id"])
+        by_email[email]["labels"].append(sub.get("filter_label", "Your filter"))
+    print(f"Unique recipients: {len(by_email)}")
+
+    sent = 0
+    for email, info in by_email.items():
+        combined_label = " + ".join(dict.fromkeys(info["labels"]))
+        merged_sub = {**info["sub"], "filter_label": combined_label}
+        jobs = info["jobs"]
+        subject = f"HKAcadJobs: {len(jobs)} new job{'s' if len(jobs) != 1 else ''} matching \"{combined_label}\""
+        html, text = render_email(merged_sub, jobs)
 
         if args.dry_run:
-            print(f"\n  → {email} | {label} | {len(jobs)} match(es):")
+            print(f"\n  → {email} | {combined_label} | {len(jobs)} match(es):")
             for j in jobs:
                 print(f"      • {j['title']} ({j['university']})")
         else:
@@ -364,11 +380,12 @@ def main():
                 send_email(email, subject, html, text)
                 print(f"  ✅ Sent to {email} ({len(jobs)} jobs)")
                 sent += 1
+                time.sleep(0.3)
             except Exception as e:
                 print(f"  ❌ Failed for {email}: {e}")
 
     if not args.dry_run:
-        print(f"\n── Done: {sent}/{len(matches)} emails sent")
+        print(f"\n── Done: {sent}/{len(by_email)} emails sent")
 
 
 if __name__ == "__main__":
