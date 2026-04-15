@@ -132,9 +132,9 @@
   .stat-item.visible { opacity: 1; transform: translateY(0); }
 
   /* HERO QUOTE ROTATOR */
-  .hero-quote-wrap { max-width: 640px; margin-bottom: 16px; }
-  .hero-quote-mark { font-family: 'Playfair Display', serif; font-size: 3rem; line-height: 1; color: var(--accent); opacity: 0.7; margin-bottom: -8px; display: block; }
-  .hero-quote-text { font-family: 'Playfair Display', serif; font-size: 1.4rem; line-height: 1.25; color: var(--paper); font-weight: 500; margin-bottom: 8px; }
+  .hero-quote-wrap { max-width: 960px; margin-bottom: 16px; }
+  .hero-quote-mark { font-family: 'Playfair Display', serif; font-size: 1.6rem; line-height: 1; color: var(--accent); opacity: 0.7; margin-bottom: -2px; display: block; }
+  .hero-quote-text { font-family: 'Playfair Display', serif; font-size: 1.05rem; line-height: 1.35; color: var(--paper); font-weight: 500; margin-bottom: 8px; }
   .hero-quote-text::after { content: '|'; color: var(--accent); opacity: 1; animation: blink 1.05s step-end infinite; margin-left: 2px; }
   .hero-quote-text.typed::after { display: none; }
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
@@ -373,7 +373,7 @@
   .sort-bar-label { color: var(--muted); font-weight: 500; white-space: nowrap; }
   .sort-pill { padding: 4px 12px; border: 1.5px solid var(--border); border-radius: 16px; background: var(--white); font-family: 'DM Sans', sans-serif; font-size: 0.78rem; color: var(--muted); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
   .sort-pill:hover { border-color: var(--accent); color: var(--accent); }
-  .sort-pill.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .sort-pill.active { background: var(--accent); color: var(--paper); border-color: var(--accent); }
 
   /* PAGINATION */
   .pagination { display: flex; justify-content: center; align-items: center; gap: 6px; margin-top: 28px; flex-wrap: wrap; }
@@ -547,10 +547,8 @@
   @media (max-width: 768px) {
     nav { padding: 0 20px; }
     .hero { padding: 22px 20px 20px; }
-    .hero-quote-text { font-size: 1.35rem; }
-    .hero-quote-mark { font-size: 2.4rem; }
-    .hero-quote-text { font-size: 1.45rem; }
-    .hero-quote-mark { font-size: 3rem; }
+    .hero-quote-text { font-size: 0.95rem; }
+    .hero-quote-mark { font-size: 1.3rem; }
     .filter-bar { padding: 10px 20px; }
     .active-filters { padding: 5px 20px 6px; }
     .main-layout { padding: 20px 16px 48px; }
@@ -1908,9 +1906,9 @@ function syncFiltersToURL() {
 function updateBanner() {
   const banner = document.getElementById('updateBanner');
   const n = filtered.length;
-  if (currentView === 'saved' || n === 0) { banner.style.display = 'none'; return; }
   const hasFilters = selectedUnis.size || selectedRanks.size || roleFilter ||
     document.getElementById('areaFilter')?.value || document.getElementById('searchInput')?.value || selectedDeptGroups.size;
+  if (currentView === 'saved' || n === 0 || !hasFilters) { banner.style.display = 'none'; return; }
   const suffix = ' found';
   document.getElementById('bannerText').innerHTML = `<strong>${n}</strong> position${n!==1?'s':''}${suffix}`;
   let resetBtn = document.getElementById('bannerResetBtn');
