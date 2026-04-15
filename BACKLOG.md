@@ -23,7 +23,7 @@ Every item lists a concrete entry point so future work can pick it up without re
 **Fix:** In `initUI()` after `ALL_JOBS` loads, inject a single `<script type="application/ld+json">` with `@type: ItemList` pointing at the top ~20 newest JobPosting URLs. Refresh on filter changes is unnecessary — the initial list is what Googlebot sees.
 **Evidence:** index.html:27-54 (current structured data), scraper/generate_job_pages.py (individual pages work fine).
 
-### [P1] Raw `jobs.csv` is crawlable — potential SEO noise — S
+### [P1] ~~Raw `jobs.csv` is crawlable — potential SEO noise — S~~ ✅ DONE
 **Symptom:** `robots.txt` allows `/` and doesn't disallow `jobs.csv`. Search engines can index the 1.9 MB CSV as a text file, which is (a) useless to users, (b) can dilute topic authority.
 **Fix:** Add `Disallow: /jobs.csv` to robots.txt. Also add `Disallow: /sitemap.xml` (sitemaps should be fetched, not indexed — the rule is conventional and harmless).
 **Evidence:** robots.txt:1-5.
@@ -91,7 +91,7 @@ Every item lists a concrete entry point so future work can pick it up without re
 **Fix:** After a user applies 2+ filters and stays on the results for >15 seconds, show a non-blocking toast: "Save this search and get daily alerts for matching jobs → [Save & Subscribe]". One-shot per session via localStorage.
 **Evidence:** trackEvent('filter_applied') at index.html:1314 — we know when it happens, just don't prompt.
 
-### [P1] Zero-result searches are not tracked as a distinct event — S
+### [P1] ~~Zero-result searches are not tracked as a distinct event — S~~ ✅ DONE
 **Symptom:** `trackEvent('search', ...)` fires on every keystroke ≥2 chars with a `result_count`, but there's no filter on `result_count === 0`. We can't easily see in GA4 which searches are dead-ending users.
 **Fix:** Fire a separate `search_no_results` event with `search_term` when results drop to 0 for ≥1.5 seconds (debounced, not on every keystroke). Build a weekly GA4 explore to guide the "new filter fields" decision.
 **Evidence:** index.html:1088.
@@ -161,7 +161,7 @@ Every item lists a concrete entry point so future work can pick it up without re
 ### [P0] ~~`apply_click` missing — see item 4.1 — S~~ ✅ DONE
 (duplicated here for tracking; fix once, resolves both funnel visibility and retention decisions)
 
-### [P0] `search_no_results` missing — see item 3.5 — S
+### [P0] ~~`search_no_results` missing — see item 3.5 — S~~ ✅ DONE
 (duplicated here for tracking)
 
 ### [P1] No funnel definition in GA4 — S

@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /jobs.csv
 
 Sitemap: https://www.hkacadjobs.org/sitemap.xml

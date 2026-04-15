@@ -125,6 +125,22 @@
   .hero p { color: #aaa; font-size: 0.9rem; font-weight: 300; margin-bottom: 28px; }
   .hero-animate { opacity: 0; transform: translateY(10px); transition: opacity 0.6s ease, transform 0.6s ease; }
   .hero-animate.visible { opacity: 1; transform: translateY(0); }
+  .hero-cta { display: flex; align-items: center; gap: 8px; margin-top: 18px; max-width: 420px; }
+  .hero-cta input {
+    flex: 1; padding: 9px 14px; border: 1.5px solid #444; border-radius: 7px;
+    background: rgba(255,255,255,0.08); color: #fff; font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem; outline: none; transition: border-color 0.15s;
+  }
+  .hero-cta input::placeholder { color: #777; }
+  .hero-cta input:focus { border-color: var(--accent); }
+  .hero-cta button {
+    padding: 9px 18px; background: var(--accent); color: var(--paper); border: none;
+    border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem;
+    font-weight: 600; cursor: pointer; white-space: nowrap; transition: background 0.15s;
+  }
+  .hero-cta button:hover { background: #8f3415; }
+  .hero-cta-label { font-size: 0.78rem; color: #888; margin-top: 6px; }
+  .hero-cta-success { font-size: 0.82rem; color: #a8e6a1; display: none; margin-top: 18px; }
   .stats-row { display: flex; gap: 40px; flex-wrap: wrap; }
   .stat-num { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--paper); }
   .stat-label { font-size: 0.72rem; color: #888; letter-spacing: 0.06em; text-transform: uppercase; }
@@ -657,6 +673,14 @@
     <div class="stat-item"><div class="stat-num" id="statTotal">—</div><div class="stat-label">Open Positions</div></div>
     <div class="stat-item"><div class="stat-num" id="statNew">—</div><div class="stat-label">New Today</div></div>
   </div>
+  <div id="heroCta">
+    <form class="hero-cta" onsubmit="submitHeroAlert(event)">
+      <input type="email" id="heroAlertEmail" placeholder="your@email.com" required>
+      <button type="submit" id="heroAlertBtn">Get daily alerts</button>
+    </form>
+    <p class="hero-cta-label">New matching jobs delivered to your inbox every morning.</p>
+    <p class="hero-cta-success" id="heroAlertSuccess">You're subscribed! Check your inbox tomorrow.</p>
+  </div>
 </div>
 
 <!-- FILTER BAR -->
@@ -1118,11 +1142,18 @@ function trackEvent(name, params) {
 
 // Debounced search tracking — fires 1s after user stops typing
 let _searchTrackTimer = null;
+let _noResultsTimer = null;
 function trackSearch(query, resultCount) {
   clearTimeout(_searchTrackTimer);
+  clearTimeout(_noResultsTimer);
   _searchTrackTimer = setTimeout(() => {
     if (query.length >= 2) trackEvent('search', { search_term: query, result_count: resultCount });
   }, 1000);
+  if (resultCount === 0 && query.length >= 2) {
+    _noResultsTimer = setTimeout(() => {
+      trackEvent('search_no_results', { search_term: query });
+    }, 1500);
+  }
 }
 let sortDir     = {};
 let activeSort  = 'default'; // 'default' | 'newest' | 'deadline'
@@ -2427,6 +2458,42 @@ async function submitAlert(e) {
   }
 }
 
+
+// Hero email alert CTA
+async function submitHeroAlert(e) {
+  e.preventDefault();
+  const btn = document.getElementById('heroAlertBtn');
+  const input = document.getElementById('heroAlertEmail');
+  const email = input.value.trim();
+  if (!email) return;
+  btn.disabled = true;
+  btn.textContent = 'Subscribing…';
+  try {
+    const token = (typeof crypto !== 'undefined' && crypto.randomUUID)
+      ? crypto.randomUUID()
+      : Math.random().toString(36).slice(2) + Date.now().toString(36);
+    const payload = { email, filter_label: 'All Jobs', filter_state: {}, token };
+    if (_currentUser) payload.user_id = _currentUser.id;
+    if (!IS_LOCAL) {
+      const { error } = await _sb.from('subscriptions').insert(payload);
+      if (error) throw error;
+    }
+    document.querySelector('.hero-cta').style.display = 'none';
+    document.querySelector('.hero-cta-label').style.display = 'none';
+    document.getElementById('heroAlertSuccess').style.display = 'block';
+    localStorage.setItem('hkaj_hero_subscribed', email);
+    trackEvent('alert_subscribed', { filter_label: 'All Jobs', source: 'hero' });
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = 'Get daily alerts';
+    alert(`Subscription failed: ${err.message}`);
+  }
+}
+if (localStorage.getItem('hkaj_hero_subscribed')) {
+  document.querySelector('.hero-cta').style.display = 'none';
+  document.querySelector('.hero-cta-label').style.display = 'none';
+  document.getElementById('heroAlertSuccess').style.display = 'block';
+}
 
 // Site banner (one-time, dismissible)
 function dismissBanner() {
