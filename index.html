@@ -581,6 +581,19 @@
     .report-form select,
     .report-form textarea { font-size: 16px; }
   }
+
+  /* Posted-age subline under job title */
+  .posted-line { display: block; font-size: 0.7rem; color: var(--muted); margin-top: 4px; font-weight: 400; }
+  .posted-line .icon { margin-right: 4px; opacity: 0.7; font-size: 0.78rem; vertical-align: -1px; }
+  .posted-line .rel { color: var(--muted); }
+  .posted-line .rel.fresh { color: var(--accent); font-weight: 600; }
+
+  /* Posted-within filter chip row (above the sort bar) */
+  #postedFilterRow { display: flex; align-items: center; gap: 8px; padding: 0 0 10px; font-size: 0.78rem; flex-wrap: wrap; }
+  .posted-filter-label { color: var(--muted); font-weight: 500; white-space: nowrap; }
+  .posted-chip { padding: 4px 12px; border: 1.5px solid var(--border); border-radius: 16px; background: var(--white); font-family: 'DM Sans', sans-serif; font-size: 0.78rem; color: var(--muted); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+  .posted-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .posted-chip.active { background: var(--accent); color: var(--paper); border-color: var(--accent); }
 </style>
 </head>
 <body>
@@ -603,7 +616,7 @@
 
 <!-- SITE BANNER -->
 <div id="siteBanner">
-  ✉️ Job alerts are now live! Save a filter and turn on alerts to get notified when new matching jobs are posted.
+  🕒 New: filter and sort jobs by when they were posted — try the "Posted within" chips above the listings.
   <button class="banner-close" onclick="dismissBanner()" aria-label="Dismiss">&times;</button>
 </div>
 
@@ -706,10 +719,18 @@
     <span id="bannerText"></span>
   </div>
 
+  <div id="postedFilterRow">
+    <span class="posted-filter-label">Posted within:</span>
+    <button class="posted-chip active" data-window="all"  onclick="setPostedWindow('all')">Anytime</button>
+    <button class="posted-chip"        data-window="1"    onclick="setPostedWindow('1')">Last 24h</button>
+    <button class="posted-chip"        data-window="7"    onclick="setPostedWindow('7')">Last 7 days</button>
+    <button class="posted-chip"        data-window="30"   onclick="setPostedWindow('30')">Last 30 days</button>
+  </div>
+
   <div class="sort-bar" id="sortBar" style="display:none;">
     <span class="sort-bar-label">Sort by:</span>
     <button class="sort-pill active" id="sortDefault" onclick="setSort('default')">Most relevant</button>
-    <button class="sort-pill" id="sortNewest" onclick="setSort('newest')">Most recent</button>
+    <button class="sort-pill" id="sortNewest" onclick="setSort('newest')">📅 Recently posted</button>
     <button class="sort-pill" id="sortDeadline" onclick="setSort('deadline')">Deadline date</button>
   </div>
   <div class="job-table-wrap" id="tableWrap">
@@ -1582,6 +1603,51 @@ function updatePanelSaveBtn(id) {
 }
 
 // ── Helpers
+// ── Sort/filter by posted date — relative-age subline + posted-within filter chips
+let postedWindow = 'all'; // 'all' | '1' | '7' | '30'
+
+function daysSincePosted(s) {
+  if (!s) return null;
+  const d = new Date(s);
+  if (isNaN(d)) return null;
+  return Math.floor((new Date() - d) / 86400000);
+}
+function relAgeText(s) {
+  const days = daysSincePosted(s);
+  if (days === null) return '';
+  if (days <= 0) return 'Just posted';
+  if (days === 1) return 'Posted 1 day ago';
+  if (days < 7)   return `Posted ${days} days ago`;
+  if (days < 14)  return 'Posted 1 week ago';
+  if (days < 30)  return `Posted ${Math.floor(days/7)} weeks ago`;
+  if (days < 60)  return 'Posted 1 month ago';
+  return `Posted ${Math.floor(days/30)} months ago`;
+}
+function relAgeTier(s) {
+  const days = daysSincePosted(s);
+  if (days === null) return 'stale';
+  if (days < 1)  return 'fresh';
+  if (days < 7)  return 'recent';
+  if (days < 30) return 'older';
+  return 'stale';
+}
+function postedSublineHTML(j) {
+  if (!j.date_added) return '';
+  const tier = relAgeTier(j.date_added);
+  return `<div class="posted-line"><span class="rel ${tier}">${relAgeText(j.date_added)}</span></div>`;
+}
+function setPostedWindow(w) {
+  postedWindow = w;
+  document.querySelectorAll('.posted-chip').forEach(c => c.classList.toggle('active', c.dataset.window === w));
+  if (typeof filterJobs === 'function') filterJobs();
+}
+function passesPostedWindow(j) {
+  if (postedWindow === 'all') return true;
+  const days = daysSincePosted(j.date_added);
+  if (days === null) return false;
+  return days <= parseInt(postedWindow, 10);
+}
+
 function daysLeft(s) { return Math.round((new Date(s) - new Date()) / 86400000); }
 function daysLabel(d) {
   if (isNaN(d)) return {text:'',cls:''};
@@ -1852,7 +1918,7 @@ function filterJobs() {
       const roleOk = !roleFilter || (roleFilter === 'academic' ? ACADEMIC_RANKS.has(j.rank) : !ACADEMIC_RANKS.has(j.rank));
       const uniOk  = !selectedUnis.size  || selectedUnis.has(j.university);
       const rankOk = !selectedRanks.size || selectedRanks.has(j.rank);
-      return ms && roleOk && uniOk && (!area||j.area===area) && (!selectedDeptGroups.size||selectedDeptGroups.has(j.deptGroup)) && rankOk;
+      return ms && roleOk && uniOk && (!area||j.area===area) && (!selectedDeptGroups.size||selectedDeptGroups.has(j.deptGroup)) && rankOk && passesPostedWindow(j);
     });
   }
   applySortOrder();
@@ -2091,6 +2157,7 @@ function renderTable() {
     const col  = uniColor(j.university);
     const isBk = bookmarks.has(j._id);
     const newB = j.is_new ? `<span class="new-badge">New</span>` : '';
+    const subL = postedSublineHTML(j);
     const row  = document.createElement('tr');
     if (j.is_new) row.classList.add('highlighted');
     if (openJobId === j._id) row.classList.add('row-selected');
@@ -2101,6 +2168,7 @@ function renderTable() {
       </td>
       <td>
         <div class="job-title">${newB}${j.title}</div>
+        ${subL}
       </td>
       <td><div class="uni-badge">${uniLogoHtml(j.university,'uni-logo')}${uniDisplay(j.university)||''}</div></td>
       <td><span class="dept-tag">${j.department||'N/A'}</span></td>
@@ -2251,6 +2319,7 @@ function openPanel(id) {
   document.getElementById('panelBody').innerHTML = `
     <div class="psection">
       <div class="info-grid">
+        ${j.date_added   ? `<div class="info-cell"><div class="info-label">Posted</div><div class="info-val">${fmtDate(j.date_added)}</div></div>` : ''}
         ${j.reference    ? `<div class="info-cell"><div class="info-label">Reference</div><div class="info-val">${j.reference}</div></div>` : ''}
         ${j.position_type? `<div class="info-cell"><div class="info-label">Position Type</div><div class="info-val">${j.position_type}</div></div>` : ''}
         ${j.start_date   ? `<div class="info-cell"><div class="info-label">Start Date</div><div class="info-val">${j.start_date}</div></div>` : ''}
@@ -2434,12 +2503,13 @@ async function submitAlert(e) {
 }
 
 
-// Site banner (one-time, dismissible)
+// Site banner (one-time, dismissible). Bumping BANNER_VERSION re-shows it to everyone.
+const BANNER_VERSION = 'posted_filter_v1';
 function dismissBanner() {
   document.getElementById('siteBanner').style.display = 'none';
-  localStorage.setItem('hkaj_banner_dismissed', 'alerts_live');
+  localStorage.setItem('hkaj_banner_dismissed', BANNER_VERSION);
 }
-if (!localStorage.getItem('hkaj_banner_dismissed')) {
+if (localStorage.getItem('hkaj_banner_dismissed') !== BANNER_VERSION) {
   document.getElementById('siteBanner').style.display = 'block';
 }
 
