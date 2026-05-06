@@ -1,5 +1,5 @@
 id,title,rank,university,university_full,department,deadline,is_new,date_added,date_posted,reference,position_type,salary,start_date,apply_url,description
-POLYU-260505010,Clinical Associate,Senior Lecturer/Lecturer,PolyU,Hong Kong Polytechnic University,School of Nursing,2026-05-19,TRUE,2026-05-06,2026-05-05,260505010,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260505010,"**Duties & Responsibilities**
+POLYU-260505010,Clinical Associate,Senior Lecturer/Lecturer,PolyU,Hong Kong Polytechnic University,School of Nursing,2026-05-19,FALSE,2026-05-06,2026-05-05,260505010,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260505010,"**Duties & Responsibilities**
 • Perform classroom teaching and clinical supervision in nursing and related areas.
 • Teach pre-registration nursing programmes and supervise students in clinical/field studies.
 • Supervise clinical projects and practicum at undergraduate and postgraduate levels.
@@ -92,23 +92,6 @@ POLYU-260421008,Teaching Fellow,Senior Lecturer/Lecturer,PolyU,Hong Kong Polytec
 
 **Key Dates**
 • Not specified"
-POLYU-260415007,Teaching Fellow,Senior Lecturer/Lecturer,PolyU,Hong Kong Polytechnic University,Department of Logistics and Maritime Studies,2026-04-22,FALSE,2026-04-16,2026-04-15,260415007,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260415007,"**Duties & Responsibilities**
-• Teach Supply Chain Management, Logistics, Operations and Quality Management at undergraduate and postgraduate levels.
-• Contribute to programme and curriculum design, development, and administration.
-• Engage in scholarly activities and academic research.
-• Provide support for academic and departmental affairs.
-
-**Requirements & Qualifications**
-• Hold a doctoral degree in a relevant discipline.
-• Have at least three years of post-qualification tertiary teaching experience.
-• Demonstrate strong subject knowledge and competence in the appropriate discipline.
-• Show commitment to excellence in teaching and excellent English communication skills.
-
-**Appointment**
-• Full-time
-
-**Key Dates**
-• Not specified"
 POLYU-260326010,Assistant Professor in Artificial Intelligence and Humanities,Assistant Professor,PolyU,Hong Kong Polytechnic University,Division of Artificial Intelligence and the Humanities,2026-04-25,FALSE,2026-03-27,2026-03-26,260326010,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260326010,"**Duties & Responsibilities**
 • Teach undergraduate and postgraduate courses and contribute to curriculum development.
 • Supervise student projects at all academic levels.
@@ -157,7 +140,222 @@ POLYU-260410005,Research Assistant Professor in Geospatial Artificial Intelligen
 
 **Key Dates**
 • Not specified"
-POLYU-260505014,Project Assistant,Non-Academic,PolyU,Hong Kong Polytechnic University,School of Design,2026-05-12,TRUE,2026-05-06,2026-05-05,260505014,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260505014,"**Duties & Responsibilities**
+POLYU-260506017,Research Assistant,Research Assistant/Associate,PolyU,Hong Kong Polytechnic University,Department of Health Technology and Informatics,2026-05-13,TRUE,2026-05-07,2026-05-06,260506017,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260506017,"**Duties & Responsibilities**
+• Assist the project leader in research on extracellular vesicles and virulence expression in legionella pneumophila.
+
+**Requirements & Qualifications**
+• Hold an honours degree or equivalent qualification.
+
+**Appointment**
+• Full-time contract — two months
+
+**Key Dates**
+• Closing date: 13 May 2026"
+POLYU-260506015,Research Assistant,Research Assistant/Associate,PolyU,Hong Kong Polytechnic University,Department of Land Surveying and Geo-Informatics,2026-05-13,TRUE,2026-05-07,2026-05-06,260506015,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260506015,"**Duties & Responsibilities**
+• Assist the project leader with research on uncertainties modelling in ground penetrating radar surveys.
+• Support depth measurement analysis of buried circular objects.
+
+**Requirements & Qualifications**
+• Hold an honours degree or equivalent qualification.
+• Contact the department for further information about specific requirements.
+
+**Appointment**
+• Contract — three months
+
+**Key Dates**
+• Review date: 13 May 2026"
+POLYU-260506014,Research Assistant,Research Assistant/Associate,PolyU,Hong Kong Polytechnic University,Department of Land Surveying and Geo-Informatics,2026-05-20,TRUE,2026-05-07,2026-05-06,260506014,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260506014,"**Duties & Responsibilities**
+• Assist the project leader with a research project on sequential phase unwrapping and parameter estimation for long time-series InSAR data processing.
+
+**Requirements & Qualifications**
+• Hold an honours degree or equivalent qualification.
+• Have background in optical and Synthetic Aperture Radar (SAR) remote sensing, with experience in change detection or time-series analysis preferred.
+• Be proficient in Google Earth Engine (GEE) and Python or JavaScript for satellite image processing.
+• Have basic machine learning skills (e.g., scikit-learn, Random Forest, SVM).
+• Be self-motivated and strong in execution.
+• Preferably have experience in academic writing or publishing.
+
+**Appointment**
+• Full-time — 12 months
+
+**Key Dates**
+• Not specified"
+POLYU-260506013,Postdoctoral Fellow / Research Associate / Research Assistant,Postdoctoral,PolyU,Hong Kong Polytechnic University,Department of Mechanical Engineering,2026-10-28,TRUE,2026-05-07,2026-05-06,260506013,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260506013,"**Duties & Responsibilities**
+• Assist the project leader in research on Ni-Fe layered double hydroxide nanostructured electrodes for oxygen evolution.
+
+**Requirements & Qualifications**
+• Postdoctoral Fellow: doctoral degree with no more than five years of post-qualification experience.
+• Research Associate: master's degree or good honours degree with three or more years of relevant work experience.
+• Research Assistant: honours degree or equivalent qualification.
+• All positions require practical experience in electrochemical energy materials.
+
+**Appointment**
+• Contract — six to twelve months
+
+**Key Dates**
+• Not specified"
+POLYU-260506012,Research Fellow / Postdoctoral Fellow / Research Associate / Research Assistant (Full-time/Part-time),Postdoctoral,PolyU,Hong Kong Polytechnic University,Department of Mechanical Engineering,2026-11-04,TRUE,2026-05-07,2026-05-06,260506012,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260506012,"**Duties & Responsibilities**
+• Assist the project leader in developing high-strength fishing lines with ultrahigh molecular weight polyethylene.
+
+**Requirements & Qualifications**
+• Research Fellow: doctoral degree plus at least three years of postdoctoral research experience.
+• Postdoctoral Fellow: doctoral degree with no more than five years of post-qualification experience.
+• Research Associate: master's degree or good honours degree with three or more years of relevant work experience.
+• Research Assistant: honours degree or equivalent qualification.
+• All applicants must have practical experience in Mechanical Engineering and materials characterization.
+
+**Appointment**
+• Full-time — six to twelve months
+
+**Key Dates**
+• Not specified"
+POLYU-260506011,Part-time Research Assistant,Research Assistant/Associate,PolyU,Hong Kong Polytechnic University,Department of Mechanical Engineering,2026-05-20,TRUE,2026-05-07,2026-05-06,260506011,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260506011,"**Duties & Responsibilities**
+• Assist the project leader in investigating hygroscopic morphing and swinging behavior of MXene-based film.
+
+**Requirements & Qualifications**
+• Master's degree with specialism in thin-film materials or related fields.
+• Highly self-motivated, committed, and able to work independently.
+• Good interpersonal and communication skills with high proficiency in English technical writing.
+• Experience in material characterization techniques (SEM, interface toughness tests, nanoindentation) and computational software (ABAQUS, COMSOL) preferred.
+
+**Appointment**
+• Part-time — 3 months
+
+**Key Dates**
+• Not specified"
+POLYU-260506010,Research Fellow,Postdoctoral,PolyU,Hong Kong Polytechnic University,Department of Aeronautical and Aviation Engineering,2026-05-13,TRUE,2026-05-07,2026-05-06,260506010,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260506010,"**Duties & Responsibilities**
+• Assist the project leader in a research project on automotive component data-driven and real-time predictive universal vehicle self-diagnosis systems.
+
+**Requirements & Qualifications**
+• Hold a doctoral degree in Mechanical, Computer, Electronic, Automotive, Aerospace Engineering or related discipline plus at least three years of postdoctoral research experience.
+• Demonstrate strong research experience in intelligent transportation systems, robotics, navigation or related areas.
+• Have experience in data-driven predictive diagnostics and multi-modal sensing for vehicle systems.
+• Possess strong analytical, research and software development skills.
+• Have a good publication record and relevant project experience.
+
+**Appointment**
+• Full-time — twelve months contract
+
+**Key Dates**
+• Not specified"
+POLYU-260506009,Part-time Project Administrative Assistant,Non-Academic,PolyU,Hong Kong Polytechnic University,Department of Aeronautical and Aviation Engineering,2026-05-13,TRUE,2026-05-07,2026-05-06,260506009,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260506009,"**Duties & Responsibilities**
+• Assist the project leader in a research project on precision start-gate monitoring for Olympic-class windsurf training.
+• Support UWB-GNSS enabled sensor deployment and monitoring activities.
+
+**Requirements & Qualifications**
+• Must be a Form Five school leaver with five passes in HKCEE or equivalent HKDSE results.
+• Must have passes in English Language, Chinese Language, and Mathematics at specified levels.
+• No prior experience requirements mentioned.
+
+**Appointment**
+• Part-time — 6 months
+
+**Key Dates**
+• Not specified"
+POLYU-260506008,Part-time Project Technical Assistant,Non-Academic,PolyU,Hong Kong Polytechnic University,Department of Aeronautical and Aviation Engineering,2026-05-13,TRUE,2026-05-07,2026-05-06,260506008,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260506008,"**Duties & Responsibilities**
+• Assist the project leader in a research project on bio-inspired spinal systems for humanoid robots.
+• Support design, manufacturing, and deep space exploration applications of the research.
+
+**Requirements & Qualifications**
+• Applicants must hold an honours degree.
+
+**Appointment**
+• Part-time — 1 month contract
+
+**Key Dates**
+• Closing date: 13 May 2026"
+POLYU-260506007,Research Fellow,Postdoctoral,PolyU,Hong Kong Polytechnic University,Department of Industrial and Systems Engineering,2026-05-13,TRUE,2026-05-07,2026-05-06,260506007,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260506007,"**Duties & Responsibilities**
+• Assist the project leader in research on integrated optimization of vehicle scheduling, charging and platooning for autonomous electric trucks.
+
+**Requirements & Qualifications**
+• Hold a doctoral degree plus at least three years of postdoctoral research experience or equivalent.
+• Have background in optimization and data analytics.
+• Possess related research experience.
+
+**Appointment**
+• Contract — 6 months
+
+**Key Dates**
+• Closing date: 13 May 2026"
+POLYU-260506006,Postdoctoral Fellow,Postdoctoral,PolyU,Hong Kong Polytechnic University,Department of Industrial and Systems Engineering,2026-05-13,TRUE,2026-05-07,2026-05-06,260506006,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260506006,"**Duties & Responsibilities**
+• Assist the project leader in research on next-generation precision three-dimensional surface metrology.
+• Contribute to developing smart self-adaptive multiscopic approaches for industrial 4.0.
+
+**Requirements & Qualifications**
+• Hold a doctoral degree or equivalent qualification.
+• Have no more than five years of post-qualification experience at the time of application.
+
+**Appointment**
+• Full-time — 12 months contract
+
+**Key Dates**
+• Review date: 13 May 2026"
+POLYU-260506005,Postdoctoral Fellow,Postdoctoral,PolyU,Hong Kong Polytechnic University,Department of Industrial and Systems Engineering,2026-06-05,TRUE,2026-05-07,2026-05-06,260506005,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260506005,"**Duties & Responsibilities**
+• Assist the project leader in research on next-generation CO2 utilization technologies.
+• Contribute to carbon-neutral process design, AI-driven optimization, and sustainable decision-making initiatives.
+
+**Requirements & Qualifications**
+• Hold a doctoral degree or equivalent qualification with no more than five years of post-qualification experience.
+• Possess research experience and skills in ESG assessment and carbon-neutrality.
+• Be proficient in English.
+
+**Appointment**
+• Full-time — 12 months
+
+**Key Dates**
+• Closing date: 5 June 2026"
+POLYU-260506004,Part-time Postdoctoral Fellow,Postdoctoral,PolyU,Hong Kong Polytechnic University,Department of Industrial and Systems Engineering,2026-05-13,TRUE,2026-05-07,2026-05-06,260506004,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260506004,"**Duties & Responsibilities**
+• Assist the project leader in a research project on physics-informed machine learning for 3D bioprinting systems.
+• Contribute to developing digital biomanufacturing frameworks.
+
+**Requirements & Qualifications**
+• Hold a doctoral degree or equivalent qualification.
+• Have no more than five years of post-qualification experience at time of application.
+• Possess experience in applying artificial intelligence.
+
+**Appointment**
+• Part-time — 6 months contract
+
+**Key Dates**
+• Closing date: 13 May 2026"
+POLYU-260506003,Research Associate / Part-time Research Assistant,Research Assistant/Associate,PolyU,Hong Kong Polytechnic University,Department of Electrical and Electronic Engineering,2026-05-12,TRUE,2026-05-07,2026-05-06,260506003,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260506003,"**Duties & Responsibilities**
+• Assist the project leader in quantum algorithms and security-constrained engineering optimization research.
+• Contribute to techno-economic feasibility analysis and simulation platform development.
+• Support quantum key distribution applications for power distribution network systems.
+• Participate in machine learning research for power system dispatch.
+
+**Requirements & Qualifications**
+• Research Associate: Master's degree or good honours degree with 3+ years research/relevant work experience.
+• Research Assistant: Honours degree or equivalent qualification.
+
+**Appointment**
+• Part-time — 3 months (for both positions)
+
+**Key Dates**
+• Not specified"
+POLYU-260506001,Half-time Physiotherapist I,Other,PolyU,Hong Kong Polytechnic University,Department of Rehabilitation Sciences,2026-05-13,TRUE,2026-05-07,2026-05-06,260506001,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260506001,"**Duties & Responsibilities**
+• Deliver sports injury assessments and evidence-based management for national and university athletes.
+• Design and execute individualised rehabilitation programmes to return athletes to peak performance.
+• Conduct continual assessment and monitoring to guide rehabilitation progression and return-to-play readiness.
+• Provide on-field pitch-side injury management and emergency response during training and competitions.
+• Implement injury prevention and athlete education strategies to enhance player availability.
+• Maintain precise medical and performance data records.
+• Communicate player status, rehabilitation milestones, and risk assessments clearly and timeously.
+• Work beyond normal office hours, including weekends and travel outside Hong Kong.
+
+**Requirements & Qualifications**
+• Hold a bachelor's degree or above in Physiotherapy, Sport Physiotherapy, or related disciplines.
+• Be registered with the Hong Kong Physiotherapists Board with a valid practising certificate.
+• Have at least five years of post-qualification experience in musculoskeletal or sports physiotherapy.
+• Have experience supporting athletes during competitions or training camps across different sports.
+• Have experience as a first responder in acute medical and trauma management in sport settings.
+
+**Appointment**
+• Half-time, contract position with duration of three to twelve months.
+
+**Key Dates**
+• Not specified"
+POLYU-260505014,Project Assistant,Non-Academic,PolyU,Hong Kong Polytechnic University,School of Design,2026-05-12,FALSE,2026-05-06,2026-05-05,260505014,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260505014,"**Duties & Responsibilities**
 • Assist the project leader in researching and identifying suitable AI applications for media design.
 • Develop teaching materials for AI use in media design education.
 • Collect and analyse information and prepare reports on project progress.
@@ -176,7 +374,7 @@ POLYU-260505014,Project Assistant,Non-Academic,PolyU,Hong Kong Polytechnic Unive
 
 **Key Dates**
 • Not specified"
-POLYU-260505009,Postdoctoral Fellow,Postdoctoral,PolyU,Hong Kong Polytechnic University,School of Fashion and Textiles,2026-05-11,TRUE,2026-05-06,2026-05-05,260505009,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260505009,"**Duties & Responsibilities**
+POLYU-260505009,Postdoctoral Fellow,Postdoctoral,PolyU,Hong Kong Polytechnic University,School of Fashion and Textiles,2026-05-11,FALSE,2026-05-06,2026-05-05,260505009,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260505009,"**Duties & Responsibilities**
 • Assist the project leader in researching thermoregulatory fabric with temperature-adaptive thermal emissivity for personal thermal management.
 
 **Requirements & Qualifications**
@@ -188,7 +386,7 @@ POLYU-260505009,Postdoctoral Fellow,Postdoctoral,PolyU,Hong Kong Polytechnic Uni
 
 **Key Dates**
 • Closing date: 11 May 2026"
-POLYU-260505008,Research Associate / Research Assistant,Research Assistant/Associate,PolyU,Hong Kong Polytechnic University,Department of Data Science and Artificial Intelligence,2026-05-12,TRUE,2026-05-06,2026-05-05,260505008,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260505008,"**Duties & Responsibilities**
+POLYU-260505008,Research Associate / Research Assistant,Research Assistant/Associate,PolyU,Hong Kong Polytechnic University,Department of Data Science and Artificial Intelligence,2026-05-12,FALSE,2026-05-06,2026-05-05,260505008,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260505008,"**Duties & Responsibilities**
 • Assist the project leader with research on detecting hyper-realistic images and videos using advanced techniques.
 • Help develop an online system to reliably detect generative AI content.
 • Detect fake content using large language models, vision models, and reinforcement learning.
@@ -204,7 +402,7 @@ POLYU-260505008,Research Associate / Research Assistant,Research Assistant/Assoc
 
 **Key Dates**
 • Not specified"
-POLYU-260505007,Research Fellow,Postdoctoral,PolyU,Hong Kong Polytechnic University,Department of English and Communication,2026-05-11,TRUE,2026-05-06,2026-05-05,260505007,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260505007,"**Duties & Responsibilities**
+POLYU-260505007,Research Fellow,Postdoctoral,PolyU,Hong Kong Polytechnic University,Department of English and Communication,2026-05-11,FALSE,2026-05-06,2026-05-05,260505007,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260505007,"**Duties & Responsibilities**
 • Undertake various forms of data collection and analysis for the research project.
 • Assist in writing and disseminating project findings.
 • Perform other relevant duties as assigned by the project leader or delegates.
@@ -224,7 +422,7 @@ POLYU-260505007,Research Fellow,Postdoctoral,PolyU,Hong Kong Polytechnic Univers
 
 **Key Dates**
 • Not specified"
-POLYU-260505006,Postdoctoral Fellow,Postdoctoral,PolyU,Hong Kong Polytechnic University,School of Design,2026-05-12,TRUE,2026-05-06,2026-05-05,260505006,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260505006,"**Duties & Responsibilities**
+POLYU-260505006,Postdoctoral Fellow,Postdoctoral,PolyU,Hong Kong Polytechnic University,School of Design,2026-05-12,FALSE,2026-05-06,2026-05-05,260505006,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260505006,"**Duties & Responsibilities**
 • Assist the project leader in research on ""Ecological HCI: Toward a nature-centered future for interaction design.""
 • Conduct research on developing and evaluating novel interactive devices for more-than-human stick holders.
 • Collaborate on interdisciplinary projects bridging design, engineering, and human-computer interaction.
@@ -242,7 +440,7 @@ POLYU-260505006,Postdoctoral Fellow,Postdoctoral,PolyU,Hong Kong Polytechnic Uni
 
 **Key Dates**
 • Not specified"
-POLYU-260505005,Postdoctoral Fellow,Postdoctoral,PolyU,Hong Kong Polytechnic University,Department of Logistics and Maritime Studies,2026-06-02,TRUE,2026-05-06,2026-05-05,260505005,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260505005,"**Duties & Responsibilities**
+POLYU-260505005,Postdoctoral Fellow,Postdoctoral,PolyU,Hong Kong Polytechnic University,Department of Logistics and Maritime Studies,2026-06-02,FALSE,2026-05-06,2026-05-05,260505005,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260505005,"**Duties & Responsibilities**
 • Assist the project leader in the research project ""From prediction to operation: Data-driven port operations in Hong Kong Port"".
 
 **Requirements & Qualifications**
@@ -255,7 +453,7 @@ POLYU-260505005,Postdoctoral Fellow,Postdoctoral,PolyU,Hong Kong Polytechnic Uni
 
 **Key Dates**
 • Closing date: 2 June 2026"
-POLYU-260505004,Research Assistant / Research Assistant (Part-time),Research Assistant/Associate,PolyU,Hong Kong Polytechnic University,Department of Logistics and Maritime Studies,2026-05-12,TRUE,2026-05-06,2026-05-05,260505004,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260505004,"**Duties & Responsibilities**
+POLYU-260505004,Research Assistant / Research Assistant (Part-time),Research Assistant/Associate,PolyU,Hong Kong Polytechnic University,Department of Logistics and Maritime Studies,2026-05-12,FALSE,2026-05-06,2026-05-05,260505004,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260505004,"**Duties & Responsibilities**
 • Assist the project leader in research on ride-hailing systems and maritime transportation.
 
 **Requirements & Qualifications**
@@ -269,7 +467,7 @@ POLYU-260505004,Research Assistant / Research Assistant (Part-time),Research Ass
 
 **Key Dates**
 • Not specified"
-POLYU-260505003,Research Assistant,Research Assistant/Associate,PolyU,Hong Kong Polytechnic University,Department of Logistics and Maritime Studies,2026-05-12,TRUE,2026-05-06,2026-05-05,260505003,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260505003,"**Duties & Responsibilities**
+POLYU-260505003,Research Assistant,Research Assistant/Associate,PolyU,Hong Kong Polytechnic University,Department of Logistics and Maritime Studies,2026-05-12,FALSE,2026-05-06,2026-05-05,260505003,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260505003,"**Duties & Responsibilities**
 • Assist the project leader in the research project ""Video-based AI inspection and service performance"".
 
 **Requirements & Qualifications**
@@ -281,7 +479,7 @@ POLYU-260505003,Research Assistant,Research Assistant/Associate,PolyU,Hong Kong 
 
 **Key Dates**
 • Consideration of applications commences: 12 May 2026"
-POLYU-260505002,Part-time Postdoctoral Fellow,Postdoctoral,PolyU,Hong Kong Polytechnic University,Department of Health Technology and Informatics,2026-05-12,TRUE,2026-05-06,2026-05-05,260505002,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260505002,"**Duties & Responsibilities**
+POLYU-260505002,Part-time Postdoctoral Fellow,Postdoctoral,PolyU,Hong Kong Polytechnic University,Department of Health Technology and Informatics,2026-05-12,FALSE,2026-05-06,2026-05-05,260505002,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260505002,"**Duties & Responsibilities**
 • Assist the project leader in an epidemiology study of cancer in Hong Kong.
 
 **Requirements & Qualifications**
@@ -296,7 +494,7 @@ POLYU-260505002,Part-time Postdoctoral Fellow,Postdoctoral,PolyU,Hong Kong Polyt
 
 **Key Dates**
 • Not specified"
-POLYU-260505001,Project Administrative Assistant (Full-time/Half-time/Part-time),Non-Academic,PolyU,Hong Kong Polytechnic University,School of Optometry,2026-05-12,TRUE,2026-05-06,2026-05-05,260505001,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260505001,"**Duties & Responsibilities**
+POLYU-260505001,Project Administrative Assistant (Full-time/Half-time/Part-time),Non-Academic,PolyU,Hong Kong Polytechnic University,School of Optometry,2026-05-12,FALSE,2026-05-06,2026-05-05,260505001,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260505001,"**Duties & Responsibilities**
 • Assist the project leader with a research study on myopic eye growth control in schoolchildren.
 • Schedule appointments with research subjects and provide administrative support.
 • Prepare project documentation.
@@ -490,34 +688,6 @@ POLYU-260429007,Research Assistant (Full-time/Part-time),Research Assistant/Asso
 
 **Appointment**
 • Full-time/Part-time — eight months
-
-**Key Dates**
-• Not specified"
-POLYU-260429005,Part-time Research Fellow,Postdoctoral,PolyU,Hong Kong Polytechnic University,Department of Industrial and Systems Engineering,2026-05-06,FALSE,2026-04-30,2026-04-29,260429005,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260429005,"**Duties & Responsibilities**
-• Assist the project leader in a research project on physics-informed machine learning for 3D bioprinting systems.
-• Contribute to developing frameworks for advanced multi-modular bioprinting technology.
-
-**Requirements & Qualifications**
-• Hold a doctoral degree plus at least three years of postdoctoral research experience or equivalent.
-• Possess related research experience in machine learning or simulation.
-
-**Appointment**
-• Part-time — 6 months
-
-**Key Dates**
-• Closing date: 6 May 2026"
-POLYU-260429004,Research Fellow / Research Associate / Part-time Research Associate,Postdoctoral,PolyU,Hong Kong Polytechnic University,Department of Industrial and Systems Engineering,2026-05-06,FALSE,2026-04-30,2026-04-29,260429004,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260429004,"**Duties & Responsibilities**
-• Assist the project leader in the research project on next-generation advanced materials and manufacturing technologies.
-
-**Requirements & Qualifications**
-• Research Fellow: doctoral degree plus at least three years of postdoctoral research experience or equivalent.
-• Research Associate: Master's degree or good honours degree with three or more years of research/relevant work experience.
-• Preference given to candidates with materials processing and manufacturing research experience.
-
-**Appointment**
-• Research Fellow: Full-time, one month contract
-• Research Associate: Full-time, two months contract
-• Part-time Research Associate: Part-time, twelve months contract
 
 **Key Dates**
 • Not specified"
@@ -931,18 +1101,6 @@ POLYU-260422008,Postdoctoral Fellow / Research Associate / Research Assistant (F
 
 **Key Dates**
 • Not specified"
-POLYU-260422007,Project Technical Assistant,Non-Academic,PolyU,Hong Kong Polytechnic University,Department of Aeronautical and Aviation Engineering,2026-05-06,FALSE,2026-04-23,2026-04-22,260422007,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260422007,"**Duties & Responsibilities**
-• Assist the project leader in a research project on wearable wristband-based driver attention monitoring and alerting systems.
-
-**Requirements & Qualifications**
-• Hold a higher diploma, diploma, or equivalent qualification in an appropriate discipline.
-• Have at least three years of relevant post-qualification experience.
-
-**Appointment**
-• Full-time — Contract, 18 months
-
-**Key Dates**
-• Closing date: 6 May 2026"
 POLYU-260422006,Project Administrative Assistant,Non-Academic,PolyU,Hong Kong Polytechnic University,Department of Aeronautical and Aviation Engineering,2026-04-29,FALSE,2026-04-23,2026-04-22,260422006,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260422006,"**Duties & Responsibilities**
 • Assist the project leader in a research project on precision monitoring for Olympic-class windsurf training.
 • Support UWB-GNSS enabled sensor deployment and data collection activities.
@@ -1556,17 +1714,6 @@ POLYU-260409005,Research Fellow / Postdoctoral Fellow,Postdoctoral,PolyU,Hong Ko
 
 **Key Dates**
 • Review commencement date: 23 April 2026"
-POLYU-260409002,Part-time Research Assistant,Research Assistant/Associate,PolyU,Hong Kong Polytechnic University,School of Fashion and Textiles,2026-05-06,FALSE,2026-04-10,2026-04-09,260409002,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260409002,"**Duties & Responsibilities**
-• Assist the project leader in a research project on luxury sportswear combining thermo-functional textile engineering and Chinese heritage design.
-
-**Requirements & Qualifications**
-• Hold an honours degree or equivalent in Material Science & Engineering, Mechanical Engineering, Textiles Engineering, Polymer Science, or a related discipline.
-
-**Appointment**
-• Part-time — Six months initially, with possibility of further appointment.
-
-**Key Dates**
-• Closing date: 6 May 2026"
 POLYU-260408006,Project Associate / Project Assistant / Project Technical Assistant / Project Administrative Assistant (Full-time/Part-time),Non-Academic,PolyU,Hong Kong Polytechnic University,Department of Electrical and Electronic Engineering,2026-06-30,FALSE,2026-04-09,2026-04-08,260408006,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260408006,"**Duties & Responsibilities**
 • Assist project leaders with administrative support for the department.
 • Provide event management support to the department.
@@ -1626,18 +1773,6 @@ POLYU-260402004,Senior Research Fellow / Research Fellow,Postdoctoral,PolyU,Hong
 
 **Key Dates**
 • Not specified"
-POLYU-260401007,Postdoctoral Fellow,Postdoctoral,PolyU,Hong Kong Polytechnic University,Department of Industrial and Systems Engineering,2026-05-06,FALSE,2026-04-02,2026-04-01,260401007,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260401007,"**Duties & Responsibilities**
-• Assist the project leader in research on high-energy-density all-solid-state lithium metal batteries.
-
-**Requirements & Qualifications**
-• Hold a doctoral degree or equivalent qualification.
-• Have no more than five years of post-qualification experience at the time of application.
-
-**Appointment**
-• Full-time — 12 months
-
-**Key Dates**
-• Closing date: 6 May 2026"
 POLYU-260401006,Postdoctoral Fellow (Full-time/Part-time),Postdoctoral,PolyU,Hong Kong Polytechnic University,Department of Industrial and Systems Engineering,2026-08-20,FALSE,2026-04-02,2026-04-01,260401006,Full-time,,,https://jobs.polyu.edu.hk/job_detail.php?job=260401006,"**Duties & Responsibilities**
 • Assist the project leader in a research project on precision three-dimensional surface metrology for industrial 4.0.
 
@@ -2520,18 +2655,19 @@ EDUHK-63494a701d,Dean of the Faculty of Humanities,Senior Management,EdUHK,Educa
 
 **Key Dates**
 • Not specified"
-EDUHK-2600249,Assistant Professor,Assistant Professor,EdUHK,Education University of Hong Kong,Department of Social Sciences and Policy Studies,2026-05-26,FALSE,2026-04-28,2026-04-27,2600249,Full-time,,,https://www.eduhk.hk/cms/f/career/33384/AsstProf_SSPS_2600249.pdf,"**Duties & Responsibilities**
-• Conduct research in public policy, innovation, and business-society relations, particularly focusing on regional collaboration.
-• Teach undergraduate and postgraduate courses within the department.
-• Contribute to the department's research-intensive mission and multi-disciplinary social science research agenda.
+EDUHK-2600319,Assistant Professor / Research Assistant Professor – Science and Robotics Education,Assistant Professor,EdUHK,Education University of Hong Kong,Academy for Educational Development and Innovation,N,TRUE,2026-05-07,2026-05-06,2600319,Full-time,,,https://www.eduhk.hk/cms/f/career/33467/AP_RAP_AEDI_2600319.pdf,"**Duties & Responsibilities**
+• Conduct high-quality research and generate scholarly publications or significant research outputs.
+• Initiate and support research projects while securing external research grants and funding.
+• Strengthen academic and professional networks through local and overseas collaborations.
+• Provide support in relevant educational teaching and learning areas as required.
 
 **Requirements & Qualifications**
-• Hold expertise in public policy, innovation, and business-society relations.
-• Demonstrate strong research capabilities aligned with the department's priorities.
-• Possess qualifications suitable for an academic role at assistant professor level.
+• Candidates must meet the standards for Assistant Professor or Research Assistant Professor appointment.
+• A strong track record in science and/or robotics education research is required.
+• Ability to secure external funding and establish collaborative networks is essential.
 
 **Appointment**
-• Full-time
+• Full-time / Not specified
 
 **Key Dates**
 • Not specified"
@@ -2867,7 +3003,118 @@ EDUHK-2400634,"Associate Professor / Assistant Professor / Research Assistant Pr
 
 **Key Dates**
 • Not specified"
-EDUHK-2600020,Research Assistant II,Research Assistant/Associate,EdUHK,Education University of Hong Kong,Department of Social Sciences and Policy Studies,2026-05-26,FALSE,2026-05-05,2026-05-04,2600020,Full-time,,,https://www.eduhk.hk/cms/f/career/33435/RAII_SSPS_2600020.pdf,"**Duties & Responsibilities**
+EDUHK-2600296,Post-doctoral Fellow,Postdoctoral,EdUHK,Education University of Hong Kong,Department of Early Childhood Education,2026-05-20,TRUE,2026-05-07,2026-05-06,2600296,Full-time,,,https://www.eduhk.hk/cms/f/career/33470/PDF_ECE_2600296.pdf,"**Duties & Responsibilities**
+• Develop professional development programmes for kindergarten teachers.
+• Engage in school recruitment and retention activities.
+• Assist in school assessment processes.
+• Perform data analysis, report writing, and dissemination of project findings.
+
+**Requirements & Qualifications**
+• Possess a doctoral degree in Education, Early Childhood, Social Science, Psychology, or related discipline.
+• Demonstrate excellent Cantonese and English communication skills (verbal and written).
+• Have experience running applied or translational projects.
+• Possess strong expertise in quantitative or mixed-method analyses.
+• Proficiency with statistical tools such as R, SPSS, or similar software.
+• Ability to work independently and in multidisciplinary teams.
+
+**Appointment**
+• Full-time — Not specified
+
+**Key Dates**
+• Project launch: August 2022
+• Project duration: 2022–2027"
+EDUHK-2600270,Research Assistant II (Two posts),Research Assistant/Associate,EdUHK,Education University of Hong Kong,Department of Social Sciences and Policy Studies,2026-05-20,TRUE,2026-05-07,2026-05-06,2600270,Full-time,,,https://www.eduhk.hk/cms/f/career/33469/RAII_SSPS_2600270.pdf,"**Duties & Responsibilities**
+• Support learning, teaching, research, and knowledge-transfer activities in the department.
+• Assist with ad hoc tasks and production of educational materials.
+• Perform other related duties as assigned by supervisors.
+
+**Requirements & Qualifications**
+• Hold Level 2 or equivalent in five HKDSE subjects including Chinese Language, English Language, and Mathematics (or equivalent qualifications).
+• Demonstrate proficiency in MS Word, Excel, Chinese word processing, database creation, CANVA, and multimedia production.
+• Show ability to work independently with strong planning, organizational, and interpersonal skills.
+
+**Appointment**
+• Full-time — July to August 2026 (duration not specified)
+
+**Key Dates**
+• Not specified"
+EDUHK-2600304,Research Assistant I,Research Assistant/Associate,EdUHK,Education University of Hong Kong,Department of English Language Education,2026-05-20,TRUE,2026-05-07,2026-05-06,2600304,Full-time,,,https://www.eduhk.hk/cms/f/career/33466/RAI_2600317_ELE.pdf,"**Duties & Responsibilities**
+• Support development and extension of the LiSN model to social media contexts.
+• Conduct computational modeling and decompose social comparison processes.
+• Collect and analyze data from digital platforms.
+• Perform academic tasks as assigned by the Principal Investigator.
+
+**Requirements & Qualifications**
+• Bachelor's degree required; master's or doctoral degree preferred in computer science, computational linguistics, or related field.
+• Strong knowledge of natural language processing, machine learning, and quantitative research methods.
+• Research experience in computational linguistics, social media analytics, or cognitive modeling highly desirable.
+• Excellent communication and organizational skills with high proficiency in spoken and written English.
+• Ability to work independently and collaboratively.
+
+**Appointment**
+• Full-time / Part-time / Contract — Not specified
+
+**Key Dates**
+• Not specified"
+EDUHK-2600317,Research Assistant II,Research Assistant/Associate,EdUHK,Education University of Hong Kong,Department of Curriculum and Instruction,2026-05-20,TRUE,2026-05-07,2026-05-06,2600317,Full-time,,,https://www.eduhk.hk/cms/f/career/33460/RAII_C%26I_2600310.pdf,"**Duties & Responsibilities**
+• Liaise with local primary and secondary schools to coordinate teacher training activities.
+• Support organization and implementation of professional development programmes for teachers.
+• Assist in data collection, management, and basic analysis.
+• Contribute to research tasks including literature review and report writing.
+• Collaborate with the project team on video development and related outputs.
+
+**Requirements & Qualifications**
+• HKDSE Level 2 or above in five subjects including Chinese, English, and Mathematics (or equivalent qualifications).
+• Experience in educational research or related project work.
+• Teaching experience in core subjects such as Chinese, English, Mathematics, or Science.
+• Strong interest in AI in education with demonstrated initiative in exploring AI tools.
+• Proactive attitude and ability to work independently in a fast-paced environment.
+• Strong organizational and communication skills.
+• Good written English proficiency (IELTS 6.5 or equivalent preferred).
+• Master's degree in Education or related discipline is an advantage.
+
+**Appointment**
+• Full-time / Part-time / Contract duration: Not specified
+
+**Key Dates**
+• Not specified"
+EDUHK-2600310,Research Assistant I,Research Assistant/Associate,EdUHK,Education University of Hong Kong,Department of Psychology,2026-05-13,TRUE,2026-05-07,2026-05-06,2600310,Full-time,,,https://www.eduhk.hk/cms/f/career/33459/RAI_PS_2600297.pdf,"**Duties & Responsibilities**
+• Conduct literature reviews for assigned research projects.
+• Analyze data and prepare reports.
+• Develop research materials.
+• Coordinate and manage administrative tasks.
+
+**Requirements & Qualifications**
+• Bachelor's degree preferably in Education, Psychology, or related disciplines.
+• Research experience in educational technology, robotics projects, and applied research preferred.
+• Proficiency in both written and spoken English and Chinese.
+• Ability to work independently and under pressure with strong interpersonal skills.
+• Interest in entrepreneurship and pursuing a PhD preferred.
+
+**Appointment**
+• Contract — Not specified
+
+**Key Dates**
+• Not specified"
+EDUHK-2600297,Research Assistant II,Research Assistant/Associate,EdUHK,Education University of Hong Kong,Department of Social Sciences and Policy Studies,2026-05-26,TRUE,2026-05-07,2026-05-04,2600297,Full-time,,,https://www.eduhk.hk/cms/f/career/33435/RAII_SSPS_2600020.pdf,"**Duties & Responsibilities**
+• Lead qualitative aspects of research projects including data collection, analysis, and academic writing.
+• Contribute to planning and implementing research activities aligned with project objectives.
+• Transform unstructured field data into analyzable formats and conduct qualitative analysis.
+• Support the research team with literature reviews, methodology sections, results drafting, and publication preparation.
+
+**Requirements & Qualifications**
+• Bachelor's or Master's degree in Social Sciences, Psychology, Public Health, Gerontology, Urban Studies, or related field.
+• HKDSE Level 2 or above in five subjects including Chinese Language, English, and Mathematics; or equivalent HKCEE Grade E.
+• Experience in participatory or field-based qualitative research (highly preferred).
+• Proficiency in qualitative analysis software such as NVivo and basic statistical analysis skills.
+• Excellent interpersonal and communication skills to work with team members and external partners.
+
+**Appointment**
+• Full-time / Part-time / Contract duration: Not specified
+
+**Key Dates**
+• Not specified"
+EDUHK-2600020,Post-doctoral Fellow,Postdoctoral,EdUHK,Education University of Hong Kong,Department of Education Policy and Leadership,2026-05-21,FALSE,2026-05-05,2026-04-30,2600020,Full-time,,,https://www.eduhk.hk/cms/f/career/33417/PDF_EPL_2600295.pdf,"**Duties & Responsibilities**
 • Lead qualitative aspects of research projects including data collection and analysis.
 • Contribute to planning and implementing research activities aligned with project objectives.
 • Transform unstructured field data into analyzable formats and conduct qualitative analysis.
@@ -2941,23 +3188,6 @@ EDUHK-2600280,CKC TechCulture Innovation Centre,Other,EdUHK,Education University
 
 **Key Dates**
 • Not specified"
-EDUHK-2600300,Research Assistant I,Research Assistant/Associate,EdUHK,Education University of Hong Kong,"Centre for Learning, Teaching and Technology",2026-05-11,FALSE,2026-04-29,2026-04-27,2600300,Full-time,,,https://www.eduhk.hk/cms/f/career/33388/RAI_LTTC_2600287.pdf,"**Duties & Responsibilities**
-• Conduct research and development in AI-based hand function assessment.
-• Perform data analysis and performance evaluation.
-• Publish academic research findings.
-• Assist in project coordination and supervision of research staff.
-
-**Requirements & Qualifications**
-• Hold a Doctoral degree in Science or Engineering.
-• Demonstrate a strong publication record and research experience.
-• Possess strong written and spoken English and Chinese communication skills.
-• Show enthusiasm, self-motivation, and ability to work independently.
-
-**Appointment**
-• Full-time / Part-time / Contract duration: Not specified
-
-**Key Dates**
-• Not specified"
 EDUHK-2600287,Research Assistant I / II,Research Assistant/Associate,EdUHK,Education University of Hong Kong,Department of Science and Environmental Studies,2026-05-11,FALSE,2026-04-28,2026-04-27,2600287,Full-time,,,https://www.eduhk.hk/cms/f/career/33385/RAI_II_SES_2600283.pdf,"**Duties & Responsibilities**
 • Support collaborative projects developing knowledge-based chatbots for assessment design and learning purposes.
 • Test chatbots during development, identify issues, and provide feedback for refinement.
@@ -3000,7 +3230,25 @@ EDUHK-2600273,Research and Development Office (Knowledge Transfer Sub-Office),Ot
 
 **Key Dates**
 • Not specified"
-EDUHK-2600217,Research Assistant II,Research Assistant/Associate,EdUHK,Education University of Hong Kong,Department of Linguistics and Modern Language Studies,2026-05-07,FALSE,2026-05-05,2026-04-23,2600217,Full-time,,,https://www.eduhk.hk/cms/f/career/33356/RAII_LML_2600217.pdf,"**Duties & Responsibilities**
+EDUHK-2600282,Research Assistant II,Research Assistant/Associate,EdUHK,Education University of Hong Kong,Department of Linguistics and Modern Language Studies,2026-05-07,TRUE,2026-05-07,2026-04-23,2600282,Full-time,,,https://www.eduhk.hk/cms/f/career/33356/RAII_LML_2600217.pdf,"**Duties & Responsibilities**
+• Participate in research projects analyzing news portrayals of autism and perceptions of autistic individuals in Hong Kong.
+• Review literature, collect and analyze data, and prepare research reports.
+• Arrange and conduct interviews with autistic individuals.
+• Perform project-related administrative work and other assigned duties.
+
+**Requirements & Qualifications**
+• Minimum HKDSE Level 2 or equivalent in five subjects (including Chinese, English, and Mathematics), or equivalent HKCEE qualifications.
+• Bachelor's degree or above in Linguistics, English Studies, Psychology, Sociology, Social Work, or related discipline preferred.
+• Fluent in spoken and written English and Cantonese.
+• Experience in conducting interviews highly preferred.
+• Familiarity with discourse analysis and narrative analysis desirable.
+
+**Appointment**
+• Full-time contract for approximately 4 months, with possibility of renewal by mutual agreement.
+
+**Key Dates**
+• Not specified"
+EDUHK-2600217,Research Assistant I / Research Assistant II,Research Assistant/Associate,EdUHK,Education University of Hong Kong,Department of Psychology,2026-05-07,FALSE,2026-05-05,2026-04-23,2600217,Full-time,,,https://www.eduhk.hk/cms/f/career/33352/RAI_RAII_PS_2600286.pdf,"**Duties & Responsibilities**
 • Participate in discourse analysis research on autism portrayals in Hong Kong newspapers.
 • Review literature and collect and analyze research data.
 • Prepare research reports and conduct interviews with autistic individuals.
@@ -3058,6 +3306,23 @@ EDUHK-2600281,Research Assistant I,Research Assistant/Associate,EdUHK,Education 
 
 **Appointment**
 • Contract — 3-4 months with possibility of renewal
+
+**Key Dates**
+• Not specified"
+LU-2986,Assistant Administrative Manager II/Senior Administrative Officer,Non-Academic,LU,Lingnan University,Registry,,TRUE,2026-05-07,,2986,Full-time,,,https://lingnan.csod.com/ux/ats/careersite/4/home/requisition/2986?c=lingnan,"**Duties & Responsibilities**
+• Develop and implement innovative marketing strategies to showcase university programmes, events, and initiatives.
+• Promote the university to secondary schools and prospective students through outreach activities.
+• Create compelling content for social media, websites, and print materials.
+• Coordinate with internal units to enhance joint admission efforts.
+
+**Requirements & Qualifications**
+• Hold a recognised degree with at least 5 years' post-qualification work experience, preferably in tertiary education.
+• Demonstrate proficiency in Microsoft 365; proficiency in AI tools or design software is preferable.
+• Display strong command of written and spoken English and Chinese, including Putonghua.
+• Possess strong interpersonal and organisational skills with a team-oriented approach.
+
+**Appointment**
+• Full-time / Not specified
 
 **Key Dates**
 • Not specified"
@@ -3351,21 +3616,6 @@ LU-2971,Administrative Officer (Research Postgraduate Team),Non-Academic,LU,Ling
 
 **Appointment**
 • Full-time / Not specified
-
-**Key Dates**
-• Not specified"
-LU-2970,Part-time Helper,Non-Academic,LU,Lingnan University,Registry,,FALSE,2026-04-21,,2970,Part-time,,,https://lingnan.csod.com/ux/ats/careersite/4/home/requisition/2970?c=lingnan,"**Duties & Responsibilities**
-• Engage and assist prospective students via phone, email, and in-person inquiries.
-• Support the execution of activities and events for prospective and incoming students.
-• Perform ad hoc tasks and duties as assigned by supervisors.
-
-**Requirements & Qualifications**
-• Strong sense of responsibility, punctuality, and proactive willingness to learn.
-• Excellent communication skills and professional demeanour.
-• Strong organisational abilities and proficiency in MS Office and computer applications.
-
-**Appointment**
-• Part-time contract for at least 3 months; outstanding performers may be considered for subsequent appointments.
 
 **Key Dates**
 • Not specified"
@@ -4859,7 +5109,209 @@ LU-2267,"Administrative Officer, Taught Postgraduate Programmes Office",Non-Acad
 
 **Key Dates**
 • Not specified"
-HKU-536185,"Clerk I/II (holding the functional title of Senior Executive Assistant/Executive Assistant) in the Hong Kong Jockey Club Global Health Institute (HKJCGHI), School of Public Health",Non-Academic,HKU,University of Hong Kong,School of Public Health (22400),2026-06-30,TRUE,2026-05-06,,536185,Full-time,,,https://jobs.hku.hk/en/job/536185/clerk-iii-holding-the-functional-title-of-senior-executive-assistantexecutive-assistant-in-the-hong-kong-jockey-club-global-health-institute-hkjcghi-school-of-public-health,"**Duties & Responsibilities**
+HKU-536131,Lecturer/Assistant Lecturer in Bahasa Indonesia (Global and Area Studies),Senior Lecturer/Lecturer,HKU,University of Hong Kong,School of Modern Languages and Cultures (05100),2026-06-30,TRUE,2026-05-07,,536131,Full-time,,,https://jobs.hku.hk/en/job/536131/lecturerassistant-lecturer-in-bahasa-indonesia-global-and-area-studies,"**Duties & Responsibilities**
+• Teach Bahasa Indonesia at various levels to undergraduate and postgraduate students.
+• Develop course materials, assessments, and content courses in Indonesian and Southeast Asian studies.
+• Contribute to the development of the Southeast Asian Studies concentration within the Global and Area Studies programme.
+• Support preparations for establishing a new Centre for Southeast Asian Studies.
+• Undertake related administrative duties and encouraged research activities.
+
+**Requirements & Qualifications**
+• For Lecturer: Master's degree and minimum 5 years of tertiary-level Bahasa Indonesia teaching experience.
+• For Assistant Lecturer: Master's degree and minimum 3 years of tertiary-level teaching experience.
+• Native or near-native fluency in Bahasa Indonesia with excellent English communication skills.
+• Knowledge of current trends in language teaching, assessment, and AI in education.
+• Preference for candidates with Ph.D. (or near completion) and ability to teach Indonesian/Southeast Asian history, culture, or society.
+
+**Appointment**
+• Fixed-term contract of 2 years with possibility of renewal subject to performance and funding availability.
+
+**Key Dates**
+• Start date: September 1, 2026, or as soon as possible thereafter.
+• Application closing date: June 30, 2026."
+HKU-536213,Full-time Research Assistant I/II in the School of Nursing,Research Assistant/Associate,HKU,University of Hong Kong,School of Nursing (20800),2026-07-31,TRUE,2026-05-07,,536213,Full-time,,,https://jobs.hku.hk/en/job/536213/fulltime-research-assistant-iii-in-the-school-of-nursing,"**Duties & Responsibilities**
+• Work on research projects relating to exercise interventions for various clinical cohorts.
+• Perform duties as assigned by the Principal Investigator.
+
+**Requirements & Qualifications**
+• Bachelor's degree in sports/rehabilitation science, health sciences, psychology, public health, or related discipline.
+• Preferably possess work experience in research.
+• Demonstrate caring, sensible, and responsible character with ability to work independently.
+• Have good command of written and spoken English and Chinese (including Cantonese).
+• Possess good interpersonal and organizational skills.
+
+**Appointment**
+• Full-time — one year contract with possibility of renewal subject to funding availability and satisfactory performance.
+
+**Key Dates**
+• Application review start date: As soon as possible.
+• Application deadline/Review end date: July 31, 2026 or until the post is filled, whichever is earlier.
+• Start date: As soon as possible."
+HKU-536208,"Part-time Project Assistant (at the rank of Laboratory Assistant) in the Division of Epidemiology and Biostatistics, School of Public Health",Non-Academic,HKU,University of Hong Kong,School of Public Health (22400),2026-05-26,TRUE,2026-05-07,,536208,Part-time,,,https://jobs.hku.hk/en/job/536208/parttime-project-assistant-at-the-rank-of-laboratory-assistant-in-the-division-of-epidemiology-and-biostatistics-school-of-public-health,"**Duties & Responsibilities**
+• Transport laboratory samples between designated facilities.
+• Perform administrative tasks including record-keeping, scheduling, and documentation.
+• Assist in coordinating project activities and facilitate communication among team members.
+• Ensure compliance with institutional safety and confidentiality protocols.
+
+**Requirements & Qualifications**
+• Completed Form 5 or above; diploma or above in healthcare-related disciplines desirable.
+• Good command of written and spoken English and Chinese (Cantonese and Mandarin fluency a plus).
+• Proficiency in Microsoft applications, especially Excel.
+• Reliable, detail-oriented, and able to work independently with strong organizational and communication skills.
+• Prior experience in administrative support or laboratory environments considered advantageous.
+
+**Appointment**
+• Part-time; One-year temporary contract with possibility of renewal subject to satisfactory performance and funding availability.
+
+**Key Dates**
+• Application review start date: As soon as possible.
+• Closing date: May 26, 2026 (or until posts are filled, whichever is earlier).
+• Start date: As soon as possible."
+HKU-535051,Tenure-track Professor / Associate Professor / Assistant Professor,Tenure-Track,HKU,University of Hong Kong,School of Biomedical Engineering (24000),2026-10-20,TRUE,2026-05-07,,535051,Full-time,,,https://jobs.hku.hk/en/job/535051/tenuretrack-professor-associate-professor-assistant-professor,"**Duties & Responsibilities**
+• Conduct high-quality research and publish findings in reputable journals.
+• Secure and manage external research funding from federal and industrial sources.
+• Teach and mentor students at undergraduate and postgraduate levels using inquiry-based learning.
+• Contribute to interdisciplinary collaboration and innovation in biomedical engineering.
+
+**Requirements & Qualifications**
+• Ph.D. degree or equivalent in a related discipline.
+• Strong track record of high-quality research with significant publication record and external grants.
+• Evidence of international recognition and demonstrated ability to work across disciplines.
+• Commitment to engaging students in inquiry-based learning at all levels.
+
+**Appointment**
+• Full-time — Three-year fixed-term contract with possibility of renewal and consideration for tenure before expiry of second three-year contract; exceptional candidates may be considered for tenure appointment.
+
+**Key Dates**
+• Not specified"
+HKU-536148,Teaching Assistant in the School of Computing and Data Science (several posts),Teaching Assistant,HKU,University of Hong Kong,School of Computing and Data Science (14700),2026-06-15,TRUE,2026-05-07,,536148,Full-time,,,https://jobs.hku.hk/en/job/536148/teaching-assistant-in-the-school-of-computing-and-data-science-several-posts,"**Duties & Responsibilities**
+• Assist faculty members with course preparation and delivery for AI literacy courses.
+• Conduct tutorials and support student learning through various teaching activities.
+• Grade assignments and examinations and provide constructive feedback to students.
+• Maintain course-related records and databases.
+• Facilitate communication between students and faculty members.
+• Assist in organizing workshops and seminars.
+• Perform additional duties as assigned by the Course Coordinator.
+
+**Requirements & Qualifications**
+• Bachelor's degree in Computer Science or a related discipline.
+• Good written and spoken English with strong communication skills.
+• Preference given to candidates with relevant teaching support experience.
+• Preference given to candidates with a background in AI literacy.
+
+**Appointment**
+• Full-time, one-year temporary contract with possibility of renewal; commence as soon as possible.
+
+**Key Dates**
+• Application review start: As soon as possible.
+• Application deadline: June 15, 2026 (or until posts are filled, whichever is earlier)."
+HKU-536172,Full-time/ Part-time Teaching Assistant (several posts) for Innovation and Information Management Courses and Artificial Intelligence Literacy Courses at Undergraduate Level in the Faculty of Business and Economics,Teaching Assistant,HKU,University of Hong Kong,Faculty of Business and Economics (07030),2026-06-04,TRUE,2026-05-07,,536172,Part-time,,,https://jobs.hku.hk/en/job/536172/fulltime-parttime-teaching-assistant-several-posts-for-innovation-and-information-management-courses-and-artificial-intelligence-literacy-courses-at-undergraduate-level-in-the-faculty-of-business-and-economics,"**Duties & Responsibilities**
+• Assist instructors in preparing and administering courses in Management Information Systems, Operations Management, Supply Chain Management, Artificial Intelligence, Statistics, and Computing.
+• Conduct tutorials, grade assignments and tests, and invigilate examinations.
+• Perform other duties as assigned by course instructors.
+• Be available to work outside normal office hours, including evenings and weekends.
+
+**Requirements & Qualifications**
+• Hold a good Bachelor's degree in Information Systems, Operations Management, Statistics, Computer Science, or related disciplines.
+• Preference given to candidates with a second degree and university teaching experience.
+
+**Appointment**
+• Full-time / Part-time — One-year contract commencing August 2026, with possibility of renewal subject to satisfactory performance.
+
+**Key Dates**
+• Commencement: August 2026
+• Application review deadline: June 4, 2026"
+HKU-536197,Post-doctoral Fellow,Postdoctoral,HKU,University of Hong Kong,"Department of Obstetrics and Gynaecology, School of Clinical Medicine (20900)",2026-05-29,TRUE,2026-05-07,,536197,Full-time,,,https://jobs.hku.hk/en/job/536197/postdoctoral-fellow,"**Duties & Responsibilities**
+• Conduct research in nutritional epidemiology focusing on dietary patterns, lifestyle monitoring, and health outcomes in large populations.
+• Manage ongoing research projects on lifestyle monitoring and intervention.
+• Publish original research articles in high-impact journals.
+• Assist principal investigators in writing external competitive grant applications.
+• Develop independent SEED funding applications.
+
+**Requirements & Qualifications**
+• Hold a doctoral degree (Ph.D.) in Nutritional Epidemiology or a related field.
+• Demonstrate substantial experience in dietary analysis, epidemiologic study design, and big data handling.
+• Possess proven expertise in linking dietary patterns to health outcomes.
+• Show capability for both independent research and effective team collaboration.
+• Preferably have specialized experience in diet and health research with large population cohorts.
+
+**Appointment**
+• Full-time — 3-year contract with possibility of renewal subject to funding availability and satisfactory performance.
+
+**Key Dates**
+• Application review start date: May 22, 2026
+• Application review end date: May 29, 2026"
+HKU-536214,Office Attendant,Non-Academic,HKU,University of Hong Kong,Faculty of Education (10000),2026-05-20,TRUE,2026-05-07,,536214,Full-time,,,https://jobs.hku.hk/en/job/536214/office-attendant,"**Duties & Responsibilities**
+• Deliver mail and handle photocopying tasks.
+• Maintain cleanliness of offices and classrooms.
+• Set up classrooms and provide logistics support for Faculty events.
+• Coordinate facilities maintenance issues with the Estates Office.
+• Support reception services when needed and perform other assigned duties.
+• Work occasionally outside regular office hours as required.
+
+**Requirements & Qualifications**
+• Completed Form 5 (secondary school) education or above.
+• Minimum 2 years of full-time work experience.
+• Fluent Cantonese and basic English communication skills.
+• Reasonable written command of Chinese and English.
+• Good interpersonal and communication skills; hardworking and responsible.
+• Ability to work independently and collaboratively within a team.
+
+**Appointment**
+• Full-time, 2-year fixed-term contract with possibility of renewal; includes contract-end gratuity and University retirement benefits contribution (up to 10% of basic salary); annual leave and medical benefits provided.
+
+**Key Dates**
+• Application deadline: May 20, 2026
+• Commencement: As soon as possible"
+HKU-536215,Assistant Project Manager / Assistant Project Officer (at the rank of Research Assistant I/II),Research Assistant/Associate,HKU,University of Hong Kong,Faculty of Arts (04000),2026-06-05,TRUE,2026-05-07,,536215,Full-time,,,https://jobs.hku.hk/en/job/536215/assistant-project-manager-assistant-project-officer-at-the-rank-of-research-assistant-iii,"**Duties & Responsibilities**
+• Support the Faith and Global Engagement Initiative across three main areas of work.
+• Assist with hosting and facilitating speakers and lecturers for the university and Hong Kong community.
+• Help run courses such as Life Worth Living and Lead For Life for undergraduate students.
+• Facilitate Christian dialogue among faculty and staff on campus.
+
+**Requirements & Qualifications**
+• Not specified in the job description.
+
+**Appointment**
+• Full-time, fixed-term contract for two years with possibility of renewal subject to funding availability and satisfactory performance.
+
+**Key Dates**
+• Review date: June 5, 2026
+• Start date: As soon as possible"
+HKU-536216,Post-doctoral Fellow,Postdoctoral,HKU,University of Hong Kong,"Department of Microbiology, School of Clinical Medicine (20700)",2026-08-05,TRUE,2026-05-07,,536216,Full-time,,,https://jobs.hku.hk/en/job/536216/postdoctoral-fellow,"**Duties & Responsibilities**
+• Conduct research projects related to influenza virus, coronavirus, or Epstein-Barr virus under supervisory guidance.
+• Contribute new research talent and capacity to the department's strategic research initiatives.
+• Occasionally work off-campus on collaboration projects with other academic institutions and companies.
+
+**Requirements & Qualifications**
+• Hold a Ph.D. degree with extensive research experience in cellular and molecular biology, cancer biology, immunology, or virology.
+• Preferably possess basic laboratory skills in animal studies, particularly mouse models.
+
+**Appointment**
+• Full-time contract — one or two years with possibility of renewal subject to satisfactory performance.
+
+**Key Dates**
+• Application Review Deadline: August 5, 2026"
+HKU-536218,Research Assistant II,Research Assistant/Associate,HKU,University of Hong Kong,"Department of Surgery, School of Clinical Medicine (21700)",2026-09-06,TRUE,2026-05-07,,536218,Full-time,,,https://jobs.hku.hk/en/job/536218/research-assistant-ii,"**Duties & Responsibilities**
+• Support clinical research activities in urology by assisting physicians with patient interviews and clinical information collection.
+• Retrieve, review, and maintain medical records and research databases through data entry.
+• Support clinical trial reporting and coordination as part of a multidisciplinary research team.
+• Handle direct patient contact and clinical specimens as assigned by the supervisor.
+
+**Requirements & Qualifications**
+• Hold a Hong Kong Associate Degree, Higher Diploma, or Bachelor's degree.
+• Demonstrate proficiency in English and Chinese (Cantonese spoken and written; Mandarin preferred).
+• Show competency in Microsoft Word, Excel, and PowerPoint, with statistical analysis tools such as IBM SPSS advantageous.
+• Possess strong customer service attitude, patient-focused approach, and prior clinical experience in public hospital settings preferred.
+
+**Appointment**
+• Full-time, fixed-term contract for one to two years with possibility of renewal subject to satisfactory performance.
+
+**Key Dates**
+• Review of applications start date: As soon as possible.
+• Closing date: 6 September 2026, or until the post is filled, whichever is earlier.
+• Start date: As soon as possible."
+HKU-536185,"Clerk I/II (holding the functional title of Senior Executive Assistant/Executive Assistant) in the Hong Kong Jockey Club Global Health Institute (HKJCGHI), School of Public Health",Non-Academic,HKU,University of Hong Kong,School of Public Health (22400),2026-06-30,FALSE,2026-05-06,,536185,Full-time,,,https://jobs.hku.hk/en/job/536185/clerk-iii-holding-the-functional-title-of-senior-executive-assistantexecutive-assistant-in-the-hong-kong-jockey-club-global-health-institute-hkjcghi-school-of-public-health,"**Duties & Responsibilities**
 • Support IVI team with administrative tasks for meetings, workshops, and equipment procurement.
 • Manage logistics, record-keeping, inventory, and procurement activities.
 • Handle finance and human resources matters, and coordinate overseas duty travel.
@@ -4879,7 +5331,7 @@ HKU-536185,"Clerk I/II (holding the functional title of Senior Executive Assista
 **Key Dates**
 • Review start date: 2 weeks from posting
 • Closing date: 30 June 2026"
-HKU-536186,"Executive Officer/ Senior Executive Assistant (at the rank of Clerk I) /Executive Assistant (at the rank of Clerk II) (several posts) in the Division of Community Medicine and Public Health Practice, School of Public Health",Non-Academic,HKU,University of Hong Kong,School of Public Health (22400),2026-08-05,TRUE,2026-05-06,,536186,Full-time,,,https://jobs.hku.hk/en/job/536186/executive-officer-senior-executive-assistant-at-the-rank-of-clerk-i-executive-assistant-at-the-rank-of-clerk-ii-several-posts-in-the-division-of-community-medicine-and-public-health-practice-school-of-public-health,"**Duties & Responsibilities**
+HKU-536186,"Executive Officer/ Senior Executive Assistant (at the rank of Clerk I) /Executive Assistant (at the rank of Clerk II) (several posts) in the Division of Community Medicine and Public Health Practice, School of Public Health",Non-Academic,HKU,University of Hong Kong,School of Public Health (22400),2026-08-05,FALSE,2026-05-06,,536186,Full-time,,,https://jobs.hku.hk/en/job/536186/executive-officer-senior-executive-assistant-at-the-rank-of-clerk-i-executive-assistant-at-the-rank-of-clerk-ii-several-posts-in-the-division-of-community-medicine-and-public-health-practice-school-of-public-health,"**Duties & Responsibilities**
 • Provide executive and administrative support to the FAMILY Cohort team.
 • Handle finance functions including procurement, reimbursement, tendering, and invoicing.
 • Manage human resources and file documentation tasks.
@@ -4903,7 +5355,7 @@ HKU-536186,"Executive Officer/ Senior Executive Assistant (at the rank of Clerk 
 
 **Key Dates**
 • Not specified"
-HKU-536154,Post-doctoral Fellow/Senior Research Assistant in the School of Future Media,Postdoctoral,HKU,University of Hong Kong,School of Future Media (31200),2026-10-31,TRUE,2026-05-06,,536154,Full-time,,,https://jobs.hku.hk/en/job/536154/postdoctoral-fellowsenior-research-assistant-in-the-school-of-future-media,"**Duties & Responsibilities**
+HKU-536154,Post-doctoral Fellow/Senior Research Assistant in the School of Future Media,Postdoctoral,HKU,University of Hong Kong,School of Future Media (31200),2026-10-31,FALSE,2026-05-06,,536154,Full-time,,,https://jobs.hku.hk/en/job/536154/postdoctoral-fellowsenior-research-assistant-in-the-school-of-future-media,"**Duties & Responsibilities**
 • Assist in a General Research Fund research project by generating research output independently.
 • Collaborate with interdisciplinary scholars on research projects.
 • Prepare research proposals for competitive grant applications.
@@ -4921,7 +5373,7 @@ HKU-536154,Post-doctoral Fellow/Senior Research Assistant in the School of Futur
 • Start date: Fourth quarter of 2026 or as soon as possible thereafter.
 • Application review start: Immediately.
 • Closing date: October 31, 2026, or until the post is filled, whichever is earlier."
-HKU-536159,辦公室服務員,Other,HKU,University of Hong Kong,"Department of Obstetrics and Gynaecology, School of Clinical Medicine (20900)",2026-05-26,TRUE,2026-05-06,,536159,Full-time,,,https://jobs.hku.hk/en/job/536159/辦公室服務員,"**Duties & Responsibilities**
+HKU-536159,辦公室服務員,Other,HKU,University of Hong Kong,"Department of Obstetrics and Gynaecology, School of Clinical Medicine (20900)",2026-05-26,FALSE,2026-05-06,,536159,Full-time,,,https://jobs.hku.hk/en/job/536159/辦公室服務員,"**Duties & Responsibilities**
 • Perform general cleaning tasks including laboratory equipment.
 • Handle miscellaneous duties and external courier deliveries.
 • Assist in organizing and managing laboratory consumables.
@@ -4940,7 +5392,7 @@ HKU-536159,辦公室服務員,Other,HKU,University of Hong Kong,"Department of O
 **Key Dates**
 • Selection period commencement: 18 May 2026
 • Selection period closing: 26 May 2026 (or when position is filled, whichever is earlier)"
-HKU-536176,Assistant IT Director / Senior IT Manager,Non-Academic,HKU,University of Hong Kong,Li Ka Shing Faculty of Medicine (20000),2026-06-03,TRUE,2026-05-06,,536176,Full-time,,,https://jobs.hku.hk/en/job/536176/assistant-it-director-senior-it-manager,"**Duties & Responsibilities**
+HKU-536176,Assistant IT Director / Senior IT Manager,Non-Academic,HKU,University of Hong Kong,Li Ka Shing Faculty of Medicine (20000),2026-06-03,FALSE,2026-05-06,,536176,Full-time,,,https://jobs.hku.hk/en/job/536176/assistant-it-director-senior-it-manager,"**Duties & Responsibilities**
 • Lead planning, development, delivery, and operation of technical platforms and digital solutions.
 • Supervise the technical team with day-to-day guidance and performance management.
 • Oversee architecture, development, deployment, and maintenance of digital platforms and infrastructure.
@@ -4965,7 +5417,7 @@ HKU-536176,Assistant IT Director / Senior IT Manager,Non-Academic,HKU,University
 
 **Key Dates**
 • Start date: As soon as possible"
-HKU-536178,Technical Manager / Senior Technical Officer / Technical Officer (several posts),Non-Academic,HKU,University of Hong Kong,Li Ka Shing Faculty of Medicine (20000),2026-06-03,TRUE,2026-05-06,,536178,Full-time,,,https://jobs.hku.hk/en/job/536178/technical-manager-senior-technical-officer-technical-officer-several-posts,"**Duties & Responsibilities**
+HKU-536178,Technical Manager / Senior Technical Officer / Technical Officer (several posts),Non-Academic,HKU,University of Hong Kong,Li Ka Shing Faculty of Medicine (20000),2026-06-03,FALSE,2026-05-06,,536178,Full-time,,,https://jobs.hku.hk/en/job/536178/technical-manager-senior-technical-officer-technical-officer-several-posts,"**Duties & Responsibilities**
 • Design, develop, and deploy AI/ML-powered health solutions including data pipelines, models, and applications.
 • Implement and maintain large-scale databases, APIs, data governance, and privacy compliance systems.
 • Integrate software with external biomedical devices via BLE, USB/UART, and related protocols.
@@ -4984,7 +5436,7 @@ HKU-536178,Technical Manager / Senior Technical Officer / Technical Officer (sev
 **Key Dates**
 • Start date: As soon as possible
 • Review date: May 18, 2026"
-HKU-536194,Post-doctoral Fellow,Postdoctoral,HKU,University of Hong Kong,James M. and Cathleen D. Stone Centre on Socio-Economic Inequality in Asia (30005),2026-06-30,TRUE,2026-05-06,,536194,Full-time,,,https://jobs.hku.hk/en/job/536194/postdoctoral-fellow,"**Duties & Responsibilities**
+HKU-536194,Post-doctoral Fellow,Postdoctoral,HKU,University of Hong Kong,James M. and Cathleen D. Stone Centre on Socio-Economic Inequality in Asia (30005),2026-06-30,FALSE,2026-05-06,,536194,Full-time,,,https://jobs.hku.hk/en/job/536194/postdoctoral-fellow,"**Duties & Responsibilities**
 • Conduct quantitative and qualitative data analyses on socio-economic inequality topics.
 • Prepare manuscripts for publication in high-impact academic journals.
 • Present research findings at research institutions and conferences.
@@ -8275,6 +8727,34 @@ HKU-534958,Data Analyst (at the rank of Technical Officer / Research Assistant I
 
 **Key Dates**
 • Not specified"
+HKU-534967,AI Engineer,Other,HKU,University of Hong Kong,Development & Alumni Affairs Office (60800),2026-05-27,TRUE,2026-05-07,,534967,Full-time,,,https://jobs.hku.hk/en/job/534967/ai-engineer,"**Duties & Responsibilities**
+• Design, develop, and deploy LLM-embedded applications to automate workflows and improve office operations.
+• Implement AI platforms and systems supporting agentic AI initiatives within the office.
+• Apply AI governance practices to ensure responsible and secure adoption of AI technologies.
+• Translate strategic priorities into actionable technical solutions in collaboration with senior leadership.
+• Build and maintain retrieval-augmented generation (RAG) pipelines and advanced AI frameworks.
+• Contribute to agile development practices and foster innovation within the AI & Data Lab.
+
+**Requirements & Qualifications**
+• Bachelor's degree or above in Data Science, Statistics, Computer Science, Information Systems, or related fields with at least 2 years' relevant experience.
+• Strong background in software development with hands-on experience building scalable applications.
+• Solid knowledge of networking, security protocols, and system architecture.
+• Experience with cloud platforms, backend frameworks, and workflow automation.
+• Familiarity with RAG, vector databases, and modern AI toolchains.
+• Demonstrated ability to work with agentic AI and generative AI applications.
+• Experience in agile development environments and iterative prototyping.
+• Real-world project experience in AI/ML application development.
+• Enthusiasm for generative AI with strong innovation and experimentation mindset.
+• Excellent communication and cross-team collaboration skills.
+
+**Appointment**
+• Full-time fixed-term contract for 2 years with possibility of renewal based on satisfactory performance.
+• Competitive salary commensurate with qualifications and experience, plus contract-end gratuity and 10% retirement benefits contribution.
+• Benefits include annual leave and medical coverage.
+
+**Key Dates**
+• Application deadline: May 27, 2026
+• Application review commencement: As soon as possible"
 HKU-534971,Assistant Manager (at the rank of Executive Officer),Non-Academic,HKU,University of Hong Kong,HKU Institute for Climate and Carbon Neutrality (47100),2026-07-03,FALSE,2026-04-14,,534971,Full-time,,,https://jobs.hku.hk/en/job/534971/assistant-manager-at-the-rank-of-executive-officer,"**Duties & Responsibilities**
 • Assist in daily operations and administration of the postgraduate program.
 • Coordinate with faculty, students, and stakeholders to ensure seamless program delivery.
@@ -10786,24 +11266,6 @@ HKU-534316,Tenure-Track Assistant Professor in English Literary Studies (Literat
 **Key Dates**
 • Start date: September 1, 2026 (or as soon as possible thereafter)
 • Application review commencement: As soon as possible"
-HKU-534414,Tenure-track Assistant Professor in Global Governance and Institutions at the School of Governance and Policy,Tenure-Track,HKU,University of Hong Kong,School of Governance and Policy (31100),2026-05-06,FALSE,2026-04-22,,534414,Full-time,,,https://jobs.hku.hk/en/job/534414/tenuretrack-assistant-professor-in-global-governance-and-institutions-at-the-school-of-governance-and-policy,"**Duties & Responsibilities**
-• Teach postgraduate courses in international organizations and global governance.
-• Conduct active research and contribute to knowledge exchange activities.
-• Participate in postgraduate programme development.
-• Assume service and administrative responsibilities as needed.
-
-**Requirements & Qualifications**
-• Ph.D. in public policy, law, history, or a closely related social sciences/humanities field.
-• Teaching and research experience in international/regional organizations, public-private partnerships, or multilateralism.
-• Expertise in addressing economic and social policy challenges, especially in the Global South.
-• Proven track record or strong potential for research excellence, publications, and securing external funding.
-
-**Appointment**
-• Tenure-track, three-year fixed-term contract with possibility of renewal and tenure consideration before expiry of second three-year contract.
-
-**Key Dates**
-• Application review start date: April 6, 2026
-• Position commencement: As soon as possible"
 HKU-534455,"Full-time Research Assistant II at the Speech, Language and Reading Lab in the Faculty of Education",Research Assistant/Associate,HKU,University of Hong Kong,Faculty of Education (10000),2026-06-30,FALSE,2026-04-22,,534455,Full-time,,,https://jobs.hku.hk/en/job/534455/fulltime-research-assistant-ii-at-the-speech-language-and-reading-lab-in-the-faculty-of-education,"**Duties & Responsibilities**
 • Conduct on-site psycholinguistic assessments for children with special educational needs.
 • Perform acoustic data analyses using statistical and computational methods.
@@ -11768,27 +12230,30 @@ HKU-502573,HKU Professoriate Recruitment (Business and Economics),Professor,HKU,
 **Key Dates**
 • Application Review: Ongoing until positions are filled."
 HKUST-182442,Head of the Division of Humanities,Senior Management,HKUST,HK University of Science & Technology,School of Humanities and Social Science,,FALSE,2026-04-30,,182442,Full-time,,,https://apply.interfolio.com/185063,"**Duties & Responsibilities**
-• Conduct research in embodied AI, medical robots, and related areas such as control, autonomy, robot learning, and physical AI.
-• Hold appointment in an appropriate academic department within the school.
-• Teach and contribute to academic programs at the institution.
+• Conduct research in embodied AI, medical robots, and related areas such as control, autonomy, robot learning, and healthcare applications.
+• Hold an appointment in an appropriate academic department and contribute to teaching and academic activities.
+• Participate in interviews and selection processes conducted by department search committees.
 
 **Requirements & Qualifications**
-• PhD degree in Electronic and Computer Engineering, Mechanical and Aerospace Engineering, Computer Science and Engineering, or related fields required by appointment.
-• Research expertise in embodied AI and medical robots.
-• Demonstrated excellence in research and teaching.
+• Hold a PhD degree in Electronic and Computer Engineering, Mechanical and Aerospace Engineering, Computer Science and Engineering, or related fields by the time of appointment.
+• Demonstrate outstanding expertise in embodied AI and medical robotics research.
+• Provide a cover letter, curriculum vitae, names of at least three referees, research statement, and teaching statement.
 
 **Appointment**
-• Full-time; Assistant Professor positions initially on three-year contract with gratuity payable upon completion.
+• Full-time; Assistant Professor positions are initially on a three-year contract with gratuity payable upon completion.
 
 **Key Dates**
-• Priority application deadline: 30 September 2026"
-HKUST-181904,Professor/Associate Professor/Assistant Professor (Robotic Hiring Task Force),Associate Professor,HKUST,HK University of Science & Technology,School of Engineering,2026-05-31,FALSE,2026-04-22,,181904,Full-time,,,https://apply.interfolio.com/184790,"**Duties & Responsibilities**
-• Deliver UGC-funded language enhancement programs for English and Chinese to undergraduate and postgraduate students across the university.
-• Contribute to teaching, research, and societal impact initiatives within the Center for Language Education.
-• Support the university's mission to nurture students with entrepreneurial spirit, innovative thinking, and global outlook.
+• Priority deadline: 30 September 2026
+• Academic year: 2026-2027"
+HKUST-181904,Professor/Associate Professor/Assistant Professor (Robotic Hiring Task Force),Associate Professor,HKUST,HK University of Science & Technology,School of Engineering,2026-05-31,FALSE,2026-04-22,,181904,Full-time,,,https://apply.interfolio.com/184790,"# Academic Job Summary
+
+**Duties & Responsibilities**
+• Deliver language enhancement programs in English and Chinese to undergraduate and postgraduate students across the university.
+• Contribute to teaching, research, and academic excellence within the Center for Language Education.
+• Support the university's mission of nurturing students with entrepreneurial spirit and innovative thinking.
 
 **Requirements & Qualifications**
-• Not specified in the description provided.
+• Not specified in the provided description.
 
 **Appointment**
 • Full-time / Part-time / Contract — Not specified
@@ -11798,56 +12263,54 @@ HKUST-181904,Professor/Associate Professor/Assistant Professor (Robotic Hiring T
 HKUST-181445,Director of the Center for Language Education,Non-Academic,HKUST,HK University of Science & Technology,School of Humanities and Social Science,2026-05-31,FALSE,2026-04-22,,181445,Full-time,,,https://apply.interfolio.com/183640,"**Duties & Responsibilities**
 • Teach undergraduate music courses in humanities and arts for general education.
 • Participate in developing the undergraduate major program in Global China Studies.
-• Assist in administering creative arts education programs within the Division.
-• Potentially organize concerts and other art events on campus.
+• Assist in administering creative arts education programs.
+• Organize concerts and other art events on campus.
 
 **Requirements & Qualifications**
-• Hold a doctoral degree in Music (DMA, PhD, or DFA in a related field).
-• Have experience teaching undergraduate music courses such as theory, composition, history, and appreciation.
-• Preferred: expertise in ethnomusicology or performance (as practitioner or educator).
-• Preferred: solid professional career as a practicing artist.
+• Hold a doctoral degree in Music (DMA, PhD, or DFA in a related area).
+• Have experience teaching undergraduate music courses such as music theory, composition, music history, and music appreciation.
+• Demonstrate expertise in ethnomusicology and/or performance as a practitioner or educator.
+• Have a solid professional career as a practicing artist.
 
 **Appointment**
 • Contract — 1 to 2 years, renewable
 
 **Key Dates**
 • Application deadline: 30 April 2026
-• Review starts: 2 May 2026
+• Review of applications start date: 2 May 2026
 • Expected start date: Spring 2027"
 HKUST-180254,Lecturer I / Lecturer II (Music),Senior Lecturer/Lecturer,HKUST,HK University of Science & Technology,Division of Humanities,2026-05-31,FALSE,2026-04-22,,180254,Full-time,,,https://apply.interfolio.com/183472,"**Duties & Responsibilities**
-• Teach general education courses focused on literature and media studies.
-• Instruct in both English and Chinese (Mandarin or Cantonese).
-• Cover topics including Chinese literature, Sinophone cinema, and popular culture.
-• May teach courses aligned with the institution's literature faculty strengths.
+• Teach general education courses focused on literature and media studies in both English and Chinese.
+• Instruct students on topics including Chinese literature (classical and modern), Sinophone cinema, and popular culture.
+• Teach courses aligned with the Division of Humanities' literature faculty strengths.
 
 **Requirements & Qualifications**
 • Hold a doctorate in literature or a related field.
 • Have demonstrated experience teaching literature and culture in higher education.
-• Possess strong communication skills and ability to present material engagingly.
-• Be able to teach students from diverse academic backgrounds.
+• Possess strong communication skills and ability to present literature engagingly to diverse students.
 
 **Appointment**
-• Full-time contract — 2 years, renewable.
+• Full-time contract — 2 years, renewable
 
 **Key Dates**
 • Application deadline: 30 April 2026
-• Start date: July 2026"
+• Expected start date: July 2026"
 HKUST-180068,Lecturer I/Lecturer II (Literature) (Job ID 180068),Senior Lecturer/Lecturer,HKUST,HK University of Science & Technology,Division of Humanities,2026-05-07,FALSE,2026-05-05,,180068,Full-time,,,https://apply.interfolio.com/183341,"**Duties & Responsibilities**
-• Teach common core and general education philosophy courses to non-humanities undergraduate majors.
-• Deliver introductory courses covering Eastern and Western philosophical traditions, Logic, and Ethics.
-• May teach advanced courses in Chinese Philosophy, Analytic Philosophy, or Philosophy of Science based on faculty strengths.
+• Teach common core and general education courses in philosophy to non-humanities undergraduate majors.
+• Deliver introductory philosophy courses covering Eastern and Western traditions, Logic, and Ethics.
+• May teach specialized courses in Chinese Philosophy, Analytic Philosophy, or Philosophy of Science.
 
 **Requirements & Qualifications**
 • Hold a doctorate in Philosophy or a related field.
-• Demonstrate teaching experience in higher education, particularly with diverse student populations.
+• Demonstrate teaching experience in higher education, particularly with diverse student backgrounds.
 • Possess strong communication skills and ability to explain complex ideas accessibly.
 
 **Appointment**
-• Full-time / Contract — 2 years, renewable
+• Full-time; Contract — 2 years, renewable
 
 **Key Dates**
-• Start date: July 2026
-• Application review begins: 24 April 2026"
+• Application review start date: 24 April 2026
+• Expected appointment start date: July 2026"
 HKUST-179929,Lecturer I/Lecturer II (Philosophy) (Job ID179929),Senior Lecturer/Lecturer,HKUST,HK University of Science & Technology,Division of Humanities,,FALSE,2026-04-22,,179929,Full-time,,,https://hrmsxprod.psft.ust.hk:8044/psp/hrmsxprod/EMPLOYEE/HRMS/c/HRS_HRAM.HRS_CE.GBL?Page=HRS_CE_JOB_DTL&Action=A&JobOpeningId=179929&SiteId=1000&PostingSeq=1,Lecturer I/Lecturer II (Philosophy) (Job ID179929) — Division of Humanities. Please visit the application link for full details.
 HKUST-11139,Tenure-track Faculty Positions in Quantum Science and Technology,Tenure-Track,HKUST,HK University of Science & Technology,Department of Physics,,FALSE,2026-03-18,,11139,Full-time,,,https://hrmsxprod.psft.ust.hk:8044/psp/hrmsxprod/EMPLOYEE/HRMS/c/HRS_HRAM.HRS_CE.GBL?Page=HRS_CE_JOB_DTL&Action=A&JobOpeningId=11139&SiteId=1000&PostingSeq=1,Tenure-track Faculty Positions in Quantum Science and Technology — Department of Physics. Please visit the application link for full details.
 HKUST-11138,Tenure-track Faculty Positions in Theoretical and Computational Physics,Tenure-Track,HKUST,HK University of Science & Technology,Department of Physics,,FALSE,2026-03-18,,11138,Full-time,,,https://hrmsxprod.psft.ust.hk:8044/psp/hrmsxprod/EMPLOYEE/HRMS/c/HRS_HRAM.HRS_CE.GBL?Page=HRS_CE_JOB_DTL&Action=A&JobOpeningId=11138&SiteId=1000&PostingSeq=1,Tenure-track Faculty Positions in Theoretical and Computational Physics — Department of Physics. Please visit the application link for full details.
@@ -11863,52 +12326,54 @@ HKUST-11134,Tenure-track Faculty Positions in Experimental Particle Physics,Tenu
 • Possess a doctoral degree in accounting or a related field.
 • Demonstrate ability to teach in English.
 • Have a good teaching record and/or extensive professional experience.
-• Experience incorporating AI tools into teaching is preferred.
+• Experience incorporating AI tools into teaching is advantageous.
 
 **Appointment**
-• Full-time or Part-time; Contract duration: one semester or longer, with possibility of renewal subject to satisfactory performance.
+• Full-time or Part-time; contract duration one semester or longer with possibility of renewal subject to satisfactory performance.
 
 **Key Dates**
 • Start date: September 2026
 • Application review begins: Immediately and continues until position is filled"
 HKUST-177884,Senior Lecturer / Lecturer I/II,Senior Lecturer/Lecturer,HKUST,HK University of Science & Technology,Department of Accounting,,FALSE,2026-04-22,,177884,Full-time,,,https://hrmsxprod.psft.ust.hk:8044/psp/hrmsxprod/EMPLOYEE/HRMS/c/HRS_HRAM.HRS_CE.GBL?Page=HRS_CE_JOB_DTL&Action=A&JobOpeningId=177884&SiteId=1000&PostingSeq=1,Senior Lecturer / Lecturer I/II — Department of Accounting. Please visit the application link for full details.
 HKUST-11112,Founding Dean of Medicine,Senior Management,HKUST,HK University of Science & Technology,School of Medicine,,FALSE,2026-03-01,,11112,Full-time,,,https://hrmsxprod.psft.ust.hk:8044/psp/hrmsxprod/EMPLOYEE/HRMS/c/HRS_HRAM.HRS_CE.GBL?Page=HRS_CE_JOB_DTL&Action=A&JobOpeningId=11112&SiteId=1000&PostingSeq=1,Founding Dean of Medicine — School of Medicine. Please visit the application link for full details.
-HKUST-11111,Lecturer / Senior Lecturer (Chinese),Senior Lecturer/Lecturer,HKUST,HK University of Science & Technology,Center for Language Education,,FALSE,2026-03-01,,11111,Full-time,,,https://apply.interfolio.com/179626,"# Job Summary
+HKUST-11111,Lecturer / Senior Lecturer (Chinese),Senior Lecturer/Lecturer,HKUST,HK University of Science & Technology,Center for Language Education,,FALSE,2026-03-01,,11111,Full-time,,,https://apply.interfolio.com/179626,"I notice there's a significant mismatch between the job title provided (""Lecturer / Senior Lecturer (Chinese)"" in the Center for Language Education) and the job description provided (which describes tenure-track faculty positions in Electronic and Computer Engineering at HKUST).
+
+I'll summarize the description as written, but please verify you've provided the correct job description:
 
 **Duties & Responsibilities**
-• Lead active research programs in engineering and related fields.
+• Lead active research programs in ECE-related areas.
 • Teach both graduate and undergraduate courses.
-• Conduct research in frontier technologies across diverse ECE areas.
+• Conduct research in frontier technologies including biomedical engineering, microelectronics, photonics, AI, quantum engineering, or wireless communications.
 
 **Requirements & Qualifications**
-• Hold a PhD degree.
-• Demonstrate strength in research and commitment to teaching.
-• Show capability to lead active research programs.
+• Hold a PhD degree with demonstrated research strength.
+• Show commitment to teaching.
+• Possess interdisciplinary knowledge and ability to apply different disciplines.
 
 **Appointment**
-• Tenure-track faculty positions at Professor, Associate Professor, and Assistant Professor ranks; Assistant Professor positions normally on three-year contracts.
+• Full-time, tenure-track at Professor, Associate Professor, or Assistant Professor ranks; Assistant Professor positions normally on three-year initial contract with gratuity upon completion.
 
 **Key Dates**
 • Not specified"
 HKUST-175770,Faculty positions in Electronic and Computer Engineering,Other,HKUST,HK University of Science & Technology,Department of Electronic and Computer Engineering,,FALSE,2026-04-22,,175770,Full-time,,,https://apply.interfolio.com/178360,"**Duties & Responsibilities**
-• Conduct cutting-edge, transformative materials research focused on global and national priorities in health, energy, and sustainability.
-• Teach effectively in Materials Science and Engineering and related courses at undergraduate and postgraduate levels.
-• Nurture future leaders through rigorous, interdisciplinary educational and research experiences.
+• Conduct cutting-edge research in materials science and engineering across health, energy, and sustainability.
+• Teach undergraduate and postgraduate courses in materials science, engineering, and intelligence.
+• Mentor students and develop independent, externally funded research programs.
+• Contribute to departmental, school, and university service activities.
 • Promote innovation and entrepreneurship by translating research into commercial applications.
-• Participate actively in service to the Department, School, and University.
 
 **Requirements & Qualifications**
-• Hold a PhD in materials science and engineering, physics, chemistry, or a closely related engineering field.
-• Demonstrate ability to develop strong, independent, and innovative externally funded research programs.
-• Show capability to teach effectively at both undergraduate and postgraduate levels.
+• Hold a PhD in materials science and engineering, physics, chemistry, or a closely related field.
+• Demonstrate capacity to develop strong, independent, and innovative research programs.
+• Show effectiveness in teaching at both undergraduate and postgraduate levels.
+• Research interests aligned with materials for health, energy, sustainability, or advanced characterization methods.
 
 **Appointment**
-• Full-time / Substantiation-track positions at all ranks (Assistant Professor, Associate Professor, and Professor) — Not specified
+• Substantiation-track positions (Assistant Professor, Associate Professor, and Professor ranks); Full-time; Not specified
 
 **Key Dates**
-• Expected department launch: Fall 2026
-• Application review start date: Immediately upon posting
-• Application deadline: Continues until positions are filled"
+• Start date: Fall 2026
+• Application review date: Review begins immediately and continues until positions are filled"
 HKUST-174344,Substantiation-Track Faculty at All Ranks in Materials,Tenure-Track,HKUST,HK University of Science & Technology,Department of Materials (set to launch in Fall 2026),,FALSE,2026-04-22,,174344,Full-time,,,https://hrmsxprod.psft.ust.hk:8044/psp/hrmsxprod/EMPLOYEE/HRMS/c/HRS_HRAM.HRS_CE.GBL?Page=HRS_CE_JOB_DTL&Action=A&JobOpeningId=174344&SiteId=1000&PostingSeq=1,Substantiation-Track Faculty at All Ranks in Materials — Department of Materials (set to launch in Fall 2026). Please visit the application link for full details.
 HKUST-11095,Biomedical Sciences Faculty,Other,HKUST,HK University of Science & Technology,HKUST School of Medicine,,FALSE,2026-03-01,,11095,Full-time,,,https://hrmsxprod.psft.ust.hk:8044/psp/hrmsxprod/EMPLOYEE/HRMS/c/HRS_HRAM.HRS_CE.GBL?Page=HRS_CE_JOB_DTL&Action=A&JobOpeningId=11095&SiteId=1000&PostingSeq=1,Biomedical Sciences Faculty — HKUST School of Medicine. Please visit the application link for full details.
 HKUST-11094,Clinical Faculty,Senior Lecturer/Lecturer,HKUST,HK University of Science & Technology,HKUST School of Medicine,,FALSE,2026-03-01,,11094,Full-time,,,https://hrmsxprod.psft.ust.hk:8044/psp/hrmsxprod/EMPLOYEE/HRMS/c/HRS_HRAM.HRS_CE.GBL?Page=HRS_CE_JOB_DTL&Action=A&JobOpeningId=11094&SiteId=1000&PostingSeq=1,Clinical Faculty — HKUST School of Medicine. Please visit the application link for full details.
@@ -11917,51 +12382,49 @@ HKUST-11081,Faculty Positions,Other,HKUST,HK University of Science & Technology,
 HKUST-11047,Tenure-Track Faculty Positions,Tenure-Track,HKUST,HK University of Science & Technology,Department of Ocean Science,,FALSE,2026-03-01,,11047,Full-time,,,https://hrmsxprod.psft.ust.hk:8044/psp/hrmsxprod/EMPLOYEE/HRMS/c/HRS_HRAM.HRS_CE.GBL?Page=HRS_CE_JOB_DTL&Action=A&JobOpeningId=11047&SiteId=1000&PostingSeq=1,Tenure-Track Faculty Positions — Department of Ocean Science. Please visit the application link for full details.
 HKUST-11017,Faculty Positions,Other,HKUST,HK University of Science & Technology,Department of Mechanical and Aerospace Engineering,,FALSE,2026-03-01,,11017,Full-time,,,https://hrmsxprod.psft.ust.hk:8044/psp/hrmsxprod/EMPLOYEE/HRMS/c/HRS_HRAM.HRS_CE.GBL?Page=HRS_CE_JOB_DTL&Action=A&JobOpeningId=11017&SiteId=1000&PostingSeq=1,Faculty Positions — Department of Mechanical and Aerospace Engineering. Please visit the application link for full details.
 HKUST-11015,Faculty Positions,Other,HKUST,HK University of Science & Technology,Department of Chemistry,,FALSE,2026-03-01,,11015,Full-time,,,https://apply.interfolio.com/174841,"**Duties & Responsibilities**
-• Conduct research in Philosophy with potential focus on Confucianism, ethics, bioethics, moral philosophy, or religion.
-• Demonstrate excellence in teaching and maintain a strong publication record appropriate to career stage.
-• Teach undergraduate courses and contribute to the Division of Humanities.
+• Conduct research in Philosophy with preferred expertise in Confucianism, ethics, bioethics, moral philosophy, or religion.
+• Demonstrate excellence in teaching at undergraduate and postgraduate levels.
+• Maintain a strong publication record appropriate to career stage.
+• Obtain competitive external funding (for Associate Professor and Professor ranks).
 
 **Requirements & Qualifications**
-• Hold a PhD in Philosophy or related field.
-• Demonstrate commitment to excellence in research and teaching.
-• For Associate Professor/Professor level: record of obtaining competitive external funding is advantageous.
-• Research background in Confucianism or ethics/moral philosophy is preferred but not required.
+• PhD in Philosophy or related discipline.
+• Demonstrated commitment to excellence in research and teaching.
+• Strong publication record appropriate to career stage.
+• Track record of securing competitive external funding (for Associate Professor and Professor applicants).
 
 **Appointment**
-• Full-time — Assistant Professor appointments are normally on a three-year renewable contract; competitive salary commensurate with qualifications and experience; benefits include annual leave, medical/dental coverage, and housing where applicable; gratuity payable upon successful contract completion.
+• Full-time; Assistant Professor rank normally on three-year renewable contract; starting date 2 July 2026 or as soon as possible thereafter.
 
 **Key Dates**
-• Expected start date: 2 July 2026
-• Review of applications start: 1 November 2025
-• Position continues to be filled until closure: Not specified"
+• Application review start date: 1 November 2025
+• Expected start date: 2 July 2026"
 HKUST-11012,Faculty Position in Philosophy (,Other,HKUST,HK University of Science & Technology,Job ID: 170445,,FALSE,2026-04-22,,11012,Full-time,,,https://hrmsxprod.psft.ust.hk:8044/psp/hrmsxprod/EMPLOYEE/HRMS/c/HRS_HRAM.HRS_CE.GBL?Page=HRS_CE_JOB_DTL&Action=A&JobOpeningId=11012&SiteId=1000&PostingSeq=1,Faculty Position in Philosophy ( — Job ID: 170445. Please visit the application link for full details.
 HKUST-170445,Faculty Position in Philosophy (Job ID: 11012),Other,HKUST,HK University of Science & Technology,Division of Humanities,,FALSE,2026-04-22,,170445,Full-time,,,https://apply.interfolio.com/173729,"**Duties & Responsibilities**
-• Teach at undergraduate, MSc., and Ph.D. levels.
+• Teach at undergraduate, MSc, and Ph.D. levels.
 • Conduct research and demonstrate excellence in both research and teaching.
-• Contribute to the department's research and teaching missions.
 
 **Requirements & Qualifications**
-• Hold a Ph.D. in Economics by August 2026.
-• Demonstrate potential for excellence in research and teaching at graduate and undergraduate levels.
-• Preference given to candidates with expertise in Macroeconomics or Applied Microeconomics (Labor, Health, Development, Environmental Economics).
+• Ph.D. in Economics (or must be received by August 2026).
+• Expertise in Macroeconomics and Applied Microeconomics preferred, but candidates in other fields encouraged to apply.
+• Demonstrate potential to achieve excellence in research and teaching at graduate and undergraduate levels.
 
 **Appointment**
-• Full-time — Not specified
+• Full-time; rank (Assistant, Associate, or Full Professor) and contract terms not specified.
 
 **Key Dates**
-• Priority application deadline: December 1st, 2025
-• Interview period: Late December 2025 or early January 2026
-• Ph.D. completion deadline: August 2026
-• Application review begins: Immediately
-• Application deadline: Until position is filled"
+• Priority deadline for junior and mid-career applicants: December 1st, 2025.
+• Interview period for shortlisted junior and mid-career candidates: Late December 2025 or early January 2026.
+• Ph.D. must be received by: August 2026.
+• Review of applications: Begins immediately and continues until position is filled."
 HKUST-169176,2026 All Fields in Economics (Assistant/Associate/Full Professor),Professor,HKUST,HK University of Science & Technology,Department of Economics,,FALSE,2026-04-22,,169176,Full-time,,,https://hrmsxprod.psft.ust.hk:8044/psp/hrmsxprod/EMPLOYEE/HRMS/c/HRS_HRAM.HRS_CE.GBL?Page=HRS_CE_JOB_DTL&Action=A&JobOpeningId=169176&SiteId=1000&PostingSeq=1,2026 All Fields in Economics (Assistant/Associate/Full Professor) — Department of Economics. Please visit the application link for full details.
 HKUST-10945,Faculty Position,Other,HKUST,HK University of Science & Technology,Department of Industrial Engineering and Decision Analytics,,FALSE,2026-03-01,,10945,Full-time,,,https://hrmsxprod.psft.ust.hk:8044/psp/hrmsxprod/EMPLOYEE/HRMS/c/HRS_HRAM.HRS_CE.GBL?Page=HRS_CE_JOB_DTL&Action=A&JobOpeningId=10945&SiteId=1000&PostingSeq=1,Faculty Position — Department of Industrial Engineering and Decision Analytics. Please visit the application link for full details.
 HKUST-10912,Faculty Position,Other,HKUST,HK University of Science & Technology,Division of Public Policy,,FALSE,2026-03-01,,10912,Full-time,,,https://hrmsxprod.psft.ust.hk:8044/psp/hrmsxprod/EMPLOYEE/HRMS/c/HRS_HRAM.HRS_CE.GBL?Page=HRS_CE_JOB_DTL&Action=A&JobOpeningId=10912&SiteId=1000&PostingSeq=1,Faculty Position — Division of Public Policy. Please visit the application link for full details.
 HKUST-10808,Tenure-Track Faculty Positions in Machine Creativity,Tenure-Track,HKUST,HK University of Science & Technology,Division of Arts and Machine Creativity,,FALSE,2026-03-01,,10808,Full-time,,,https://apply.interfolio.com/168643,"**Duties & Responsibilities**
 • Teach management courses at undergraduate and MSc/MBA levels.
-• Conduct high-quality research for publication in premier journals.
-• Contribute to MSc program administration (preferred).
-• Specialize in areas such as family business, ESG, sustainability, ethics, or social responsibility.
+• Conduct high-quality research published in premier management journals.
+• Contribute to teaching and research in areas such as family business, ESG, sustainability, ethics, and social responsibility.
+• Optionally participate in MSc program administration.
 
 **Requirements & Qualifications**
 • Proven record of teaching in English.
@@ -11973,7 +12436,7 @@ HKUST-10808,Tenure-Track Faculty Positions in Machine Creativity,Tenure-Track,HK
 • Full-time
 
 **Key Dates**
-• Review of applications begins: August 25, 2025"
+• Application review begins: August 25, 2025"
 HKUST-163506,Full-time Teaching Faculty Positions in Business and Management - 2025,Other,HKUST,HK University of Science & Technology,Department of Management,,FALSE,2026-04-22,,163506,Full-time,,,https://hrmsxprod.psft.ust.hk:8044/psp/hrmsxprod/EMPLOYEE/HRMS/c/HRS_HRAM.HRS_CE.GBL?Page=HRS_CE_JOB_DTL&Action=A&JobOpeningId=163506&SiteId=1000&PostingSeq=1,Full-time Teaching Faculty Positions in Business and Management - 2025 — Department of Management. Please visit the application link for full details.
 HKUST-10669,Research Assistant Professor(s),Assistant Professor,HKUST,HK University of Science & Technology,Division of Arts and Machine Creativity,,FALSE,2026-03-01,,10669,Full-time,,,https://hrmsxprod.psft.ust.hk:8044/psp/hrmsxprod/EMPLOYEE/HRMS/c/HRS_HRAM.HRS_CE.GBL?Page=HRS_CE_JOB_DTL&Action=A&JobOpeningId=10669&SiteId=1000&PostingSeq=1,Research Assistant Professor(s) — Division of Arts and Machine Creativity. Please visit the application link for full details.
 HKUST-10407,Founding Head of the Division of Arts and Machine Creativity (AMC),Senior Management,HKUST,HK University of Science & Technology,Academy of Interdisciplinary Studies,,FALSE,2026-03-01,,10407,Full-time,,,https://hrmsxprod.psft.ust.hk:8044/psp/hrmsxprod/EMPLOYEE/HRMS/c/HRS_HRAM.HRS_CE.GBL?Page=HRS_CE_JOB_DTL&Action=A&JobOpeningId=10407&SiteId=1000&PostingSeq=1,Founding Head of the Division of Arts and Machine Creativity (AMC) — Academy of Interdisciplinary Studies. Please visit the application link for full details.
@@ -11990,40 +12453,41 @@ HKUST-8060,Faculty Positions in Sustainable Energy and Environment,Other,HKUST,H
 HKUST-6770,Faculty Positions,Other,HKUST,HK University of Science & Technology,Division of Emerging Interdisciplinary Areas,,FALSE,2026-03-01,,6770,Full-time,,,https://hrmsxprod.psft.ust.hk:8044/psp/hrmsxprod/EMPLOYEE/HRMS/c/HRS_HRAM.HRS_CE.GBL?Page=HRS_CE_JOB_DTL&Action=A&JobOpeningId=6770&SiteId=1000&PostingSeq=1,Faculty Positions — Division of Emerging Interdisciplinary Areas. Please visit the application link for full details.
 HKUST-6164,Senior Lecturer / Lecturer I,Senior Lecturer/Lecturer,HKUST,HK University of Science & Technology,Department of Economics,,FALSE,2026-03-01,,6164,Full-time,,,https://hrmsxprod.psft.ust.hk:8044/psp/hrmsxprod/EMPLOYEE/HRMS/c/HRS_HRAM.HRS_CE.GBL?Page=HRS_CE_JOB_DTL&Action=A&JobOpeningId=6164&SiteId=1000&PostingSeq=1,Senior Lecturer / Lecturer I — Department of Economics. Please visit the application link for full details.
 HKUST-11145,Instructional Assistant,Other,HKUST,HK University of Science & Technology,Division of Public Policy,2026-05-14,FALSE,2026-04-30,,11145,Full-time,,,https://apply.interfolio.com/185664,"**Duties & Responsibilities**
-• Gather qualitative data using photography, interviews, and other methods on cultural heritage representation in urban Hong Kong.
+• Gather qualitative research data using photography, interviews, and other methods on cultural heritage representation in urban Hong Kong.
 • Analyze linguistic and visual data from interviews and photographs.
 • Engage with academic materials on linguistic anthropology, ethnography, translation studies, and discourse analysis.
 • Contribute actively to project discussions and provide basic translation and interpreting assistance.
 
 **Requirements & Qualifications**
 • Bachelor's degree or equivalent with experience in academic research.
-• Fluency in Cantonese and/or other Hong Kong community languages is advantageous.
-• Strong project organization and management skills with creative, self-motivated approach to research.
-• Solid understanding of language and identity issues and broad knowledge of Hong Kong's cultural and political landscape.
-• Background in linguistics, translation studies, anthropology, sociology, or cultural studies preferred.
-• Master's degree or PhD and proven academic English writing ability are additional assets.
+• Fluency in Cantonese and/or one or more of Hong Kong's community languages.
+• Strong project organization and management skills.
+• Background in linguistics, translation studies, anthropology, sociology, or cultural studies.
+• Demonstrated understanding of language and identity issues and knowledge of Hong Kong's cultural landscape.
+• Proven ability to write well in academic English.
 
 **Appointment**
-• Part-time — 8 months (1 September 2026 – 30 April 2027)
+• Part-time, 8 months (1 September 2026 – 30 April 2027)
 
 **Key Dates**
 • Start date: 1 September 2026
 • End date: 30 April 2027
 • Application review begins: 15 May 2026"
 HKUST-182546,Research Assistant (Part-time),Research Assistant/Associate,HKUST,HK University of Science & Technology,Division of Humanities,2026-05-15,FALSE,2026-04-30,,182546,Part-time,,,https://apply.interfolio.com/185508,"**Duties & Responsibilities**
-• Assist course instructors in designing and developing teaching materials.
-• Grade assignments and coordinate student submission of coursework.
-• Manage student attendance and provide logistical support for department activities.
-• Perform other teaching-related duties as assigned by the Department.
+• Design and develop teaching materials for undergraduate and postgraduate courses.
+• Grade assignments and coordinate student submissions.
+• Manage student attendance and provide logistical support for activities.
+• Assist with other teaching-related duties as assigned.
 
 **Requirements & Qualifications**
-• Bachelor's degree in finance or a related discipline.
-• Excellent communication and interpersonal skills with strong written and spoken English.
-• Good computer skills and ability to work independently.
-• Preferred: relevant experience in tertiary institutions; master's degree may lead to consideration for Teaching Associate position.
+• Bachelor's degree in finance or related discipline.
+• Excellent written and spoken English communication skills.
+• Good computer skills and interpersonal abilities.
+• Mature, detail-oriented, and able to work independently.
+• Relevant tertiary institution experience preferred; master's degree considered for advancement.
 
 **Appointment**
-• Part-time; Not specified
+• Part-time; contract duration not specified.
 
 **Key Dates**
 • Not specified"
@@ -12035,27 +12499,27 @@ HKUST-182379,Instructional Assistant/Teaching Associate,Teaching Assistant,HKUST
 
 **Requirements & Qualifications**
 • Bachelor's degree or above in operations management, logistics, supply chain, industrial engineering, or related discipline.
-• Excellent communication and interpersonal skills.
-• Good command of written and spoken English.
-• Python experience or statistics knowledge is advantageous.
+• Excellent communication and interpersonal skills with strong written and spoken English.
+• Python experience or statistics knowledge preferred.
+• Willingness to work outside normal office hours.
 
 **Appointment**
-• Full-time / Contract — Not specified
+• Full-time / Part-time — Not specified
+• Salary commensurate with qualifications and experience; fringe benefits including annual leave, medical and dental benefits provided.
 
 **Key Dates**
 • Not specified"
 HKUST-182218,Teaching Associate/Instructional Assistant (Operations Management),Teaching Assistant,HKUST,HK University of Science & Technology,OM group,2026-05-22,FALSE,2026-04-28,,182218,Full-time,,,https://apply.interfolio.com/185199,"**Duties & Responsibilities**
-• Conduct tutorials and assist with course preparation and teaching.
-• Grade homework, papers, and examinations.
-• Update course websites and handle class administration.
-• Supervise students, conduct library searches, and perform invigilation duties.
+• Assist in teaching and course preparation including conducting tutorials and grading assignments.
+• Update course websites and handle class administration tasks.
+• Supervise students, conduct library searches, and perform examination invigilation.
 • Perform other teaching-related duties as assigned by the department.
 
 **Requirements & Qualifications**
 • Hold a bachelor's or master's degree in business or social sciences.
-• Demonstrate flexibility, passion, hard work, and willingness to learn.
+• Demonstrate flexibility, strong work ethic, and willingness to learn.
 • Be proficient in written and spoken English.
-• Be prepared to work outside normal office hours.
+• Be prepared to work outside normal office hours when required.
 
 **Appointment**
 • Full-time, Contract — 1 year, renewable
@@ -12063,6 +12527,7 @@ HKUST-182218,Teaching Associate/Instructional Assistant (Operations Management),
 **Key Dates**
 • Not specified"
 HKUST-182056,Instructional Assistant,Other,HKUST,HK University of Science & Technology,Department of Marketing,,FALSE,2026-04-23,,182056,Full-time,,,https://hrmsxprod.psft.ust.hk:8044/psp/hrmsxprod/EMPLOYEE/HRMS/c/HRS_HRAM.HRS_CE.GBL?Page=HRS_CE_JOB_DTL&Action=A&JobOpeningId=182056&SiteId=1000&PostingSeq=1,Instructional Assistant — Department of Marketing. Please visit the application link for full details.
+HKUST-11144,Post-doctoral Fellows,Postdoctoral,HKUST,HK University of Science & Technology,Division of Life Science,,TRUE,2026-05-07,,11144,Full-time,,,https://hrmsxprod.psft.ust.hk:8044/psp/hrmsxprod/EMPLOYEE/HRMS/c/HRS_HRAM.HRS_CE.GBL?Page=HRS_CE_JOB_DTL&Action=A&JobOpeningId=11144&SiteId=1000&PostingSeq=1,Post-doctoral Fellows — Division of Life Science. Please visit the application link for full details.
 HKUST-11143,Research Engineer / Assistant Research Engineer (2 positions),Research Assistant/Associate,HKUST,HK University of Science & Technology,Department of Computer Science and Engineering,,FALSE,2026-03-24,,11143,Full-time,,,https://hrmsxprod.psft.ust.hk:8044/psp/hrmsxprod/EMPLOYEE/HRMS/c/HRS_HRAM.HRS_CE.GBL?Page=HRS_CE_JOB_DTL&Action=A&JobOpeningId=11143&SiteId=1000&PostingSeq=1,Research Engineer / Assistant Research Engineer (2 positions) — Department of Computer Science and Engineering. Please visit the application link for full details.
 HKUST-11142,Research Assistant / Research Associate,Research Assistant/Associate,HKUST,HK University of Science & Technology,Division of Life Science,,FALSE,2026-03-18,,11142,Full-time,,,https://hrmsxprod.psft.ust.hk:8044/psp/hrmsxprod/EMPLOYEE/HRMS/c/HRS_HRAM.HRS_CE.GBL?Page=HRS_CE_JOB_DTL&Action=A&JobOpeningId=11142&SiteId=1000&PostingSeq=1,Research Assistant / Research Associate — Division of Life Science. Please visit the application link for full details.
 HKUST-11141,Teaching Associate / Instructional Assistant,Teaching Assistant,HKUST,HK University of Science & Technology,Division of Integrative Systems and Design,2026-06-03,FALSE,2026-03-18,,11141,Full-time,,,https://hrmsxprod.psft.ust.hk:8044/psp/hrmsxprod/EMPLOYEE/HRMS/c/HRS_HRAM.HRS_CE.GBL?Page=HRS_CE_JOB_DTL&Action=A&JobOpeningId=11141&SiteId=1000&PostingSeq=1,Teaching Associate / Instructional Assistant — Division of Integrative Systems and Design. Please visit the application link for full details.
@@ -12095,23 +12560,24 @@ HKUST-11119,Research Assistant,Research Assistant/Associate,HKUST,HK University 
 **Key Dates**
 • Not specified"
 HKUST-11113,Associate Research Engineer / Assistant Research Engineer,Research Assistant/Associate,HKUST,HK University of Science & Technology,Department of Electronic and Computer Engineering,,FALSE,2026-03-24,,11113,Full-time,,,https://apply.interfolio.com/180297,"**Duties & Responsibilities**
-• Support student learning through consultations, Q&A sessions, practice groups, and workshops across multiple course sections.
+• Support student learning through consultations, Q&A sessions, and practice groups across multiple course sections.
 • Develop and deliver learning-support resources including workshop materials, practice tasks, and micro-learning activities.
-• Provide constructive feedback on student work to support improvement and confidence-building.
-• Assist with in-class support for group work and other activities under supervisor guidance.
-• Handle administrative tasks including class observations, student placement support, and test invigilation.
+• Provide constructive feedback on optional and unassessed work to build student confidence.
+• Assist with in-class support activities such as group work facilitation under staff guidance.
+• Handle administrative tasks including class observation, student placement support, and test invigilation.
 • Evaluate curriculum effectiveness through feedback collection and student performance review.
 • Support student enrichment activities and liaise with internal and external partners.
 
 **Requirements & Qualifications**
 • Bachelor's degree in English language education, applied linguistics, or related discipline required.
-• Postgraduate qualification preferred.
-• Relevant teaching experience and/or learning materials design experience preferred.
+• Postgraduate qualification is advantageous.
+• Relevant experience in teaching and/or designing learning materials preferred.
 • Strong English proficiency and excellent interpersonal and communication skills required.
-• Ability to work independently and collaboratively in a team environment required.
+• Ability to work independently and collaboratively in a team environment.
 
 **Appointment**
 • Full-time contract — 2 years
+• Salary commensurate with qualifications and experience; annual leave, medical and dental benefits provided; gratuity payable upon contract completion.
 
 **Key Dates**
 • Not specified"
@@ -14866,6 +15332,72 @@ CITYU-ur-ar1002,Postdoctoral Fellow/Research Assistant,Postdoctoral,CityU,City U
 
 **Key Dates**
 • Not specified"
+HKBU-25260597,Assistant Manager (Procurement & Contract Management),Non-Academic,HKBU,Hong Kong Baptist University,Procurement & Contract Management,,FALSE,2026-03-31,,25260597,Full-time,,,https://fa-ewqq-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/hkbu/job/25260597,"**Duties & Responsibilities**
+• Manage the complete lifecycle of IT-related contracts and procurement processes.
+• Develop and execute contracts ensuring alignment with organizational goals and legal compliance.
+• Streamline procurement operations and maintain accurate documentation and tender records.
+• Monitor budgeting processes including preparation, monitoring, and reporting.
+• Enhance accounting procedures for CAPEX, OPEX, and project accounting operations.
+• Prepare regular financial reports and contract inventories for senior management.
+• Collaborate with legal, finance, and operations teams to ensure contract compliance.
+• Perform ad hoc assignments as requested.
+
+**Requirements & Qualifications**
+• Bachelor's degree in accounting, finance, or equivalent.
+• Minimum 6 years of relevant supervisory experience in sizeable companies.
+• Strong analytical, communication, and problem-solving skills with attention to detail.
+• Proficiency in Microsoft 365, especially Excel and PowerPoint.
+• High self-motivation with ability to multitask and work independently and collaboratively.
+
+**Appointment**
+• Fixed-term contract for up to 2 years, with re-appointment subject to mutual agreement.
+
+**Key Dates**
+• Unsuccessful notification deadline: 8 weeks after application submission."
+HKBU-25260701,Assistant Library Officer,Non-Academic,HKBU,Hong Kong Baptist University,Hong Kong Baptist University,,TRUE,2026-05-07,,25260701,Full-time,,,https://fa-ewqq-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/hkbu/job/25260701,"**Duties & Responsibilities**
+• Manage and clean data for digital scholarship projects and support database management initiatives.
+• Provide training to project staff on data indexing, data enhancement, and monitor their work progress.
+• Assist in scoping project data analytics and recommend data visualisation approaches.
+• Support planning and maintenance of the digital scholarship website and provide administrative support to the Digital Scholarship Manager.
+• Operate CollabTech Commons facilities including counter service, monitoring sessions, and developing data literacy training materials.
+• Complete other assigned tasks including dashboard data checking.
+
+**Requirements & Qualifications**
+• Bachelor's degree in Mathematics, Data Science, Information Technology, or related field with at least two years of relevant experience (Master's degree holders with less experience also welcome).
+• Proficiency in data processing using Excel, Python, and MySQL, and experience supporting prototyping equipment.
+• Strong interpersonal and communication skills with willingness to learn new skills.
+• Fluency in English, Cantonese, and Putonghua.
+• Advantageous: experience in online system development, database design, JavaScript, PHP, Google Maps APIs, XML, JSON-LD, RDF, schema.org, SPSS, ArcGIS, and Tableau.
+• Preferred: experience with 3D scanners, 3D printers, cutting plotters, and laser cutters.
+
+**Appointment**
+• Fixed-term contract — up to two years (re-appointment subject to performance review, mutual agreement, and funding availability).
+• Salary: HK$22,275 – HK$38,375 per month, commensurate with qualifications and experience.
+
+**Key Dates**
+• Review of applications: Ongoing.
+• Interview notification deadline: 8 weeks after application submission (unsuccessful if not invited by this date)."
+HKBU-25260705,Research Assistant Professor,Assistant Professor,HKBU,Hong Kong Baptist University,School of Chinese Medicine,,TRUE,2026-05-07,,25260705,Full-time,,,https://fa-ewqq-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/hkbu/job/25260705,"**Duties & Responsibilities**
+• Investigate molecular mechanisms of neurodegenerative diseases including protein aggregation, autophagy impairment, and neuroinflammation.
+• Lead development of novel therapeutic agents and drug candidates targeting neurodegenerative pathways.
+• Design brain-targeting drug delivery systems such as engineered exosomes or nanocarriers.
+• Apply single-cell sequencing and spatial transcriptomics to identify biomarkers and therapeutic targets.
+• Conduct translational research using transgenic models and molecular biology techniques.
+• Discover and optimize lead compounds from natural products and Chinese herbal medicine.
+• Collaborate with international partners and industry to translate research into clinical applications.
+• Secure competitive research grants, publish in high-impact journals, and supervise postgraduate researchers.
+
+**Requirements & Qualifications**
+• PhD in Neuroscience, Pharmacology, Biomedical Sciences, Chinese Medicine, or related discipline.
+• Strong publication record in neurodegenerative research with experience in animal models (PD/AD).
+• Proficiency in molecular biology, single-cell multi-omics, or advanced imaging techniques.
+• Demonstrated ability to conduct independent research and secure external funding.
+
+**Appointment**
+• Fixed-term contract for up to three years with possibility of re-appointment by mutual agreement.
+
+**Key Dates**
+• Not specified"
 HKBU-25260540,Assistant Director,Non-Academic,HKBU,Hong Kong Baptist University,International Office,,FALSE,2026-03-01,,25260540,Full-time,,,https://fa-ewqq-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/hkbu/job/25260540,"**Duties & Responsibilities**
 • Support the Director in overseeing global partnerships and executing the internationalisation strategy.
 • Provide strategic leadership for global education initiatives aligned with institutional priorities.
@@ -16580,28 +17112,6 @@ HKBU-25260629,Assistant Manager (Service-Learning),Non-Academic,HKBU,Hong Kong B
 
 **Key Dates**
 • Not specified"
-HKBU-25260597,Assistant Manager (Procurement & Contract Management),Non-Academic,HKBU,Hong Kong Baptist University,Procurement & Contract Management,,FALSE,2026-03-31,,25260597,Full-time,,,https://fa-ewqq-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/hkbu/job/25260597,"**Duties & Responsibilities**
-• Manage the complete lifecycle of IT-related contracts and procurement processes.
-• Develop and execute contracts ensuring alignment with organizational goals and legal compliance.
-• Streamline procurement operations and maintain accurate documentation and tender records.
-• Monitor budgeting processes including preparation, monitoring, and reporting.
-• Enhance accounting procedures for CAPEX, OPEX, and project accounting operations.
-• Prepare regular financial reports and contract inventories for senior management.
-• Collaborate with legal, finance, and operations teams to ensure contract compliance.
-• Perform ad hoc assignments as requested.
-
-**Requirements & Qualifications**
-• Bachelor's degree in accounting, finance, or equivalent.
-• Minimum 6 years of relevant supervisory experience in sizeable companies.
-• Strong analytical, communication, and problem-solving skills with attention to detail.
-• Proficiency in Microsoft 365, especially Excel and PowerPoint.
-• High self-motivation with ability to multitask and work independently and collaboratively.
-
-**Appointment**
-• Fixed-term contract for up to 2 years, with re-appointment subject to mutual agreement.
-
-**Key Dates**
-• Unsuccessful notification deadline: 8 weeks after application submission."
 HKBU-25260604,Part-Time Lecturer,Senior Lecturer/Lecturer,HKBU,Hong Kong Baptist University,Department of Physics,,FALSE,2026-03-28,,25260604,Part-time,,,https://fa-ewqq-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/hkbu/job/25260604,"**Duties & Responsibilities**
 • Teach the Year 2 ""Mathematical Methods"" course in the undergraduate Green Energy and Smart Technology programme during Semester 1 of 2026-27.
 • Cover topics including functions, calculus, series expansion, Fourier series and transforms, and ordinary differential equations.
@@ -17433,23 +17943,6 @@ HKBU-25260537,Senior Lecturer / Lecturer I,Senior Lecturer/Lecturer,HKBU,Hong Ko
 **Key Dates**
 • Review period: Ongoing basis until position is filled.
 • Timeline: Applicants not invited for interview within 4 months may consider their application unsuccessful."
-HKBU-25260519,Research Assistant Professor,Assistant Professor,HKBU,Hong Kong Baptist University,School of Chinese Medicine,,FALSE,2026-03-01,,25260519,Full-time,,,https://fa-ewqq-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/hkbu/job/25260519,"**Duties & Responsibilities**
-• Conduct research on aging biology, immune dysregulation, inflammation, and tissue degeneration using multi-omics technologies.
-• Lead translational projects using single-cell sequencing, transgenic models, and molecular biology to identify therapeutic targets.
-• Develop innovative diagnostic or therapeutic strategies inspired by Chinese medicine and natural products.
-• Supervise postgraduate students, secure research funding, and publish in top-tier journals.
-
-**Requirements & Qualifications**
-• PhD in Biology, Immunology, Biomedical Sciences, Chinese Medicine, or related discipline required.
-• Strong publication record in top-tier journals with expertise in aging and immune dysregulation research.
-• Proven experience with single-cell multi-omics, transgenic mouse models, and inflammatory disease studies.
-• Ability to conduct independent research, secure competitive funding, and communicate across disciplines.
-
-**Appointment**
-• Fixed-term contract — up to three years, with re-appointment subject to mutual agreement.
-
-**Key Dates**
-• Not specified"
 HKBU-25260527,Senior Technical Officer / Technical Officer,Non-Academic,HKBU,Hong Kong Baptist University,Academy of Film,,FALSE,2026-03-01,,25260527,Full-time,,,https://fa-ewqq-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/hkbu/job/25260527,"**Duties & Responsibilities**
 • Supervise and operate Extended Reality and Virtual Production Studios for daily operations.
 • Operate and maintain VP/XR systems including Unreal, Disguise, LED walls, and camera tracking.
@@ -22527,7 +23020,45 @@ CUHK-5c12cabd4f,Research Assistant,Research Assistant/Associate,CUHK,Chinese Uni
 
 **Key Dates**
 • Not specified"
-HKMU-2600103,Manager (OSI),Non-Academic,HKMU,Hong Kong Metropolitan University,Office of Strategic Initiatives,2026-05-19,TRUE,2026-05-06,,2600103,Full-time,,,https://hkmu.taleo.net/careersection/ex_full_time/jobdetail.ftl?job=2600103&tz=GMT%2B00%3A00&tzname=UTC,"**Duties & Responsibilities**
+HKMU-2600119,Student Affairs Manager/ Assistant Student Affairs Manager (Scholarships) (SAO),Non-Academic,HKMU,Hong Kong Metropolitan University,Student Affairs Office,2026-05-20,TRUE,2026-05-07,,2600119,Full-time,,,https://hkmu.taleo.net/careersection/ex_full_time/jobdetail.ftl?job=2600119&tz=GMT%2B00%3A00&tzname=UTC,"**Duties & Responsibilities**
+• Lead and supervise team members managing scholarships and award schemes.
+• Formulate policies and regulations for government-funded, university, and donor scholarships.
+• Collaborate with other departments on establishing new scholarships and selecting recipients.
+• Coach students and strengthen relationships with stakeholders.
+• Provide administrative support to committees and conduct analysis and reporting.
+• Perform other duties as assigned by the Director of Student Affairs.
+
+**Requirements & Qualifications**
+• Hold a recognised degree, preferably a higher degree.
+• Have at least eight years of relevant work experience.
+• Demonstrate strong execution skills, quick learning ability, and a can-do attitude.
+• Show resilience and flexibility in handling emergencies and ambiguities.
+• Possess excellent leadership, management, interpersonal, and organisational skills.
+• Display self-motivation, ownership, problem-solving ability, and collaborative mindset.
+• Have in-depth knowledge of government and university student financial support schemes.
+
+**Appointment**
+• Full-time / Part-time / Contract duration: Not specified
+
+**Key Dates**
+• Not specified"
+HKMU-260011F,Assistant Public Affairs Manager (PAO),Non-Academic,HKMU,Hong Kong Metropolitan University,Public Affairs Office,2026-05-20,TRUE,2026-05-07,,260011F,Full-time,,,https://hkmu.taleo.net/careersection/ex_full_time/jobdetail.ftl?job=260011F&tz=GMT%2B00%3A00&tzname=UTC,"**Duties & Responsibilities**
+• Plan, organize, and implement University-level ceremonies, PR, and media events aligned with institutional goals.
+• Collaborate with stakeholders to deliver high-standard events that promote the University's image and reputation.
+• Provide logistical coordination and support for events across schools, departments, and other offices.
+• Assist in coordinating community and stakeholder engagement activities, including campus visits.
+• Manage corporate souvenirs production, stock levels, and timely replenishment for University events.
+• Coordinate campus decorations, animations, and videos for LED panels to align with branding strategy.
+
+**Requirements & Qualifications**
+• Not specified
+
+**Appointment**
+• Full-time / Part-time / Contract duration: Not specified
+
+**Key Dates**
+• Not specified"
+HKMU-2600103,Manager (OSI),Non-Academic,HKMU,Hong Kong Metropolitan University,Office of Strategic Initiatives,2026-05-19,FALSE,2026-05-06,,2600103,Full-time,,,https://hkmu.taleo.net/careersection/ex_full_time/jobdetail.ftl?job=2600103&tz=GMT%2B00%3A00&tzname=UTC,"**Duties & Responsibilities**
 • Provide oversight and support for strategic initiatives including cross-border collaborations and executive education programmes.
 • Identify and advance strategic partnership opportunities in the Chinese Mainland and facilitate collaborative projects.
 • Coordinate communication among University Schools and Offices for planning and implementation of strategic initiatives.
@@ -22543,7 +23074,7 @@ HKMU-2600103,Manager (OSI),Non-Academic,HKMU,Hong Kong Metropolitan University,O
 
 **Key Dates**
 • Not specified"
-HKMU-26000ZU,Technical Assistant (R6847) (N&HS),Other,HKMU,Hong Kong Metropolitan University,School of Nursing and Health Sciences,2026-05-19,TRUE,2026-05-06,,26000ZU,Full-time,,,https://hkmu.taleo.net/careersection/ex_full_time/jobdetail.ftl?job=26000ZU&tz=GMT%2B00%3A00&tzname=UTC,"**Duties & Responsibilities**
+HKMU-26000ZU,Technical Assistant (R6847) (N&HS),Other,HKMU,Hong Kong Metropolitan University,School of Nursing and Health Sciences,2026-05-19,FALSE,2026-05-06,,26000ZU,Full-time,,,https://hkmu.taleo.net/careersection/ex_full_time/jobdetail.ftl?job=26000ZU&tz=GMT%2B00%3A00&tzname=UTC,"**Duties & Responsibilities**
 • Assist the Principal Investigator in coordinating a research project on antitumor effects of vitamin D in giant cell tumor of bone.
 • Perform quantitative and/or qualitative data analysis.
 
@@ -22558,7 +23089,7 @@ HKMU-26000ZU,Technical Assistant (R6847) (N&HS),Other,HKMU,Hong Kong Metropolita
 
 **Key Dates**
 • Not specified"
-HKMU-2600102,Assistant Manager (OSI),Non-Academic,HKMU,Hong Kong Metropolitan University,Office of Strategic Initiatives,2026-05-19,TRUE,2026-05-06,,2600102,Full-time,,,https://hkmu.taleo.net/careersection/ex_full_time/jobdetail.ftl?job=2600102&tz=GMT%2B00%3A00&tzname=UTC,"**Duties & Responsibilities**
+HKMU-2600102,Assistant Manager (OSI),Non-Academic,HKMU,Hong Kong Metropolitan University,Office of Strategic Initiatives,2026-05-19,FALSE,2026-05-06,,2600102,Full-time,,,https://hkmu.taleo.net/careersection/ex_full_time/jobdetail.ftl?job=2600102&tz=GMT%2B00%3A00&tzname=UTC,"**Duties & Responsibilities**
 • Provide administrative support for executive education programmes and short programmes including recruitment and enrolment management.
 • Assist with event logistics planning and execution, membership systems, and daily operational tasks.
 • Support programme promotion and facilitate community engagement among students, alumni, and partners.
@@ -22573,7 +23104,7 @@ HKMU-2600102,Assistant Manager (OSI),Non-Academic,HKMU,Hong Kong Metropolitan Un
 
 **Key Dates**
 • Not specified"
-HKMU-2600101,Officer (OSI),Non-Academic,HKMU,Hong Kong Metropolitan University,Office of Strategic Initiatives,2026-05-19,TRUE,2026-05-06,,2600101,Full-time,,,https://hkmu.taleo.net/careersection/ex_full_time/jobdetail.ftl?job=2600101&tz=GMT%2B00%3A00&tzname=UTC,"**Duties & Responsibilities**
+HKMU-2600101,Officer (OSI),Non-Academic,HKMU,Hong Kong Metropolitan University,Office of Strategic Initiatives,2026-05-19,FALSE,2026-05-06,,2600101,Full-time,,,https://hkmu.taleo.net/careersection/ex_full_time/jobdetail.ftl?job=2600101&tz=GMT%2B00%3A00&tzname=UTC,"**Duties & Responsibilities**
 • Provide administrative support for the development and delivery of executive education programmes, study tours, and summer/winter schools.
 • Coordinate event logistics, manage membership systems, and support daily programme operations.
 • Assist with programme promotion, participant communications, marketing materials, and webpage updates.
@@ -22779,42 +23310,6 @@ HKMU-26000PW,Research Associate (Jockey Club BaMa Chill Club Perinatal Support P
 
 **Key Dates**
 • Not specified"
-HKMU-26000PP,Instructional Designer / Assistant Instructional Designer,Other,HKMU,Hong Kong Metropolitan University,Office for Advancement of Learning and Teaching,2026-05-06,FALSE,2026-04-23,,26000PP,Full-time,,,https://hkmu.taleo.net/careersection/ex_full_time/jobdetail.ftl?job=26000PP&tz=GMT%2B00%3A00&tzname=UTC,"**Duties & Responsibilities**
-• Manage overall project planning and course development activities across the university.
-• Apply instructional design principles to develop high-quality audio-visual, multimedia, and online learning materials.
-• Provide instructional design, editing, and project management services within course development teams.
-• Assist course developers in planning and adapting educational courses for full-time and part-time learning.
-• Prepare and monitor contracts for course development projects.
-• Organize professional development workshops on educational technology and teaching strategies.
-• Undertake other duties as assigned by the Director of Advancement of Learning and Teaching.
-
-**Requirements & Qualifications**
-• A recognized degree in education, preferably a higher degree in educational technology, instructional design, or related discipline.
-• At least 6 years of relevant post-qualification experience; teaching experience is preferred.
-• Substantial experience in instructional design (description cut off in original).
-
-**Appointment**
-• Full-time or Part-time (specific contract duration not specified)
-
-**Key Dates**
-• Not specified"
-HKMU-26000PO,Assistant Public Affairs Manager (Marketing) (PAO),Non-Academic,HKMU,Hong Kong Metropolitan University,Public Affairs Office,2026-05-06,FALSE,2026-04-23,,26000PO,Full-time,,,https://hkmu.taleo.net/careersection/ex_full_time/jobdetail.ftl?job=26000PO&tz=GMT%2B00%3A00&tzname=UTC,"**Duties & Responsibilities**
-• Contribute to brand and marketing strategy development and execute full-funnel marketing initiatives.
-• Create and manage content for social media channels including Facebook, Instagram, LinkedIn, and Xiaohongshu.
-• Plan and implement data-driven digital marketing campaigns across multiple channels.
-• Collaborate with agencies and partners to execute promotional initiatives and meet KPIs.
-• Track and analyse marketing performance, preparing reports with recommendations.
-• Organise offline marketing events and information days.
-• Produce corporate and promotional videos with video production houses.
-
-**Requirements & Qualifications**
-• Not specified in the provided description.
-
-**Appointment**
-• Full-time / Part-time / Contract — Not specified
-
-**Key Dates**
-• Not specified"
 HKMU-26000P2,Senior Lecturer / Lecturer / Assistant Lecturer (Counselling Psychology) (A&SS),Senior Lecturer/Lecturer,HKMU,Hong Kong Metropolitan University,School of Arts and Social Sciences,2026-05-18,FALSE,2026-04-21,,26000P2,Full-time,,,https://hkmu.taleo.net/careersection/ex_full_time/jobdetail.ftl?job=26000P2&tz=GMT%2B00%3A00&tzname=UTC,"**Duties & Responsibilities**
 • Plan, develop, and deliver psychology courses at undergraduate and postgraduate levels.
 • Coordinate programmes and ensure alignment with academic and professional standards.
@@ -22898,7 +23393,20 @@ HKMU-25001Q2,Senior Lecturer / Lecturer (Clinical) (N&HS),Senior Lecturer/Lectur
 
 **Key Dates**
 • Not specified"
-HKMU-26000QO,Temporary Project Assistant,Non-Academic,HKMU,Hong Kong Metropolitan University,Student Affairs Office,2026-05-18,TRUE,2026-05-06,,26000QO,Fixed-term,,,https://hkmu.taleo.net/careersection/ex_non_full_time/jobdetail.ftl?job=26000QO&tz=GMT%2B00%3A00&tzname=UTC,"**Duties & Responsibilities**
+HKMU-260011G,Part-time Tutorship (NURS 213C) (2026 Autumn Term starting in September) (N&HS),Other,HKMU,Hong Kong Metropolitan University,School of Nursing and Health Sciences,2026-05-20,TRUE,2026-05-07,,260011G,Part-time,,,https://hkmu.taleo.net/careersection/ex_non_full_time/jobdetail.ftl?job=260011G&tz=GMT%2B00%3A00&tzname=UTC,"**Duties & Responsibilities**
+• Tutor students in NURS 213C course during the 2026 Autumn Term.
+• Support faculty-driven, student-centred innovative teaching and learning.
+
+**Requirements & Qualifications**
+• Not specified in the job description.
+
+**Appointment**
+• Part-time contract for approximately one to two terms, depending on course length.
+
+**Key Dates**
+• Start date: September 2026 (Autumn Term).
+• Application review period: Eight weeks from closing date."
+HKMU-26000QO,Temporary Project Assistant,Non-Academic,HKMU,Hong Kong Metropolitan University,Student Affairs Office,2026-05-18,FALSE,2026-05-06,,26000QO,Fixed-term,,,https://hkmu.taleo.net/careersection/ex_non_full_time/jobdetail.ftl?job=26000QO&tz=GMT%2B00%3A00&tzname=UTC,"**Duties & Responsibilities**
 • Provide administrative support for the Mental Health First Aid course, including class visits, attendance tracking, and certificate issuance.
 • Perform general administrative support for community engagement projects and activities under the Student Enrichment Programmes Section.
 • Assist in compiling statistical reports and maintaining databases.
@@ -23463,7 +23971,7 @@ SFU-9104dfe2a2,Director,Non-Academic,SFU,Saint Francis University,Information Te
 
 **Key Dates**
 • Not specified"
-SFU-51dc423b50,Part-time Lecturer,Senior Lecturer/Lecturer,SFU,Saint Francis University,Yam Pak Charitable Foundation School of Computing and Information Sciences,,TRUE,2026-05-06,,26/59/CIS/ACAD,Part-time,,,https://www.sfu.edu.hk/en/career/academic-teaching-positions/index.html,"**Duties & Responsibilities**
+SFU-51dc423b50,Part-time Lecturer,Senior Lecturer/Lecturer,SFU,Saint Francis University,Yam Pak Charitable Foundation School of Computing and Information Sciences,,FALSE,2026-05-06,,26/59/CIS/ACAD,Part-time,,,https://www.sfu.edu.hk/en/career/academic-teaching-positions/index.html,"**Duties & Responsibilities**
 • Teach at diploma, sub-degree, and undergraduate levels.
 • Participate in course, programme, and curriculum review and development.
 • Engage in high-level consultancy and scholarly activities.
@@ -23479,7 +23987,7 @@ SFU-51dc423b50,Part-time Lecturer,Senior Lecturer/Lecturer,SFU,Saint Francis Uni
 
 **Key Dates**
 • Not specified"
-SFU-8adf5e1e9a,Full-time / Part-time Associate Professors / Assistant Professors / Senior Lecturers,Associate Professor,SFU,Saint Francis University,Rita Tong Liu School of Business and Hospitality Management,,TRUE,2026-05-06,,26/57/BHM/ACAD,Part-time,,,https://www.sfu.edu.hk/en/career/academic-teaching-positions/index.html,"**Duties & Responsibilities**
+SFU-8adf5e1e9a,Full-time / Part-time Associate Professors / Assistant Professors / Senior Lecturers,Associate Professor,SFU,Saint Francis University,Rita Tong Liu School of Business and Hospitality Management,,FALSE,2026-05-06,,26/57/BHM/ACAD,Part-time,,,https://www.sfu.edu.hk/en/career/academic-teaching-positions/index.html,"**Duties & Responsibilities**
 • Teach at sub-degree, undergraduate, and/or postgraduate levels across multiple subject areas.
 • Conduct scholarly and research activities.
 • Manage programmes and course administration.
@@ -23498,7 +24006,7 @@ SFU-8adf5e1e9a,Full-time / Part-time Associate Professors / Assistant Professors
 
 **Key Dates**
 • Not specified"
-SFU-51531abc4b,Temporary Clinical Instructor (5 -12 months contract),Senior Lecturer/Lecturer,SFU,Saint Francis University,S.K. Yee School of Health Sciences,,TRUE,2026-05-06,,26/58/HS/CI,Fixed-term,,,https://www.sfu.edu.hk/en/career/academic-teaching-positions/index.html,"**Duties & Responsibilities**
+SFU-51531abc4b,Temporary Clinical Instructor (5 -12 months contract),Senior Lecturer/Lecturer,SFU,Saint Francis University,S.K. Yee School of Health Sciences,,FALSE,2026-05-06,,26/58/HS/CI,Fixed-term,,,https://www.sfu.edu.hk/en/career/academic-teaching-positions/index.html,"**Duties & Responsibilities**
 • Conduct coaching, teaching, and assessment of nursing students in clinical and laboratory settings.
 • Evaluate student performance and provide constructive feedback.
 • Advise students on clinical and educational problems using professional nursing experience.
@@ -24740,24 +25248,6 @@ VTC-397640b4e0,Temporary Assistant Project Officer,Non-Academic,VTC,Vocational T
 • Closing date: 7 May 2026
 • Interview notification deadline: 10 weeks from closing date
 • Data retention period: 12 months after completion of recruitment exercise"
-VTC-29318a05a5,維修技工,Other,VTC,Vocational Training Council,產業管理組,2026-05-22,FALSE,2026-04-24,,C/CW-ESTO/MEC2/04/26-AP1,Full-time,,,https://www.vtc.edu.hk/html/en/jobDetail.php?id=39791,"**Duties & Responsibilities**
-• Install, operate, maintain and service college facilities and equipment, and assist with regular inspections.
-• Supervise junior staff and contractors on maintenance, repair work and construction project progress.
-• Manage procurement, maintenance, repair and record-keeping of materials and tools.
-• Transport college equipment and handle waste disposal while maintaining a safe and clean environment.
-• Support college events and exhibitions.
-
-**Requirements & Qualifications**
-• Complete accredited training course with minimum two years relevant work experience, or pass skills test with two years experience.
-• Possess knowledge of building maintenance and repair work, and understand electrical equipment connections, installation and operation.
-• Read and write Chinese and simple English.
-• Hold valid Grade A Registered Electrical Worker certificate (preferred).
-
-**Appointment**
-• Full-time
-
-**Key Dates**
-• Not specified"
 VTC-79b57f41b2,Term Executive Assistant II (Exam)(O/PEAK/Term_EA2(Exam)/05/26),Non-Academic,VTC,Vocational Training Council,Institute of Professional Education And Knowledge (PEAK),2026-05-22,FALSE,2026-04-25,,,Full-time,,,https://www.vtc.edu.hk/html/en/jobDetail.php?id=39806,"**Duties & Responsibilities**
 • Provide support in reception, customer services, course administration, finance, and supplies.
 • Perform data input, filing services, and book-keeping tasks.
@@ -24853,25 +25343,6 @@ VTC-50c8bd78fc,福利工作員,Other,VTC,Vocational Training Council,展亮技�
 **Key Dates**
 • Application closing date: 7 May 2026
 • Interview notification deadline: within 10 weeks of application closing date"
-VTC-f0ccd56480,Term / Temporary Executive Assistant II (O/YC(KB)/Term_Temp_EA2/04/26),Non-Academic,VTC,Vocational Training Council,Youth College (Kowloon Bay),2026-05-06,FALSE,2026-04-23,,,Full-time,,,https://www.vtc.edu.hk/html/en/jobDetail.php?id=39790,"**Duties & Responsibilities**
-• Provide support in course administration, student affairs, procurement, facility management, HR administration, and logistics.
-• Assist with secretarial support for meetings and boards of operational units.
-• Handle enquiries and provide counter services to staff and students.
-• Draft simple correspondence and administrative documents.
-• Assist in stock-taking and maintenance of inventory records.
-
-**Requirements & Qualifications**
-• Achieve Level 2 or above in 5 subjects including English, Chinese, and Mathematics at HKDSE level or equivalent.
-• Demonstrate proficiency with MS Word, MS Excel, MS PowerPoint, and Chinese word processing.
-• Possess good communication, interpersonal, and organisational skills.
-• Able to work independently and as a team player.
-• Preferably have relevant work experience.
-
-**Appointment**
-• Term/Temporary — duration not specified
-
-**Key Dates**
-• Not specified"
 VTC-39320914ea,日間兼職導師（飲食）(O/IVDC(TM)/PTD_I(F&B)/04/26),Other,VTC,Vocational Training Council,匯縱專業發展中心,2026-05-11,FALSE,2026-04-15,,,Part-time,,,https://www.vtc.edu.hk/html/en/jobDetail.php?id=39769,"**Duties & Responsibilities**
 • Teach food and beverage-related courses.
 • Develop and update course materials and teaching resources.
@@ -24934,7 +25405,7 @@ HKUSPACE-4f131cc9eb,Temporary Executive Officer in the Institutional Advancement
 **Key Dates**
 • Not specified"
 HKUSPACE-89ff58aca9,兼職中醫師（針灸科）,Other,HKUSPACE,HKU SPACE,HKU SPACE,on-going recruitment,FALSE,2026-05-01,,2025/26-PT-136-JDB,Full-time,,,https://jobs.hkuspace.hku.hk/jobs/job_dtls.php?lang=eng&jcode=2025/26-PT-136-JDB,兼職中醫師（針灸科） — HKU SPACE. Please visit the application link for full details.
-HKUSPACE-98e8eece46,Temporary Student Assistant in the Quality Assurance and Enhancement Unit,Other,HKUSPACE,HKU SPACE,Quality Assurance and Enhancement Unit,2026-05-11,TRUE,2026-05-06,,2025/26-PT-216-JDB,Full-time,,,https://jobs.hkuspace.hku.hk/jobs/job_dtls.php?lang=eng&jcode=2025/26-PT-216-JDB,"**Duties & Responsibilities**
+HKUSPACE-98e8eece46,Temporary Student Assistant in the Quality Assurance and Enhancement Unit,Other,HKUSPACE,HKU SPACE,Quality Assurance and Enhancement Unit,2026-05-11,FALSE,2026-05-06,,2025/26-PT-216-JDB,Full-time,,,https://jobs.hkuspace.hku.hk/jobs/job_dtls.php?lang=eng&jcode=2025/26-PT-216-JDB,"**Duties & Responsibilities**
 • Assist with digitisation of documents through scanning and organising electronic files.
 • Dispose of obsolete records as part of document management.
 • Perform other duties as assigned by the department.
@@ -24951,6 +25422,23 @@ HKUSPACE-98e8eece46,Temporary Student Assistant in the Quality Assurance and Enh
 **Key Dates**
 • Start date: May 2026
 • End date: August 2026"
+HKUSPACE-8d4f0dc402,Temporary Student Assistant in the Community College (Summer job),Other,HKUSPACE,HKU SPACE,Community College (Summer job),on-going recruitment,FALSE,2026-05-05,,2025/26-FT-213-JDB,Full-time,,,https://jobs.hkuspace.hku.hk/jobs/job_dtls.php?lang=eng&jcode=2025/26-FT-213-JDB,"**Duties & Responsibilities**
+• Provide clerical support for student registration and admissions.
+• Assist with academic affairs, examination, and general administration tasks.
+
+**Requirements & Qualifications**
+• Achieve Level 2 or above in five subjects (including Chinese and English) in HKDSEE or equivalent, or Level 2/Grade E or above in HKCEE or equivalent.
+• Demonstrate proficiency in written and spoken English, Chinese, and Putonghua.
+• Have strong computer skills including Microsoft Office and Chinese word processing.
+• Currently pursuing post-secondary studies or above preferred.
+• Immediate availability preferred.
+
+**Appointment**
+• Contract: 2 to 4 months during May to September 2026.
+
+**Key Dates**
+• Contract period: May to September 2026."
+HKUSPACE-316738b902,臨時助理 (兼職) Temporary Helper (Part-time),Non-Academic,HKUSPACE,HKU SPACE,HKU SPACE,on-going recruitment,FALSE,2026-05-01,,2022/23-FT-187-JDB,Full-time,,,https://jobs.hkuspace.hku.hk/jobs/job_dtls.php?lang=eng&jcode=2022/23-FT-187-JDB,臨時助理 (兼職) Temporary Helper (Part-time) — HKU SPACE. Please visit the application link for full details.
 HKUSPACE-919e730c82,教學中心助理(多名) Learning Centre Assistant (Several posts),Other,HKUSPACE,HKU SPACE,HKU SPACE,on-going recruitment,FALSE,2026-05-01,,2025/26-FT-095-JDB,Full-time,,,https://jobs.hkuspace.hku.hk/jobs/job_dtls.php?lang=eng&jcode=2025/26-FT-095-JDB,教學中心助理(多名) Learning Centre Assistant (Several posts) — HKU SPACE. Please visit the application link for full details.
 HKUSPACE-EAII_VariousUnits,Executive Assistants II for various units,Non-Academic,HKUSPACE,HKU SPACE,HKU SPACE,on-going recruitment,FALSE,2026-05-01,,EAII_VariousUnits,Full-time,,,https://jobs.hkuspace.hku.hk/jobs/job_dtls.php?lang=eng&jcode=EAII_VariousUnits,"**Duties & Responsibilities**
 • Perform course and general administration and office duties.
@@ -24988,24 +25476,7 @@ HKUSPACE-69b964bcd2,Temporary Clerical Assistant I/II,Non-Academic,HKUSPACE,HKU 
 
 **Key Dates**
 • Not specified"
-HKUSPACE-8d4f0dc402,Temporary Student Assistant in the Community College (Summer job),Other,HKUSPACE,HKU SPACE,Community College (Summer job),on-going recruitment,FALSE,2026-05-05,,2025/26-FT-213-JDB,Full-time,,,https://jobs.hkuspace.hku.hk/jobs/job_dtls.php?lang=eng&jcode=2025/26-FT-213-JDB,"**Duties & Responsibilities**
-• Provide clerical support for student registration and admissions.
-• Assist with academic affairs, examination, and general administration tasks.
-
-**Requirements & Qualifications**
-• Achieve Level 2 or above in five subjects (including Chinese and English) in HKDSEE or equivalent, or Level 2/Grade E or above in HKCEE or equivalent.
-• Demonstrate proficiency in written and spoken English, Chinese, and Putonghua.
-• Have strong computer skills including Microsoft Office and Chinese word processing.
-• Currently pursuing post-secondary studies or above preferred.
-• Immediate availability preferred.
-
-**Appointment**
-• Contract: 2 to 4 months during May to September 2026.
-
-**Key Dates**
-• Contract period: May to September 2026."
-HKUSPACE-316738b902,臨時助理 (兼職) Temporary Helper (Part-time),Non-Academic,HKUSPACE,HKU SPACE,HKU SPACE,on-going recruitment,FALSE,2026-05-01,,2022/23-FT-187-JDB,Full-time,,,https://jobs.hkuspace.hku.hk/jobs/job_dtls.php?lang=eng&jcode=2022/23-FT-187-JDB,臨時助理 (兼職) Temporary Helper (Part-time) — HKU SPACE. Please visit the application link for full details.
-HKUSPACE-54e4b94466,AI in Marketing (Courses),Other,HKUSPACE,HKU SPACE,College of Business and Finance,on-going recruitment,TRUE,2026-05-06,,2025/26-PT-219-JDB,Part-time,,,https://jobs.hkuspace.hku.hk/jobs/job_dtls.php?lang=eng&jcode=2025/26-PT-219-JDB,"**Duties & Responsibilities**
+HKUSPACE-54e4b94466,AI in Marketing (Courses),Other,HKUSPACE,HKU SPACE,College of Business and Finance,on-going recruitment,FALSE,2026-05-06,,2025/26-PT-219-JDB,Part-time,,,https://jobs.hkuspace.hku.hk/jobs/job_dtls.php?lang=eng&jcode=2025/26-PT-219-JDB,"**Duties & Responsibilities**
 • Teach part-time courses in AI in Marketing.
 • Cover topics including AI for content creation, enhancement, automation, and digital humans.
 
@@ -25158,7 +25629,7 @@ HKUSPACE-bb342fed9e,Taxation and Trust of Family Office Related (Courses),Other,
 
 **Key Dates**
 • Not specified"
-HKUSPACE-502385bdb1,Human Resources Management (Courses),Other,HKUSPACE,HKU SPACE,College of Business and Finance,on-going recruitment,FALSE,2026-05-03,,2024/25-PT-361-JDB,Part-time,,,https://jobs.hkuspace.hku.hk/jobs/job_dtls.php?lang=eng&jcode=2024/25-PT-361-JDB,Human Resources Management (Courses) — College of Business and Finance. Please visit the application link for full details.
+HKUSPACE-502385bdb1,Human Resources Management (Courses),Other,HKUSPACE,HKU SPACE,College of Business and Finance,on-going recruitment,FALSE,2026-05-03,,2024/25-PT-361-JDB,Part-time,,,https://jobs.hkuspace.hku.hk/jobs/job_dtls.php?lang=eng&jcode=2024/25-PT-361-JDB,"Candidates should have a relevant Master’s degree with over 10 years of relevant industry experience, preferably in a human resource management role.  Teachers should have good communication skills and be able to interact with the class proactively to encourage experience sharing and learning."
 HKUSPACE-8796633c94,Adult Training and Vocational Education (Courses),Other,HKUSPACE,HKU SPACE,College of Humanities and Law,on-going recruitment,FALSE,2026-05-03,,2025/26-FT-125-JDB,Part-time,,,https://jobs.hkuspace.hku.hk/jobs/job_dtls.php?lang=eng&jcode=2025/26-FT-125-JDB,"**Duties & Responsibilities**
 • Teach Adult Training and Vocational Education modules.
 • Deliver courses in Principles of Adult and Vocational Education, Training Needs Analysis, Organisation Learning, Training Strategies, Curriculum Design, Planning and Assessment and Evaluation.
