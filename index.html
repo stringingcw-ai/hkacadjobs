@@ -590,6 +590,7 @@
 
   /* Posted-within filter chip row (above the sort bar) */
   #postedFilterRow { display: flex; align-items: center; gap: 8px; padding: 0 0 10px; font-size: 0.78rem; flex-wrap: wrap; }
+  body.saved-view #postedFilterRow { display: none; }
   .posted-filter-label { color: var(--muted); font-weight: 500; white-space: nowrap; }
   .posted-chip { padding: 4px 12px; border: 1.5px solid var(--border); border-radius: 16px; background: var(--white); font-family: 'DM Sans', sans-serif; font-size: 0.78rem; color: var(--muted); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
   .posted-chip:hover { border-color: var(--accent); color: var(--accent); }
