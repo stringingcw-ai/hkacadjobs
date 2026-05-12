@@ -1371,6 +1371,16 @@ function deleteFilter(id) {
         _saveTombFilters();
       }
     });
+    // Also drop any subscription tied to this filter so it stops emailing.
+    // Without this, deleting a filter that had alerts on leaves an orphan
+    // subscription row that notify.py would keep sending to.
+    if (f?.label) {
+      _sb.from('subscriptions').delete()
+        .eq('user_id', _currentUser.id).eq('filter_label', f.label)
+        .then(({ error }) => {
+          if (error) console.error('[auth] deleteFilter subscription cleanup error:', error);
+        });
+    }
   }
 }
 function applyFilterById(id) {

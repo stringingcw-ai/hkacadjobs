@@ -90,6 +90,41 @@ def get_subscriptions():
     return _supabase_request("GET", "subscriptions?select=*", use_service_key=True)
 
 
+def get_enabled_filter_keys():
+    """Return a set of (user_id, filter_label) for saved_filters with alert_enabled=true.
+
+    Used as the source of truth for whether a logged-in user wants alerts on a
+    given filter. The `subscriptions` table can drift out of sync with this flag
+    (filter renames, silent delete failures), so we re-check before emailing.
+    """
+    rows = _supabase_request(
+        "GET",
+        "saved_filters?select=user_id,label,alert_enabled&alert_enabled=eq.true",
+        use_service_key=True,
+    )
+    return {(r["user_id"], r["label"]) for r in rows if r.get("user_id") and r.get("label")}
+
+
+def filter_active_subscriptions(subs, enabled_keys):
+    """Drop subscriptions whose saved filter is toggled off (or missing).
+
+    Legacy subscriptions without a user_id (pre-auth email-only signups) are
+    always kept — they have no saved_filters row, so the unsubscribe token is
+    their only off-switch.
+    """
+    kept, dropped = [], 0
+    for s in subs:
+        uid = s.get("user_id")
+        if not uid:
+            kept.append(s)
+            continue
+        if (uid, s.get("filter_label")) in enabled_keys:
+            kept.append(s)
+        else:
+            dropped += 1
+    return kept, dropped
+
+
 def insert_subscription(email, filter_label, filter_state):
     token = secrets.token_hex(24)
     return _supabase_request("POST", "subscriptions", {
@@ -343,6 +378,18 @@ def main():
     print(f"Subscriptions: {len(subs)}")
     if not subs:
         print("No subscribers yet.")
+        return
+
+    # Source of truth for "alerts on" is saved_filters.alert_enabled.
+    # Drop subscription rows whose saved filter has been toggled off (or
+    # whose saved filter has been deleted entirely). Anonymous/legacy subs
+    # without a user_id are kept as-is.
+    enabled_keys = get_enabled_filter_keys()
+    subs, dropped = filter_active_subscriptions(subs, enabled_keys)
+    if dropped:
+        print(f"Skipped {dropped} subscription(s) with alerts toggled off")
+    if not subs:
+        print("No active subscriptions after applying alert_enabled filter.")
         return
 
     # Match
