@@ -116,7 +116,7 @@
   .auth-modal-icon { font-size: 2rem; text-align: center; margin-bottom: 8px; }
   .auth-input { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; color: var(--ink); background: var(--paper); outline: none; transition: border-color 0.2s; box-sizing: border-box; margin-top: 6px; }
   .auth-input:focus { border-color: var(--accent); }
-  .auth-submit { margin-top: 14px; width: 100%; padding: 11px; background: var(--ink); color: var(--paper); border: none; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+  .auth-submit { margin-top: 14px; width: 100%; padding: 11px; background: var(--header); color: var(--paper); border: none; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
   .auth-submit:hover { background: var(--accent); }
   .auth-submit:disabled { opacity: 0.5; cursor: not-allowed; }
   .auth-note { font-size: 0.75rem; color: var(--muted); text-align: center; margin-top: 12px; line-height: 1.5; }
@@ -238,7 +238,7 @@
   .fbk-textarea { width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; color: var(--ink); background: var(--paper); resize: none; height: 70px; outline: none; transition: border-color 0.2s; line-height: 1.5; }
   .fbk-textarea:focus { border-color: var(--accent); }
   .fbk-textarea::placeholder { color: var(--muted); }
-  .fbk-submit { margin-top: 10px; width: 100%; padding: 9px; background: var(--ink); color: var(--paper); border: none; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+  .fbk-submit { margin-top: 10px; width: 100%; padding: 9px; background: var(--header); color: var(--paper); border: none; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
   .fbk-submit:hover { background: var(--accent); }
   .fbk-submit:disabled { opacity: 0.45; cursor: not-allowed; }
   .fbk-thanks { text-align: center; padding: 8px 0 4px; }
@@ -402,7 +402,7 @@
   .pagination { display: flex; justify-content: center; align-items: center; gap: 6px; margin-top: 28px; flex-wrap: wrap; }
   .page-btn { min-width: 34px; height: 34px; padding: 0 8px; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--border); border-radius: 5px; font-size: 0.82rem; cursor: pointer; background: var(--white); color: var(--ink); transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
   .page-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .page-btn.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .page-btn.active { background: var(--header); color: var(--paper); border-color: var(--header); }
   .page-dots { font-size: 0.85rem; color: var(--muted); padding: 0 4px; }
 
   /* PANEL */
@@ -448,8 +448,8 @@
   .panel-save:hover { border-color: var(--bookmark); color: var(--bookmark); }
   .panel-save.saved { background: #fff8e5; border-color: var(--bookmark); color: var(--bookmark); }
 
-  footer { background: var(--ink); color: #666; text-align: center; padding: 24px 48px; font-size: 0.75rem; letter-spacing: 0.03em; }
-  footer a { color: var(--accent); text-decoration: none; }
+  footer { background: var(--header); color: #9aa3b2; text-align: center; padding: 24px 48px; font-size: 0.75rem; letter-spacing: 0.03em; }
+  footer a { color: #e8845c; text-decoration: none; }   /* lighter terracotta: readable on Midnight */
 
   /* ABOUT MODAL */
   .modal-overlay { position: fixed; inset: 0; background: rgba(15,17,23,0.55); z-index: 500; opacity: 0; pointer-events: none; transition: opacity 0.25s; backdrop-filter: blur(2px); display: flex; align-items: center; justify-content: center; }
@@ -473,7 +473,7 @@
   .report-form select, .report-form input, .report-form textarea { width: 100%; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: var(--ink); background: var(--paper); outline: none; transition: border-color 0.2s; box-sizing: border-box; }
   .report-form select:focus, .report-form input:focus, .report-form textarea:focus { border-color: var(--accent); }
   .report-form textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
-  .report-submit { margin-top: 20px; width: 100%; padding: 11px; background: var(--ink); color: var(--paper); border: none; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+  .report-submit { margin-top: 20px; width: 100%; padding: 11px; background: var(--header); color: var(--paper); border: none; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
   .report-submit:hover { background: var(--accent); }
   .report-submit:disabled { opacity: 0.5; cursor: not-allowed; }
   .report-success { text-align: center; padding: 28px 0 12px; }
@@ -488,7 +488,7 @@
   .alert-form input { width: 100%; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: var(--ink); background: var(--paper); outline: none; transition: border-color 0.2s; box-sizing: border-box; }
   .alert-form input:focus { border-color: var(--accent); }
   .alert-filter-preview { background: var(--cream); border-radius: 6px; padding: 10px 14px; font-size: 0.8rem; color: var(--muted); margin-top: 6px; line-height: 1.6; }
-  .alert-submit { margin-top: 20px; width: 100%; padding: 11px; background: var(--ink); color: var(--paper); border: none; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+  .alert-submit { margin-top: 20px; width: 100%; padding: 11px; background: var(--header); color: var(--paper); border: none; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
   .alert-submit:hover { background: var(--accent); }
   .alert-submit:disabled { opacity: 0.5; cursor: not-allowed; }
   .sf-card-alert { padding: 6px 10px; background: none; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--muted); display: inline-flex; align-items: center; gap: 5px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; transition: color 0.15s, border-color 0.15s; }
@@ -653,7 +653,7 @@
         <div id="signOutConfirm" style="display:none;padding:10px 16px;border-top:1px solid var(--border);">
           <p style="font-size:0.78rem;color:var(--muted);margin-bottom:8px;">Sign out of HKAcadJobs?</p>
           <div style="display:flex;gap:8px;">
-            <button onclick="signOut()" style="flex:1;padding:6px;background:var(--ink);color:var(--paper);border:none;border-radius:6px;font-size:0.78rem;font-family:'DM Sans',sans-serif;cursor:pointer;">Yes, sign out</button>
+            <button onclick="signOut()" style="flex:1;padding:6px;background:var(--header);color:var(--paper);border:none;border-radius:6px;font-size:0.78rem;font-family:'DM Sans',sans-serif;cursor:pointer;">Yes, sign out</button>
             <button onclick="_cancelSignOut()" style="flex:1;padding:6px;background:var(--cream);color:var(--ink);border:1px solid var(--border);border-radius:6px;font-size:0.78rem;font-family:'DM Sans',sans-serif;cursor:pointer;">Cancel</button>
           </div>
         </div>
@@ -2230,7 +2230,7 @@ function buildEmptyState() {
   html += '<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;">';
   html += '<button class="apply-btn" onclick="clearAllFilters()">Reset all filters</button>';
   if (search) {
-    html += `<button class="apply-btn" style="background:var(--ink);" onclick="promptAlertForSearch()">Get alerted for "${esc(search.length > 20 ? search.slice(0,20) + '…' : search)}"</button>`;
+    html += `<button class="apply-btn" style="background:var(--header);" onclick="promptAlertForSearch()">Get alerted for "${esc(search.length > 20 ? search.slice(0,20) + '…' : search)}"</button>`;
   }
   html += '</div>';
 

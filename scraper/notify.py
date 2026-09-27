@@ -362,9 +362,9 @@ def render_email(sub, jobs):
       <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:10px;overflow:hidden;max-width:600px;width:100%;">
 
         <!-- Header -->
-        <tr><td style="background:#1a1a1a;padding:24px 32px;">
+        <tr><td style="background:#2b3240;padding:24px 32px;">
           <span style="font-size:18px;font-weight:700;color:#fff;letter-spacing:-0.3px;">HKAcadJobs</span>
-          <span style="font-size:13px;color:#888;margin-left:12px;">Job Alert</span>
+          <span style="font-size:13px;color:#9aa3b2;margin-left:12px;">Job Alert</span>
         </td></tr>
 
         <!-- Body -->
@@ -383,7 +383,7 @@ def render_email(sub, jobs):
 
           <div style="margin-top:28px;">
             <a href="{escape(home_url)}"
-               style="display:inline-block;background:#1a1a1a;color:#fff;padding:11px 22px;border-radius:7px;font-size:14px;font-weight:600;text-decoration:none;">
+               style="display:inline-block;background:#2b3240;color:#fff;padding:11px 22px;border-radius:7px;font-size:14px;font-weight:600;text-decoration:none;">
               View all jobs →
             </a>
           </div>
