@@ -902,7 +902,8 @@ def scrape_lingnan():
 def scrape_hku():
     """
     HKU — jobs.hku.hk/en/listing/ (PageUp ATS)
-    Clicks "More Jobs" until count stops changing, with proper wait between clicks.
+    Fetches every listing row in one request (?page=1&page-items=1000) instead of
+    clicking "More Jobs"; falls back to loading that URL in a browser.
     """
     print("📋 Scraping HKU...")
 
@@ -966,68 +967,40 @@ def scrape_hku():
 
     jobs = []
 
+    # The listing's "More Jobs" button only fetches the next 20 rows
+    # (page=N&page-items=20). Asking for every row in one page is a single
+    # request that can't stop half-way — the old click loop waited a fixed
+    # 1.5 s per batch and quit early whenever the site was slow.
+    LISTING_ALL = "https://jobs.hku.hk/en/listing/?page=1&page-items=1000"
+    listing_html = None
+    try:
+        resp = requests.get(LISTING_ALL, headers=HEADERS, timeout=60)
+        resp.raise_for_status()
+        listing_html = resp.text
+    except Exception as e:
+        print(f"  ⚠️  Direct listing fetch failed ({e}); retrying in a browser")
+
     try:
         from playwright.sync_api import sync_playwright
 
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
-            page = browser.new_page()
-            page.set_extra_http_headers(HEADERS)
-            page.goto("https://jobs.hku.hk/en/listing/", timeout=30000)
-            page.wait_for_load_state("networkidle", timeout=20000)
+            if listing_html is None:
+                page = browser.new_page()
+                page.set_extra_http_headers(HEADERS)
+                page.goto(LISTING_ALL, timeout=60000, wait_until="domcontentloaded")
+                page.wait_for_selector("a[href*='/en/job/']", timeout=30000)
+                listing_html = page.content()
+                page.close()
 
             seen = set()
-            clicks = 0
-            prev_count = 0
-
-            while True:
-                current_count = page.evaluate("() => document.querySelectorAll('tr').length")
-
-                if clicks > 0 and current_count <= prev_count:
-                    print(f"  ↳ No new rows after click {clicks} (still {current_count}), stopping")
-                    break
-
-                # Scroll to bottom first so the button enters the viewport
-                page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
-                page.wait_for_timeout(500)
-
-                clicked = page.evaluate("""
-                    () => {
-                        const all = Array.from(document.querySelectorAll("button, a, input[type=button]"));
-                        const btn = all.find(b =>
-                            /more.?job/i.test(b.textContent) ||
-                            /load.?more/i.test(b.textContent) ||
-                            /show.?more/i.test(b.textContent) ||
-                            /view.?more/i.test(b.textContent)
-                        );
-                        if (btn) {
-                            btn.scrollIntoView();
-                            btn.click();
-                            return btn.textContent.trim();
-                        }
-                        return null;
-                    }
-                """)
-
-                if not clicked:
-                    print(f"  ↳ Button gone after {clicks} clicks — all jobs loaded ({current_count} rows)")
-                    break
-
-                if clicks == 0:
-                    remaining_m = re.search(r'\d+', clicked)
-                    remaining = int(remaining_m.group()) if remaining_m else '?'
-                    print(f"  ↳ Found button: '{clicked}' (~{remaining} jobs remaining to load)")
-
-                prev_count = current_count
-                clicks += 1
-                page.wait_for_timeout(1500)
-
-                if clicks > 500:
-                    break
-
-            print(f"  ↳ Clicked More Jobs {clicks} times, loaded {prev_count} rows")
-            parsed = parse_jobs(page.content(), seen)
+            parsed = parse_jobs(listing_html, seen)
             jobs.extend(parsed)
+            listed = len(set(re.findall(r'href="/en/job/(\d+)', listing_html)))
+            print(f"  ↳ Listing has {listed} job links; parsed {len(parsed)} jobs (admin roles skipped)")
+            more = BeautifulSoup(listing_html, "html.parser").select_one("a.more-link .count")
+            if more and clean(more.get_text()).isdigit() and int(clean(more.get_text())) > 0:
+                print(f"  ⚠️  Listing still reports {clean(more.get_text())} more jobs — raise page-items")
 
             # Fetch detail pages for descriptions (skip known good summaries)
             # Use fresh browser contexts in batches to avoid session-based rate limiting.
@@ -1036,8 +1009,8 @@ def scrape_hku():
             # valuable jobs get descriptions first.
             RANK_PRIORITY = {
                 "Tenure-Track": 0, "Professor": 1, "Associate Professor": 2,
-                "Assistant Professor": 3, "Senior Lecturer": 4, "Lecturer": 5,
-                "Instructor": 6, "Research Assistant/Associate": 7,
+                "Assistant Professor": 3, "Senior Lecturer/Lecturer": 4, "Lecturer": 4,
+                "Postdoctoral": 5, "Research Assistant/Associate": 6,
             }
             active = [j for j in parsed if is_within_retention(j["deadline"]) and not _has_good_desc(j["id"])]
             active.sort(key=lambda j: (
@@ -2760,8 +2733,17 @@ def scrape_chuhai():
 
 
 def scrape_thei():
-    """Scrapes THEi (Technological and Higher Education Institute of HK) jobs."""
+    """
+    THEi — thei.edu.hk/career-opportunities/ (WordPress + Elementor loop grids)
+    Two grids (Teaching & Academic, Administrative & General), 8 cards a page.
+    Each grid pages server-side via ?e-page-<grid id>=N; the next page's URL is
+    in the grid's .e-load-more-anchor[data-next-page] (the site fetches it on
+    scroll). Following those URLs needs no scrolling or button clicks — the
+    click-to-load-more button the old code relied on was removed in Aug 2026.
+    """
+    print("📋 Scraping THEi...")
     LISTING_URL = "https://thei.edu.hk/career-opportunities/"
+    MAX_LISTING_PAGES = 20
 
     jobs = []
     try:
@@ -2770,86 +2752,42 @@ def scrape_thei():
         with sync_playwright() as p:
             browser = p.chromium.launch()
             page = browser.new_page(viewport={"width": 1280, "height": 900})
-            page.goto(LISTING_URL, wait_until="networkidle", timeout=30000)
+            page.set_extra_http_headers(HEADERS)
 
-            # Grid 0 (Teaching/Academic) uses infinite scroll — scroll to load all items
-            for _ in range(6):
-                page.keyboard.press("End")
-                page.wait_for_timeout(1500)
-
-            # Grid 1 (Admin/General) uses click-to-load-more
-            for _ in range(5):
-                lm_display = page.evaluate(
-                    'window.getComputedStyle(document.querySelector("div.e-loop__load-more") || document.createElement("div")).display'
-                )
-                if lm_display == "none":
-                    break
-                count_before = len(page.query_selector_all(".e-loop-item"))
-                page.evaluate('document.querySelector("div.e-loop__load-more a").click()')
-                try:
-                    page.wait_for_function(
-                        f'document.querySelectorAll(".e-loop-item").length > {count_before}',
-                        timeout=8000,
-                    )
-                except Exception:
-                    pass
-                page.wait_for_timeout(3000)
-
-            # Extract all cards
-            soup = BeautifulSoup(page.content(), "html.parser")
             cards_data = []
             seen_urls = set()
-            for card in soup.find_all("div", class_=lambda c: c and "e-loop-item" in c):
-                # Find job URL: first <a> linking to a single-slug thei.edu.hk page
-                href = ""
-                for a in card.find_all("a", href=True):
-                    h = a["href"]
-                    path = h.replace("https://thei.edu.hk/", "").rstrip("/")
-                    if path and "/" not in path:
-                        href = h
-                        break
-                if not href or href in seen_urls:
+            queue, visited = [LISTING_URL], set()
+            while queue and len(visited) < MAX_LISTING_PAGES:
+                listing_url = queue.pop(0)
+                if listing_url in visited:
                     continue
-                seen_urls.add(href)
-
-                # Title: first <a> with non-empty text, or fall back to any text in card heading
-                title = ""
-                for a in card.find_all("a", href=True):
-                    t = clean(a.get_text())
-                    if t:
-                        title = t
-                        break
-                if not title:
-                    # Some cards wrap title in a span inside job-career div
-                    jc = card.find("div", class_="job-career")
-                    if jc:
-                        title = clean(jc.get_text())
-                if not title:
+                visited.add(listing_url)
+                page.goto(listing_url, wait_until="domcontentloaded", timeout=60000)
+                try:
+                    page.wait_for_selector(".e-loop-item", timeout=30000)
+                except Exception:
+                    print(f"  ⚠️  THEi: no job cards on {listing_url}")
                     continue
-
-                # Card text parts: title | department | closing_date_text | More Details
-                parts = [p.strip() for p in card.get_text(separator="|", strip=True).split("|") if p.strip()]
-                dept = parts[1] if len(parts) > 1 else ""
-                date_text = parts[2] if len(parts) > 2 else ""
-
-                # Parse closing date — skip "Review of applications..." text
-                deadline = ""
-                if re.search(r"\d{1,2}\s+\w+\s+\d{4}", date_text):
-                    m = re.search(r"(\d{1,2}\s+\w+\s+\d{4})", date_text)
-                    if m:
-                        deadline = parse_date_text(m.group(1))
-
-                cards_data.append({
-                    "title": title,
-                    "url": href,
-                    "dept": dept,
-                    "deadline": deadline,
-                })
+                soup = BeautifulSoup(page.content(), "html.parser")
+                for anchor in soup.select(".e-load-more-anchor[data-next-page]"):
+                    try:
+                        current, last = int(anchor.get("data-page") or 1), int(anchor.get("data-max-page") or 1)
+                    except ValueError:
+                        continue
+                    next_url = anchor["data-next-page"]
+                    if current < last and next_url not in visited:
+                        queue.append(next_url)
+                cards_data.extend(_parse_thei_cards(soup, seen_urls))
+            print(f"  ↳ {len(cards_data)} job cards from {len(visited)} listing page(s)")
 
             # Fetch detail pages for ref + description
             for card in cards_data:
                 try:
-                    page.goto(card["url"], wait_until="networkidle", timeout=30000)
+                    page.goto(card["url"], wait_until="domcontentloaded", timeout=45000)
+                    try:
+                        page.wait_for_selector(".elementor-widget-text-editor", timeout=15000)
+                    except Exception:
+                        pass
                     detail_soup = BeautifulSoup(page.content(), "html.parser")
 
                     text_parts = []
@@ -2898,6 +2836,58 @@ def scrape_thei():
 
     print(f"  ✅ THEi: {len(jobs)} jobs found")
     return jobs
+
+
+def _parse_thei_cards(soup, seen_urls):
+    """Job cards (title, detail URL, department, closing date) on one THEi listing page."""
+    cards_data = []
+    for card in soup.find_all("div", class_=lambda c: c and "e-loop-item" in c):
+        # Find job URL: first <a> linking to a single-slug thei.edu.hk page
+        href = ""
+        for a in card.find_all("a", href=True):
+            h = a["href"]
+            path = h.replace("https://thei.edu.hk/", "").rstrip("/")
+            if path and "/" not in path:
+                href = h
+                break
+        if not href or href in seen_urls:
+            continue
+        seen_urls.add(href)
+
+        # Title: first <a> with non-empty text, or fall back to any text in card heading
+        title = ""
+        for a in card.find_all("a", href=True):
+            t = clean(a.get_text())
+            if t:
+                title = t
+                break
+        if not title:
+            # Some cards wrap title in a span inside job-career div
+            jc = card.find("div", class_="job-career")
+            if jc:
+                title = clean(jc.get_text())
+        if not title:
+            continue
+
+        # Card text parts: title | department | closing_date_text | More Details
+        parts = [p.strip() for p in card.get_text(separator="|", strip=True).split("|") if p.strip()]
+        dept = parts[1] if len(parts) > 1 else ""
+        date_text = parts[2] if len(parts) > 2 else ""
+
+        # Parse closing date — skip "Review of applications..." text
+        deadline = ""
+        if re.search(r"\d{1,2}\s+\w+\s+\d{4}", date_text):
+            m = re.search(r"(\d{1,2}\s+\w+\s+\d{4})", date_text)
+            if m:
+                deadline = parse_date_text(m.group(1))
+
+        cards_data.append({
+            "title": title,
+            "url": href,
+            "dept": dept,
+            "deadline": deadline,
+        })
+    return cards_data
 
 
 SCRAPERS = {
