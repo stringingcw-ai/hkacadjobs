@@ -228,6 +228,15 @@ Every item lists a concrete entry point so future work can pick it up without re
 
 ---
 
+## 8. Operations & monitoring
+
+### [P2] Email scrape-health alerts with details (`HEALTH_ALERT_EMAIL` secret) — S
+**Symptom:** When the daily run finds a problem (an institution crashed, came back empty or far below its usual count, alert emails failed, or `jobs.csv` has malformed rows), the *Check scrape health* step fails the run and GitHub sends its generic "run failed" email. The details (which institution, how many jobs, how many were kept from the previous run) are only on the run page.
+**Fix:** Add a repository secret `HEALTH_ALERT_EMAIL` (GitHub → Settings → Secrets and variables → Actions → New repository secret) with the address to notify. No code change is needed: `scraper/health.py` and `scraper/check_links.py` already send a Resend email with the per-institution table and the run link whenever it is set.
+**Evidence:** `scraper/health.py` (`send_alert`), `scraper/check_links.py`, `.github/workflows/scrape.yml` and `check-links.yml` (`HEALTH_ALERT_EMAIL` env).
+
+---
+
 ## Not addressed here (out of scope)
 
 - Job data quality / scraper coverage gaps (separate audit)
