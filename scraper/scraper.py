@@ -2781,6 +2781,7 @@ def scrape_thei():
             print(f"  ↳ {len(cards_data)} job cards from {len(visited)} listing page(s)")
 
             # Fetch detail pages for ref + description
+            used_ids = set()
             for card in cards_data:
                 try:
                     page.goto(card["url"], wait_until="domcontentloaded", timeout=45000)
@@ -2799,17 +2800,29 @@ def scrape_thei():
                             text_parts.append(t)
                     full_text = "\n\n".join(text_parts)
 
-                    # Extract ref no.
+                    # Extract ref no. The page often splits it across elements
+                    # ("FO ⏎ /AS ⏎ /03/26"), so read up to the next heading and
+                    # drop the line breaks; otherwise fall back to one line.
                     ref = ""
                     ref_m = re.search(
+                        r"Ref(?:erence)?\.?\s*No\.?\s*[:：]\s*(.{1,80}?)\s*"
+                        r"(?=Major Duties|Employment Period|Duties|Responsibilities|$)",
+                        full_text, re.I | re.S,
+                    ) or re.search(
                         r"Ref(?:erence)?\.?\s*No\.?\s*[:\s]+([A-Za-z0-9/_\-\.\(\)]+)",
                         full_text, re.I,
                     )
                     if ref_m:
-                        ref = ref_m.group(1).strip().rstrip(".")
+                        ref = re.sub(r"\s+", "", ref_m.group(1)).rstrip(".")
+
+                    job_id = make_id("THEI", ref or card["title"])
+                    if job_id in used_ids:
+                        # Never let two postings share an id (one would be dropped)
+                        job_id = make_id("THEI", card["url"].rstrip("/").rsplit("/", 1)[-1])
+                    used_ids.add(job_id)
 
                     jobs.append({
-                        "id":              make_id("THEI", ref or card["title"]),
+                        "id":              job_id,
                         "title":           card["title"],
                         "rank":            detect_rank(card["title"]),
                         "university":      "THEI",
