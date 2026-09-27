@@ -50,6 +50,11 @@ def slugify(text: str) -> str:
     result = _slug_re.sub("-", ascii_text.lower()).strip("-")[:60]
     return result or "position"
 
+def job_dir_name(row: dict) -> str:
+    """Folder (and URL path) of a job's page: /jobs/<slug>-<id>/"""
+    return f"{slugify(row['title'])}-{row['id'].lower()}"
+
+
 def format_date_display(iso: str) -> str:
     try:
         return datetime.strptime(iso, "%Y-%m-%d").strftime("%-d %b %Y")
@@ -514,8 +519,7 @@ def main():
                 continue
 
             job_id   = row["id"]
-            slug     = slugify(row["title"])
-            dir_name = f"{slug}-{job_id.lower()}"
+            dir_name = job_dir_name(row)
             out_dir  = JOBS_DIR / dir_name
             out_dir.mkdir(exist_ok=True)
 
