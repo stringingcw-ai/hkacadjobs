@@ -7,6 +7,7 @@
   <meta name="description" content="HK University of Science &amp; Technology is hiring a Head of the Department of Civil and Environmental Engineering in the School of Engineering in Hong Kong. ">
   <link rel="canonical" href="https://www.hkacadjobs.org/jobs/head-of-the-department-of-civil-and-environmental-engineerin-hkust-192611/">
   <meta name="robots" content="index, follow">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 
   <!-- Open Graph -->
   <meta property="og:site_name" content="HKAcadJobs">
@@ -25,13 +26,12 @@
   <meta name="twitter:description" content="HK University of Science &amp; Technology is hiring a Head of the Department of Civil and Environmental Engineering in the School of Engineering in Hong Kong. ">
   <meta name="twitter:image" content="https://www.hkacadjobs.org/og-image.png">
 
-  <!-- JobPosting structured data (Google for Jobs) -->
   <script type="application/ld+json">
 {
   "@context": "https://schema.org/",
   "@type": "JobPosting",
   "title": "Head of the Department of Civil and Environmental Engineering",
-  "description": "**Duties & Responsibilities**\n• Provide leadership for the Department of Electronic and Computer Engineering.\n• Manage the Department's diverse academic and administrative functions.\n• Report to the Dean of Engineering.\n\n**Requirements & Qualifications**\n• Hold a tenured professorial appointment.\n• Demonstrate exceptional accomplishment and qualifications in the field.\n\n**Appointment**\n• Full-time — Initial 3-year term, renewable for a second term; includes competitive remuneration and generous fringe benefits with housing where appropriate.\n\n**Key Dates**\n• Not specified",
+  "description": "<section class=\"desc-section\"><h2 class=\"desc-section-title\">Duties &amp; Responsibilities<\/h2><ul><li>Provide leadership for the Department of Electronic and Computer Engineering.<\/li><li>Manage the Department&#x27;s diverse academic and administrative functions.<\/li><li>Report to the Dean of Engineering.<\/li><\/ul><\/section><section class=\"desc-section\"><h2 class=\"desc-section-title\">Requirements &amp; Qualifications<\/h2><ul><li>Hold a tenured professorial appointment.<\/li><li>Demonstrate exceptional accomplishment and qualifications in the field.<\/li><\/ul><\/section><section class=\"desc-section\"><h2 class=\"desc-section-title\">Appointment<\/h2><ul><li>Full-time — Initial 3-year term, renewable for a second term; includes competitive remuneration and generous fringe benefits with housing where appropriate.<\/li><\/ul><\/section><section class=\"desc-section\"><h2 class=\"desc-section-title\">Key Dates<\/h2><ul><li>Not specified<\/li><\/ul><\/section>",
   "identifier": {
     "@type": "PropertyValue",
     "name": "HK University of Science & Technology",
@@ -40,7 +40,7 @@
   "hiringOrganization": {
     "@type": "Organization",
     "name": "HK University of Science & Technology",
-    "sameAs": "https://www.hkacadjobs.org"
+    "sameAs": "https://hkust.edu.hk"
   },
   "jobLocation": {
     "@type": "Place",
@@ -54,12 +54,33 @@
   "url": "https://www.hkacadjobs.org/jobs/head-of-the-department-of-civil-and-environmental-engineerin-hkust-192611/",
   "directApply": false,
   "datePosted": "2026-09-26",
-  "validThrough": "2026-12-25T23:59:59+08:00",
-  "industry": "School of Engineering",
-  "applicantLocationRequirements": {
-    "@type": "Country",
-    "name": "Hong Kong"
-  }
+  "industry": "School of Engineering"
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "HKAcadJobs",
+      "item": "https://www.hkacadjobs.org/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "HK University of Science & Technology",
+      "item": "https://www.hkacadjobs.org/?uni=HKUST"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Head of the Department of Civil and Environmental Engineering",
+      "item": "https://www.hkacadjobs.org/jobs/head-of-the-department-of-civil-and-environmental-engineerin-hkust-192611/"
+    }
+  ]
 }
   </script>
 
@@ -192,6 +213,16 @@
       font-weight: bold;
     }
 
+    .closed-banner {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 28px;
+      font-size: 0.93rem;
+    }
+
     .actions {
       display: flex;
       gap: 12px;
@@ -223,6 +254,18 @@
     }
     .btn-secondary:hover { background: var(--white); }
 
+    .related { margin-top: 44px; }
+    .related-list { list-style: none; padding: 0; }
+    .related-list li {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--cream);
+      font-size: 0.93rem;
+    }
+    .related-list li:last-child { border-bottom: none; }
+    .related-list a { font-weight: 600; text-decoration: none; }
+    .related-list a:hover { text-decoration: underline; }
+    .related-list span { display: block; color: var(--muted); font-size: 0.82rem; }
+
     footer {
       max-width: 760px;
       margin: 0 auto;
@@ -250,7 +293,7 @@
 
   <main>
     <nav class="breadcrumb" aria-label="Breadcrumb">
-      <a href="https://www.hkacadjobs.org/">HKAcadJobs</a> &rsaquo; HK University of Science &amp; Technology
+      <a href="https://www.hkacadjobs.org/">HKAcadJobs</a> &rsaquo; <a href="https://www.hkacadjobs.org/?uni=HKUST">HK University of Science &amp; Technology</a>
     </nav>
 
     <h1 class="job-title">Head of the Department of Civil and Environmental Engineering</h1>
@@ -265,20 +308,37 @@
     </div>
 
     <div class="actions">
-      <a href="https://apply.interfolio.com/193481" class="btn btn-primary" rel="noopener noreferrer" target="_blank">
+      <a href="https://apply.interfolio.com/193481" class="btn btn-primary" id="applyBtn" rel="noopener noreferrer" target="_blank"
+         data-job-id="HKUST-192611" data-university="HKUST" data-rank="Senior Management">
         Apply on HKUST &rarr;
       </a>
       <a href="https://www.hkacadjobs.org/?job=HKUST-192611" class="btn btn-secondary">
         Browse more positions
       </a>
     </div>
+    <section class="related">
+      <h2 class="desc-section-title">More positions at HK University of Science &amp; Technology</h2>
+      <ul class="related-list">
+        <li><a href="/jobs/head-of-department-of-electronic-and-computer-engineering-hkust-191801/">Head of Department of Electronic and Computer Engineering</a><span>School of Engineering</span></li>
+        <li><a href="/jobs/professor-associate-professor-assistant-professor-robotic-hi-hkust-181904/">Professor/Associate Professor/Assistant Professor (Robotic Hiring Task Force)</a><span>School of Engineering</span></li>
+        <li><a href="/jobs/head-and-professor-of-management-hkust-10148/">Head and Professor of Management</a><span>Department of Management</span></li>
+        <li><a href="/jobs/post-doctoral-fellow-research-associate-self-healing-composi-hkust-4953/">Post-doctoral Fellow/Research Associate (Self-healing Composites)</a><span>Department of Mechanical and Aerospace Engineering</span></li>
+        <li><a href="/jobs/faculty-positions-in-sustainable-energy-and-environment-hkust-8060/">Faculty Positions in Sustainable Energy and Environment</a><span>Department of Civil and Environmental Engineering</span></li>
+      </ul>
+    </section>
   </main>
 
   <footer>
     <p>
       <a href="https://www.hkacadjobs.org/">HKAcadJobs</a> aggregates academic openings from 17 Hong Kong institutions.
-      Listings are updated daily. This page reflects data as of 2026-09-26.
+      Listings are updated daily.
     </p>
   </footer>
+  <script>
+    document.getElementById('applyBtn').addEventListener('click', function () {
+      var d = this.dataset;
+      gtag('event', 'apply_click', { job_id: d.jobId, university: d.university, rank: d.rank, source: 'static_page' });
+    });
+  </script>
 </body>
 </html>
