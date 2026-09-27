@@ -16,13 +16,15 @@ the eight areas requested. It is based on evidence from the repository and its h
   bulk-checked live. The HKUST PeopleSoft host was reachable through an external fetch, and it refused the connection.
 - Supabase, GA4 and Search Console data are not accessible. The SQL / GA4 checks to run are listed below.
 
-> **Status (27 Sep):** implemented on this branch:
+> **Status (27 Sep):** implemented and merged:
 > - Top-10 items **1**, **2** and **5**
+> - item **4** (HKU loads every row in one request, verified live: 402 listing links, 371 jobs)
+> - item **10** (THEi follows its grids' page URLs, verified live: 25 jobs; split reference numbers fixed)
 > - the matching half of item **6** (the "sent" log is still open)
 > - the partial-failure half of item **3** (the persistent `first_seen` registry is still open)
 >
 > Two manual steps remain: run `supabase/2026-09-alert-fixes.sql` in Supabase, and optionally add a
-> `HEALTH_ALERT_EMAIL` secret. Items 4 and 7–10 are still open.
+> `HEALTH_ALERT_EMAIL` secret. Items 7–9 are still open.
 
 ---
 
