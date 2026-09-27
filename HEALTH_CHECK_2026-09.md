@@ -36,7 +36,8 @@ the eight areas requested. It is based on evidence from the repository and its h
 > - §1 and §2: CUHK retries; HKBU and Lingnan use their careers sites' own APIs; SFU and Chu Hai deep-link to each job.
 >   A full scrape now takes about 10 minutes (was 25–110). Summaries use structured output and the Batches API (half
 >   price), with a longer input. Each job is summarised once. Summary dates are reconciled with the listing, and
->   salary and start date are filled from the summary. Token use and cost are logged.
+>   salary and start date are filled from the summary. Token use and cost are logged. HKUST's 102 PeopleSoft-only
+>   jobs, which showed a placeholder, now read their job ad from the page's public content view.
 > - §4: HTML escaping, HKT dates, pagination, and a non-zero exit when most alerts are skipped.
 > - §5: closed `?job=` links explain the job has closed. Closed jobs keep a `noindex` page for 60 days. A weekly
 >   Apply-link check runs on GitHub's runners.
@@ -60,8 +61,6 @@ the eight areas requested. It is based on evidence from the repository and its h
 > - Summaries are reused per job id. They aren't refreshed when an ad is edited, although the listing's deadline
 >   always wins. A job that vanishes while its portal is healthy is re-summarised when it returns. The §2.3 content-hash
 >   store would cover both.
-> - About 100 HKUST jobs have no Interfolio page and show a placeholder description. HKUST's PeopleSoft pages are
->   reachable from GitHub's runners, so the HKUST scraper could fetch them.
 > - `date_posted` is still empty for several portals, and JSON-LD has no organisation `logo`.
 > - §7 performance ideas (a shared Playwright browser, condition waits everywhere, concurrent scraping) are less
 >   urgent now that a run takes ~10 minutes. Deploying `/jobs` with `actions/deploy-pages` instead of committing HTML

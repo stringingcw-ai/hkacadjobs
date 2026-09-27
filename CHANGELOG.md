@@ -15,7 +15,7 @@ Fixes from the September health check (`HEALTH_CHECK_2026-09.md`).
 ### Scraping and data
 - Scrape health gate: an institution that crashes, returns nothing or far fewer jobs than usual keeps its previous jobs and fails the run, so the owner is emailed
 - Job registry: jobs that briefly drop off a portal keep their original date and aren't flagged NEW again
-- HKU loads every job in one request; THEi, HKBU and Lingnan use each careers site's own paging or API; CUHK retries and reuses known deadlines; HKUST no longer re-summarises jobs daily; SFU and Chu Hai deep-link to each job with text fragments; CPCE's screening date is no longer treated as a deadline
+- HKU loads every job in one request; THEi, HKBU and Lingnan use each careers site's own paging or API; CUHK retries and reuses known deadlines; HKUST no longer re-summarises jobs daily, and its ~100 PeopleSoft-only jobs get real descriptions instead of a placeholder; SFU and Chu Hai deep-link to each job with text fragments; CPCE's screening date is no longer treated as a deadline
 - `deadline` holds dates only; wording such as "Open until filled" moves to a new `deadline_note` column
 - AI summaries use structured output (and the Batches API at half price); each job is summarised once; salary and start date are filled from the summary
 - The scraper is split into `core.py`, `summaries.py` and one module per institution in `sites/`, with a pytest suite
