@@ -13,8 +13,11 @@ emails HEALTH_ALERT_EMAIL through Resend when that secret is set.
 
 import csv
 import os
+import ssl
 import sys
 import threading
+import urllib.error
+import urllib.request
 from collections import Counter, defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from html import escape
@@ -34,6 +37,22 @@ MIN_BROKEN = 3               # ...and at least this many do
 BLOCKED = {401, 403, 429}    # bot protection: not proof the page is gone
 
 _host_locks = defaultdict(lambda: threading.BoundedSemaphore(PER_HOST))
+
+
+def _legacy_tls_status(url: str) -> int:
+    """Some university servers (e.g. EdUHK's) need TLS legacy renegotiation,
+    which Python's OpenSSL refuses but browsers accept. Retry like
+    sites/eduhk.py does; this only checks that the page exists."""
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    ctx.options |= getattr(ssl, "OP_LEGACY_SERVER_CONNECT", 0x4)
+    req = urllib.request.Request(url, headers={"User-Agent": UA})
+    try:
+        with urllib.request.urlopen(req, context=ctx, timeout=TIMEOUT) as resp:
+            return resp.status
+    except urllib.error.HTTPError as e:
+        return e.code
 
 
 def check(url: str):
@@ -56,6 +75,17 @@ def check(url: str):
                 if resp.status_code < 500:
                     return "broken", f"HTTP {resp.status_code}"
                 detail = f"HTTP {resp.status_code}"
+            except requests.exceptions.SSLError:
+                try:
+                    code = _legacy_tls_status(url)
+                except OSError as e:
+                    detail = f"SSLError ({type(e).__name__})"
+                    continue
+                if code < 400:
+                    return "ok", f"{code} (legacy TLS)"
+                if code in BLOCKED:
+                    return "blocked", str(code)
+                return "broken", f"HTTP {code}"
             except requests.RequestException as e:
                 detail = type(e).__name__
     return "broken", detail
