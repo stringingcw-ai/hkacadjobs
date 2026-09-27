@@ -31,6 +31,18 @@ def scrape_thei():
             page = browser.new_page(viewport={"width": 1280, "height": 900})
             page.set_extra_http_headers(HEADERS)
 
+            def open_listing(url, attempts=3):
+                """A listing page can abort now and then (net::ERR_ABORTED);
+                retry, and skip only that page if it keeps failing."""
+                for attempt in range(1, attempts + 1):
+                    try:
+                        page.goto(url, wait_until="domcontentloaded", timeout=60000)
+                        return True
+                    except Exception as e:
+                        print(f"  ⚠️  THEi: {url} failed (attempt {attempt}/{attempts}): {str(e).splitlines()[0]}")
+                        page.wait_for_timeout(5000 * attempt)
+                return False
+
             cards_data = []
             seen_urls = set()
             queue, visited = [LISTING_URL], set()
@@ -39,7 +51,8 @@ def scrape_thei():
                 if listing_url in visited:
                     continue
                 visited.add(listing_url)
-                page.goto(listing_url, wait_until="domcontentloaded", timeout=60000)
+                if not open_listing(listing_url):
+                    continue
                 try:
                     page.wait_for_selector(".e-loop-item", timeout=30000)
                 except Exception:

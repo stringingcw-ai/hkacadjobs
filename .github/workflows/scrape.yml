@@ -31,8 +31,9 @@ jobs:
           cache: pip
           cache-dependency-path: scraper/requirements.txt
 
-      - name: Cache Playwright browser
-        uses: actions/cache@v4
+      - name: Restore Playwright browser
+        id: pw-cache
+        uses: actions/cache/restore@v5
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('scraper/requirements.txt') }}
@@ -41,6 +42,14 @@ jobs:
         run: |
           pip install -r scraper/requirements.txt
           playwright install --with-deps chromium
+
+      # Saved straight away, so a later failing step doesn't skip it
+      - name: Save Playwright browser
+        if: steps.pw-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ steps.pw-cache.outputs.cache-primary-key }}
 
       - name: Run scraper
         env:
