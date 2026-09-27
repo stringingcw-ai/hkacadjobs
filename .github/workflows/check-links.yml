@@ -1,0 +1,33 @@
+name: Weekly Apply-Link Check
+
+on:
+  schedule:
+    - cron: "13 2 * * 1"   # Mondays 02:13 UTC = 10:13 HKT
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: scraper/requirements.txt
+
+      - run: pip install -r scraper/requirements.txt
+
+      # Fails (and GitHub emails you) when an institution has many broken
+      # links; the table and the list of broken links are on the run page.
+      - name: Check every job's Apply link
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          ALERT_FROM_EMAIL: ${{ secrets.ALERT_FROM_EMAIL }}
+          HEALTH_ALERT_EMAIL: ${{ secrets.HEALTH_ALERT_EMAIL }}
+        run: python scraper/check_links.py

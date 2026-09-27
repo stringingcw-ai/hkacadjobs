@@ -2,29 +2,45 @@ name: Daily Scraper
 
 on:
   schedule:
-    - cron: "0 18 * * *"   # 18:00 UTC = 02:00 HKT
+    # 17:37 UTC = 01:37 HKT. Off the top of the hour, when GitHub delays or
+    # drops scheduled runs most.
+    - cron: "37 17 * * *"
   workflow_dispatch:        # allow manual trigger from GitHub UI
 
 permissions:
   contents: write
 
+# Never run two scrapes at once (e.g. a manual run during the nightly one)
+concurrency:
+  group: daily-scraper
+  cancel-in-progress: false
+
 jobs:
   scrape:
     runs-on: ubuntu-latest
+    timeout-minutes: 180
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
+          cache: pip
+          cache-dependency-path: scraper/requirements.txt
+
+      - name: Cache Playwright browser
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('scraper/requirements.txt') }}
 
       - name: Install dependencies
         run: |
-          pip install requests beautifulsoup4 playwright anthropic pypdf certifi
-          playwright install chromium --with-deps
+          pip install -r scraper/requirements.txt
+          playwright install --with-deps chromium
 
       - name: Run scraper
         env:
@@ -35,6 +51,43 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python scraper/patch_hku_descriptions.py --reset-queue --all
+
+      - name: Generate job pages + sitemap
+        run: python scraper/generate_job_pages.py
+
+      - name: Commit and push jobs.csv + job pages + sitemap
+        id: publish
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f jobs.csv jobs-lite.csv sitemap.xml index.html jobs/ \
+            scraper/scrape_health.json scraper/job_registry.json scraper/pages_manifest.json
+          if git diff --cached --quiet; then
+            echo "No changes — skipping commit"
+          else
+            DATE=$(TZ=Asia/Hong_Kong date +"%d %b %Y")
+            NEW=$(python -c "import csv; print(sum(r['is_new'] == 'TRUE' for r in csv.DictReader(open('jobs.csv', encoding='utf-8'))))")
+            PAGES=$(find jobs/ -name "index.html" | wc -l | tr -d ' ')
+            git commit -m "Data refresh: ${DATE} (${NEW} new, ${PAGES} job pages)"
+            # On a conflict with a commit pushed meanwhile, today's data wins
+            for attempt in 1 2 3; do
+              git fetch origin main
+              if git rebase -X theirs origin/main && git push; then
+                echo "pushed=true" >> "$GITHUB_OUTPUT"
+                exit 0
+              fi
+              git rebase --abort 2>/dev/null || true
+              sleep $((attempt * 10))
+            done
+            echo "::error::Could not push today's data"
+            exit 1
+          fi
+
+      # Alert emails link to the new job pages, so wait until GitHub Pages
+      # serves them (best effort, at most 8 minutes).
+      - name: Wait for the site to update
+        if: steps.publish.outputs.pushed == 'true'
+        run: python scraper/wait_for_deploy.py
 
       - name: Send job alert emails
         id: notify
@@ -47,31 +100,30 @@ jobs:
           ALERT_FROM_EMAIL: ${{ secrets.ALERT_FROM_EMAIL }}
         run: python scraper/notify.py
 
-      - name: Generate job pages + sitemap
-        run: python scraper/generate_job_pages.py
-
-      - name: Commit and push jobs.csv + job pages + sitemap
+      # Remembers which jobs each subscription was already sent, so nobody is
+      # emailed about the same job twice.
+      - name: Commit the alert log
+        if: always() && steps.notify.outcome != 'skipped'
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -f jobs.csv sitemap.xml scraper/scrape_health.json scraper/job_registry.json
-          git add -f jobs/
+          git add -f scraper/alert_log.json 2>/dev/null || true
           if git diff --cached --quiet; then
-            echo "No changes — skipping commit"
+            echo "Alert log unchanged"
           else
-            DATE=$(date -u +"%d %b %Y")
-            NEW=$(git diff --cached jobs.csv | grep "^+" | grep -c ",TRUE," || true)
-            PAGES=$(find jobs/ -name "index.html" | wc -l | tr -d ' ')
-            git commit -m "Data refresh: ${DATE} (${NEW} new, ${PAGES} job pages)"
-            git fetch origin main
-            git rebase -X ours origin/main
-            git push
+            git commit -m "Alert log: $(TZ=Asia/Hong_Kong date +'%d %b %Y')"
+            for attempt in 1 2 3; do
+              git fetch origin main
+              if git rebase -X theirs origin/main && git push; then exit 0; fi
+              git rebase --abort 2>/dev/null || true
+              sleep $((attempt * 10))
+            done
+            echo "::error::Could not push the alert log; some people may get a repeat email tomorrow"
+            exit 1
           fi
 
-      # Runs after publishing so data still goes out. Fails the run (GitHub then
-      # emails you) if any university crashed, came back empty or far below its
-      # usual count, or if alert emails failed. Set the HEALTH_ALERT_EMAIL secret
-      # to also get a Resend email with the details.
+      # Runs last so data still goes out. Fails the run (GitHub then emails
+      # you) if any university crashed, came back empty or far below its
+      # usual count, or if alert emails failed. Set the HEALTH_ALERT_EMAIL
+      # secret to also get a Resend email with the details.
       - name: Check scrape health
         if: always()
         env:
