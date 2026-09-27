@@ -47,6 +47,7 @@ def test_text_fragment_url():
 
 def test_make_id_and_clean():
     assert core.make_id("HKU", "123") == "HKU-123"
+    assert core.make_id("THEI", "二級機械工").startswith("THEI-") and core.make_id("THEI", "二級機械工").isascii()
     assert core.clean("  a \n\t b  ") == "a b"
 
 

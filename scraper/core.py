@@ -47,7 +47,8 @@ def clean(text):
 def make_id(uni_code, ref):
     """Generate a stable unique ID."""
     key = clean(str(ref)) if ref else "unknown"
-    if len(key) <= 20 and re.match(r'^[\w\-]+$', key):
+    # ASCII only (\w would also accept Chinese titles), so ids and page URLs stay plain
+    if len(key) <= 20 and re.match(r'^[A-Za-z0-9_\-]+$', key):
         return f"{uni_code.upper()}-{key}"
     return f"{uni_code.upper()}-{hashlib.md5(key.encode()).hexdigest()[:10]}"
 
