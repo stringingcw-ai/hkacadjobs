@@ -71,9 +71,12 @@ def is_good(desc: str) -> bool:
 
 def load_csv() -> dict:
     """Return {job_id: row_dict} for all jobs."""
+    global FIELDNAMES
     jobs = {}
     with open(CSV_PATH, newline="", encoding="utf-8") as f:
-        for row in csv.DictReader(f):
+        reader = csv.DictReader(f)
+        FIELDNAMES = reader.fieldnames or FIELDNAMES   # keep every column the file has
+        for row in reader:
             jobs[row["id"]] = row
     return jobs
 
@@ -112,39 +115,10 @@ def save_persisted_queue(remaining: list):
     QUEUE_FILE.write_text("\n".join(j["id"] for j in remaining))
 
 
-def summarise(raw_text: str, title: str, dept: str) -> str:
-    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
-    if not api_key:
-        return raw_text
-    try:
-        import anthropic
-        client = anthropic.Anthropic(api_key=api_key)
-        msg = client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=600,
-            messages=[{
-                "role": "user",
-                "content": (
-                    "Summarise this academic job description into exactly 4 sections using the format below. "
-                    "Each section must have a bold header followed by concise bullet points. "
-                    "Be brief — each bullet point should be one short sentence. "
-                    "Do not mention the university name or reference numbers.\n\n"
-                    "Use this exact format:\n"
-                    "**Duties & Responsibilities**\n• [bullet]\n• [bullet]\n\n"
-                    "**Requirements & Qualifications**\n• [bullet]\n• [bullet]\n\n"
-                    "**Appointment**\n• [Full-time / Part-time / Contract — include contract duration if mentioned, or 'Not specified']\n\n"
-                    "**Key Dates**\n"
-                    "Extract ALL dates mentioned in the description and label each one clearly. "
-                    "Use one bullet per date. Format each bullet as: '• [Label]: [Date]'. "
-                    "If no dates are mentioned, write: '• Not specified'\n\n"
-                    f"Job title: {title}\nDepartment: {dept}\n\nDescription:\n{raw_text[:3000]}"
-                ),
-            }],
-        )
-        return msg.content[0].text.strip()
-    except Exception as e:
-        print(f"  ⚠️  Summarisation failed for '{title}': {e}")
-        return raw_text
+def summarise(raw_text: str, title: str, dept: str):
+    """Same structured summary as the daily scraper → (summary, extras)."""
+    from scraper import summarise_job
+    return summarise_job(raw_text, title, dept)
 
 
 # ── Main fetch logic ──────────────────────────────────────────────────────────
@@ -185,8 +159,8 @@ def fetch_batch(batch: list, jobs: dict) -> tuple[int, int]:
                     still_poor += 1
                     continue
 
-                lines = [l.strip() for l in text.splitlines() if len(l.strip()) > 60]
-                raw = "\n\n".join(lines[:20])[:3000] if lines else ""
+                lines = [l.strip() for l in text.splitlines() if len(l.strip()) > 30]
+                raw = "\n\n".join(lines[:60])[:8000] if lines else ""
 
                 if is_poor(raw):
                     print(f"    ✗  Detail page returned poor content ({len(raw)}c)")
@@ -194,15 +168,17 @@ def fetch_batch(batch: list, jobs: dict) -> tuple[int, int]:
                     continue
 
                 # Summarise via Claude Haiku
-                summary = summarise(raw, job["title"], job.get("department", ""))
+                summary, extras = summarise(raw, job["title"], job.get("department", ""))
 
                 if is_good(summary):
                     jobs[job["id"]]["description"] = summary
+                    from scraper import apply_summary_extras
+                    apply_summary_extras(jobs[job["id"]], extras)
                     fetched_ok += 1
                     print(f"    ✓  Good description ({len(summary)}c)")
                 else:
                     # Keep raw if summarisation produced nothing useful
-                    jobs[job["id"]]["description"] = raw
+                    jobs[job["id"]]["description"] = raw[:3000]
                     if is_good(raw):
                         fetched_ok += 1
                         print(f"    ✓  Raw description saved ({len(raw)}c)")

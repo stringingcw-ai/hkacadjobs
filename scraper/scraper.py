@@ -21,6 +21,7 @@ import sys
 import time
 import argparse
 import hashlib
+import urllib.parse
 from datetime import datetime, date, timezone, timedelta
 from pathlib import Path
 
@@ -33,7 +34,7 @@ OUTPUT_FILE = Path(__file__).parent.parent / "jobs.csv"
 # ── CSV columns (must match website expectations)
 FIELDNAMES = [
     "id", "title", "rank", "university", "university_full",
-    "department", "deadline", "is_new", "date_added", "date_posted", "reference",
+    "department", "deadline", "deadline_note", "is_new", "date_added", "date_posted", "reference",
     "position_type", "salary", "start_date", "apply_url", "description"
 ]
 
@@ -68,6 +69,18 @@ def make_id(uni_code, ref):
     if len(key) <= 20 and re.match(r'^[\w\-]+$', key):
         return f"{uni_code.upper()}-{key}"
     return f"{uni_code.upper()}-{hashlib.md5(key.encode()).hexdigest()[:10]}"
+
+
+def text_fragment_url(url, text):
+    """Deep link into a page that lists many jobs: a #:~:text= fragment makes
+    supporting browsers scroll to (and highlight) this job's title; others just
+    open the page. Used for portals without a page per job (SFU, Chu Hai)."""
+    words = " ".join(clean(text).split()[:8])
+    if not words:
+        return url
+    # "-" and "," have special meaning inside text fragments
+    frag = urllib.parse.quote(words, safe="").replace("-", "%2D")
+    return f"{url.split('#')[0]}#:~:text={frag}"
 
 
 def infer_dept_from_title(title):
@@ -110,8 +123,8 @@ def detect_rank(title, description=""):
         if ("tenure-track" in d or "tenure track" in d) and "non-tenure" not in d:
             return "Tenure-Track"
         if "lecturer" in d:
-            return "Lecturer"
-    if "teaching-track" in t:        return "Lecturer"   # Fix 1
+            return "Senior Lecturer/Lecturer"
+    if "teaching-track" in t:        return "Senior Lecturer/Lecturer"   # Fix 1
     if "chair professor" in t:       return "Professor"
     if "associate professor" in t:   return "Associate Professor"
     if "assistant professor" in t:   return "Assistant Professor"
@@ -169,7 +182,8 @@ def parse_date_text(text):
     """
     Convert various date formats to YYYY-MM-DD.
     Handles: '27 February 2026', '2026-02-27', '27/02/2026', etc.
-    Returns '' if unparseable.
+    Returns the text unchanged if unparseable (callers compare with the input
+    to detect dates); normalise_deadline() cleans up what reaches the CSV.
     """
     if not text:
         return ""
@@ -205,10 +219,92 @@ def is_within_retention(deadline_str, days=14):
         return True
     try:
         d = datetime.strptime(deadline_str, "%Y-%m-%d").date()
-        from datetime import timedelta
         return d >= (TODAY - timedelta(days=days))
     except ValueError:
         return True
+
+
+ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+_DATE_IN_TEXT = re.compile(
+    r"\d{1,2}(?:st|nd|rd|th)?\s+[A-Za-z]{3,9}\.?,?\s+\d{4}"
+    r"|[A-Za-z]{3,9}\.?\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4}"
+    r"|\d{4}-\d{2}-\d{2}|\d{1,2}/\d{1,2}/\d{4}|\d{1,2}-[A-Za-z]{3}-\d{4}"
+)
+_UNTIL_FILLED = re.compile(r"until\b.{0,40}\bfilled|open until|filled", re.I)
+_ONGOING = re.compile(r"on-?\s?going|rolling|continuous", re.I)
+_REVIEW_START = re.compile(r"review|commenc|consider|screen|start", re.I)
+
+
+def date_in_text(text):
+    """First recognisable date inside free text, as YYYY-MM-DD ('' if none)."""
+    for m in _DATE_IN_TEXT.finditer(text or ""):
+        s = re.sub(r"(\d)(?:st|nd|rd|th)\b", r"\1", m.group(0))
+        s = re.sub(r"\bSept\b", "Sep", s)
+        for cand in (s, re.sub(r"\.", "", s), re.sub(r"[.,]", "", s)):
+            parsed = parse_date_text(re.sub(r"\s+", " ", cand))
+            if ISO_DATE.match(parsed or ""):
+                return parsed
+    return ""
+
+
+def normalise_deadline(job):
+    """Keep only real dates in `deadline`; wording such as "Applications will be
+    considered until the position is filled" goes to `deadline_note` instead
+    (it used to sit in `deadline`, breaking sorting and Google's JobPosting)."""
+    raw = clean(job.get("deadline", ""))
+    note = clean(job.get("deadline_note", ""))
+    if raw and not ISO_DATE.match(raw):
+        parsed = parse_date_text(raw)
+        date_found = parsed if ISO_DATE.match(parsed or "") else date_in_text(raw)
+        if date_found and _REVIEW_START.search(raw):
+            # "Review of applications starts on …" is not a closing date
+            if not note:
+                pretty = datetime.strptime(date_found, "%Y-%m-%d").strftime("%-d %b %Y")
+                note = f"Applications reviewed from {pretty}"
+            date_found = ""
+        elif not note and len(raw) > 2 and not date_found:
+            note = ("Open until filled" if _UNTIL_FILLED.search(raw)
+                    else "Ongoing recruitment" if _ONGOING.search(raw) else raw[:120])
+        raw = date_found
+    job["deadline"] = raw
+    job["deadline_note"] = note
+
+
+_KEY_DATE_CLOSING = re.compile(
+    r"^(\s*•\s*(?:Application\s+)?(?:Closing\s+date|Application\s+deadline|Deadline)[^:\n]{0,30}:\s*)(.+)$",
+    re.I | re.M,
+)
+
+
+_KEY_DATE_START = re.compile(r"^\s*•\s*(?:Expected\s+|Anticipated\s+)?Start(?:ing)?\s+date[^:\n]{0,20}:\s*(.+)$", re.I | re.M)
+
+
+def reconcile_summary_deadline(job):
+    """Keep the AI summary's closing date and the deadline column consistent.
+
+    Summaries are cached, so when a portal extends a deadline the old date
+    stayed in the summary (e.g. VTC: column 31 Oct, summary 30 Jul). The
+    listing is authoritative: rewrite the summary's closing-date bullet to
+    match it. When the listing has no deadline, take it from the summary.
+    """
+    desc = job.get("description") or ""
+    if "**Key Dates**" not in desc:
+        return
+    if not job.get("start_date"):
+        start = _KEY_DATE_START.search(desc)
+        if start and not re.search(r"not specified", start.group(1), re.I):
+            job["start_date"] = clean(start.group(1))[:80]
+    m = _KEY_DATE_CLOSING.search(desc)
+    if not m:
+        return
+    summary_date = date_in_text(m.group(2))
+    if not job.get("deadline"):
+        if summary_date and not job.get("deadline_note"):
+            job["deadline"] = summary_date
+        return
+    if summary_date and summary_date != job["deadline"]:
+        pretty = datetime.strptime(job["deadline"], "%Y-%m-%d").strftime("%-d %B %Y")
+        job["description"] = desc[:m.start(2)] + pretty + desc[m.end(2):]
 
 
 def get_soup(url, timeout=15, legacy_ssl=False):
@@ -279,6 +375,12 @@ PLACEHOLDER_MARKER = "Please visit the application link"
 # ── Cache populated by main() before scrapers run; lets scrapers skip detail
 #    page fetches for jobs that already have a good summary.
 _existing_descriptions: dict = {}
+_previous_rows: dict = {}   # id → previous CSV row (e.g. to reuse deadlines)
+
+
+def due_for_recheck(job_id):
+    """True on one weekday per job id — spreads weekly re-checks across the week."""
+    return int(hashlib.md5(job_id.encode()).hexdigest(), 16) % 7 == TODAY.weekday()
 
 
 BOT_MARKERS = ("security check", "not a bot", "verify that you are", "cloudflare", "complete the security")
@@ -296,49 +398,178 @@ def _has_good_desc(job_id: str) -> bool:
     return True
 
 
-def summarise_description(raw_text, title, dept):
-    """
-    Call Claude Haiku to summarise a raw job description into 3 structured sections.
-    Falls back to the raw text if the API key is missing or the call fails.
-    """
+# ── AI summaries (Claude Haiku 4.5, structured output)
+SUMMARY_MODEL   = "claude-haiku-4-5-20251001"
+SUMMARY_PRICES  = (1.00, 5.00)   # US$ per million input / output tokens; batches cost half
+BATCH_MIN_JOBS  = 10             # use the Batches API from this many summaries up
+BATCH_MAX_WAIT  = 20 * 60        # seconds; unfinished batch items are then summarised directly
+
+_SUMMARY_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "duties":       {"type": "array", "items": {"type": "string"}},
+        "requirements": {"type": "array", "items": {"type": "string"}},
+        "appointment":  {"type": "string"},
+        "key_dates":    {"type": "array", "items": {
+            "type": "object",
+            "properties": {"label": {"type": "string"}, "date": {"type": "string"}},
+            "required": ["label", "date"],
+            "additionalProperties": False,
+        }},
+        "salary":       {"type": "string"},
+        "start_date":   {"type": "string"},
+        "closing_date": {"type": "string"},
+    },
+    "required": ["duties", "requirements", "appointment", "key_dates", "salary", "start_date", "closing_date"],
+    "additionalProperties": False,
+}
+
+
+def _summary_request(raw_text, title, dept):
+    return {
+        "model": SUMMARY_MODEL,
+        "max_tokens": 1500,
+        "output_config": {"format": {"type": "json_schema", "schema": _SUMMARY_SCHEMA}},
+        "messages": [{
+            "role": "user",
+            "content": (
+                "Summarise this academic job advertisement for a job board. Be concise: every list "
+                "item is one short sentence. Do not mention the university's name or reference numbers.\n"
+                "- duties: the main duties and responsibilities (2-6 items)\n"
+                "- requirements: required and preferred qualifications and experience (2-6 items)\n"
+                "- appointment: the terms in one line, e.g. 'Full-time, 2-year contract (renewable)'; "
+                "'Not specified' if not stated\n"
+                "- key_dates: every date mentioned, each with a clear label such as 'Closing date', "
+                "'Review date', 'Interview date', 'Start date' or 'Posted date'; empty if none\n"
+                "- salary: the salary, salary range or grade exactly as stated "
+                "(e.g. 'HK$50,000 - 65,000 per month'); empty string if not stated\n"
+                "- start_date: the expected start date as stated; empty string if not stated\n"
+                "- closing_date: the application closing date as YYYY-MM-DD, only if a specific date "
+                "is stated; otherwise empty string\n\n"
+                f"Job title: {title}\nDepartment: {dept}\n\nAdvertisement:\n{raw_text[:12000]}"
+            ),
+        }],
+    }
+
+
+def _render_summary(data):
+    """The structured summary in the site's display format (**Header** + • bullets)."""
+    def bullets(items):
+        items = [clean(i) for i in items if clean(i)]
+        return "\n".join(f"• {i}" for i in items) if items else "• Not specified"
+    dates = [f"{clean(d.get('label'))}: {clean(d.get('date'))}" for d in data.get("key_dates") or []
+             if clean(d.get("label")) and clean(d.get("date"))]
+    return (
+        "**Duties & Responsibilities**\n" + bullets(data.get("duties") or []) + "\n\n"
+        "**Requirements & Qualifications**\n" + bullets(data.get("requirements") or []) + "\n\n"
+        "**Appointment**\n" + bullets([data.get("appointment") or "Not specified"]) + "\n\n"
+        "**Key Dates**\n" + bullets(dates)
+    )
+
+
+def _parse_summary(message):
+    """(summary text, extras) from a structured-output response; raises if unusable."""
+    if message.stop_reason == "max_tokens":
+        raise ValueError("summary was cut off at max_tokens")
+    data = json.loads(next(b.text for b in message.content if b.type == "text"))
+    extras = {k: clean(data.get(k) or "") for k in ("salary", "start_date", "closing_date")}
+    return _render_summary(data), extras
+
+
+def apply_summary_extras(job, extras):
+    """Fill fields the listing didn't provide from the summary's structured fields."""
+    if extras.get("salary") and not job.get("salary"):
+        job["salary"] = extras["salary"][:120]
+    if extras.get("start_date") and not job.get("start_date"):
+        job["start_date"] = extras["start_date"][:80]
+    closing = extras.get("closing_date", "")
+    if ISO_DATE.match(closing) and not job.get("deadline") and not job.get("deadline_note"):
+        job["deadline"] = closing
+
+
+def summarise_job(raw_text, title, dept, client=None):
+    """One job → (summary, extras). Falls back to (raw_text, {}) on any failure."""
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if not api_key:
-        return raw_text
+        return raw_text, {}
     try:
         import anthropic
-        client = anthropic.Anthropic(api_key=api_key)
-        msg = client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=600,
-            messages=[{
-                "role": "user",
-                "content": (
-                    "Summarise this academic job description into exactly 4 sections using the format below. "
-                    "Each section must have a bold header followed by concise bullet points. "
-                    "Be brief — each bullet point should be one short sentence. "
-                    "Do not mention the university name or reference numbers.\n\n"
-                    "Use this exact format:\n"
-                    "**Duties & Responsibilities**\n"
-                    "• [bullet]\n"
-                    "• [bullet]\n\n"
-                    "**Requirements & Qualifications**\n"
-                    "• [bullet]\n"
-                    "• [bullet]\n\n"
-                    "**Appointment**\n"
-                    "• [Full-time / Part-time / Contract — include contract duration if mentioned, or 'Not specified']\n\n"
-                    "**Key Dates**\n"
-                    "Extract ALL dates mentioned in the description and label each one clearly. Use one bullet per date. "
-                    "Examples of labels: 'Closing date', 'Application deadline', 'Review date', 'Interview date', 'Start date', 'Posted date'. "
-                    "Format each bullet as: '• [Label]: [Date]'. "
-                    "If no dates are mentioned, write: '• Not specified'\n\n"
-                    f"Job title: {title}\nDepartment: {dept}\n\nDescription:\n{raw_text[:3000]}"
-                ),
-            }],
-        )
-        return msg.content[0].text.strip()
+        client = client or anthropic.Anthropic(api_key=api_key)
+        return _parse_summary(client.messages.create(**_summary_request(raw_text, title, dept)))
     except Exception as e:
         print(f"  ⚠️  Summarisation failed for '{title}': {e}")
-        return raw_text
+        return raw_text, {}
+
+
+def summarise_description(raw_text, title, dept):
+    """Summary text only (kept for callers that don't use the extras)."""
+    return summarise_job(raw_text, title, dept)[0]
+
+
+def summarise_jobs(jobs):
+    """Summarise jobs in place (description, plus salary / start date / deadline
+    when the listing lacked them). Uses the Message Batches API (half price)
+    for larger runs; anything it doesn't finish in time is done directly."""
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not jobs:
+        return
+    if not api_key:
+        print(f"  ℹ️  ANTHROPIC_API_KEY not set — {len(jobs)} descriptions left as raw text")
+        return
+    import anthropic
+    client = anthropic.Anthropic(api_key=api_key)
+    pending = {str(i): j for i, j in enumerate(jobs)}
+    tokens = {"direct": [0, 0], "batch": [0, 0]}
+
+    def done(key, message, kind):
+        summary, extras = _parse_summary(message)
+        job = pending.pop(key)
+        job["description"] = summary
+        apply_summary_extras(job, extras)
+        tokens[kind][0] += message.usage.input_tokens
+        tokens[kind][1] += message.usage.output_tokens
+
+    print(f"\n🤖 Summarising {len(jobs)} descriptions via Claude Haiku...")
+    if len(jobs) >= BATCH_MIN_JOBS:
+        try:
+            batch = client.messages.batches.create(requests=[
+                {"custom_id": key, "params": _summary_request(j["description"], j["title"], j.get("department", ""))}
+                for key, j in pending.items()
+            ])
+            print(f"  ↳ Batch {batch.id} submitted ({len(pending)} requests)")
+            give_up = time.time() + BATCH_MAX_WAIT
+            while batch.processing_status != "ended" and time.time() < give_up:
+                time.sleep(15)
+                batch = client.messages.batches.retrieve(batch.id)
+            if batch.processing_status != "ended":
+                print(f"  ⚠️  Batch unfinished after {BATCH_MAX_WAIT // 60} min — cancelling, finishing directly")
+                client.messages.batches.cancel(batch.id)
+                for _ in range(12):          # cancellation keeps finished results
+                    time.sleep(10)
+                    batch = client.messages.batches.retrieve(batch.id)
+                    if batch.processing_status == "ended":
+                        break
+            if batch.processing_status == "ended":
+                for res in client.messages.batches.results(batch.id):
+                    if res.result.type == "succeeded" and res.custom_id in pending:
+                        try:
+                            done(res.custom_id, res.result.message, "batch")
+                        except Exception as e:
+                            print(f"  ⚠️  Unusable batch result for '{pending[res.custom_id]['title']}': {e}")
+        except Exception as e:
+            print(f"  ⚠️  Batch summarisation failed ({e}); summarising directly")
+
+    for key, job in list(pending.items()):   # small runs, and anything the batch missed
+        try:
+            done(key, client.messages.create(**_summary_request(job["description"], job["title"],
+                                                                 job.get("department", ""))), "direct")
+        except Exception as e:
+            print(f"  ⚠️  Summarisation failed for '{job['title']}': {e}")
+
+    (d_in, d_out), (b_in, b_out) = tokens["direct"], tokens["batch"]
+    cost = ((d_in + b_in / 2) * SUMMARY_PRICES[0] + (d_out + b_out / 2) * SUMMARY_PRICES[1]) / 1e6
+    print(f"  ✅ Summarised {len(jobs) - len(pending)}/{len(jobs)} "
+          f"(batch {tokens['batch'][0] and 'yes' or 'no'}; tokens in {d_in + b_in:,}, out {d_out + b_out:,}; ≈ US${cost:.3f})")
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -390,7 +621,7 @@ def scrape_polyu_detail(ref, debug=False):
                 seen.add(key)
                 parts.append(t)
         if parts:
-            return "\n\n".join(parts)[:2000], date_posted
+            return "\n\n".join(parts)[:8000], date_posted
 
     # Fallback: largest text block
     candidates = [
@@ -399,7 +630,7 @@ def scrape_polyu_detail(ref, debug=False):
         if 150 < len(clean(tag.get_text(" "))) < 5000
     ]
     if candidates:
-        return max(candidates, key=len)[:2000], date_posted
+        return max(candidates, key=len)[:8000], date_posted
 
     return "", date_posted
 
@@ -753,7 +984,7 @@ def scrape_eduhk():
                         if len(ln) > 50:
                             lines.append(ln)
                     if lines:
-                        j["description"] = "\n\n".join(lines[:20])[:3000]
+                        j["description"] = "\n\n".join(lines[:60])[:8000]
                         found_pdf += 1
                 except Exception:
                     pass
@@ -768,54 +999,52 @@ def scrape_eduhk():
 def scrape_lingnan():
     """
     Lingnan — lingnan.csod.com (Cornerstone OnDemand ATS)
-    5 pages of jobs. Fetches all roles (academic + admin).
-    Department is extracted from the job title (text after last comma).
+    The career site lists jobs through a JSON search API
+    (uk.api.csod.com/rec-job-search/external/jobs) using a token issued to the
+    page. Replaying that request with pageSize=200 returns every job at once;
+    falls back to clicking through the result pages. Department comes from the
+    title (text after the last comma).
     """
     print("📋 Scraping Lingnan...")
+    SITE = "https://lingnan.csod.com/ux/ats/careersite/4/home"
 
-    def parse_jobs(html, seen):
-        result = []
-        soup = BeautifulSoup(html, "html.parser")
-        for a in soup.find_all("a", href=re.compile(r"requisition", re.I)):
-            full_title = clean(a.get_text())
-            if not full_title or len(full_title) < 5 or full_title in seen:
-                continue
-            seen.add(full_title)
+    def make_job(ref, full_title, posted="", expires="", desc_html=""):
+        # "Senior HR Officer, Human Resources Office" → title, dept
+        if "," in full_title:
+            last_comma = full_title.rfind(",")
+            title, dept = full_title[:last_comma].strip(), full_title[last_comma + 1:].strip()
+        else:
+            title, dept = full_title, "Lingnan University"
+        desc = BeautifulSoup(desc_html or "", "html.parser").get_text("\n", strip=True)
+        if len(desc) < 300 or "INTERNAL JOB DESCRIPTION" in desc.upper():
+            desc = f"{title} — {dept}. Please visit the application link for full details."
+        return {
+            "id":               make_id("LU", ref or title[:25]),
+            "title":            title,
+            "rank":             detect_rank(title),
+            "university":       "LU",
+            "university_full":  "Lingnan University",
+            "department":       dept,
+            "deadline":         expires,
+            "is_new":           "TRUE",
+            "date_posted":      posted,
+            "reference":        ref,
+            "position_type":    detect_type(title),
+            "salary":           "",
+            "start_date":       "",
+            "apply_url":        f"{SITE}/requisition/{ref}?c=lingnan",
+            "description":      desc[:8000],
+        }
 
-            href = a.get("href", "")
-            apply_url = f"https://lingnan.csod.com{href}" if href.startswith("/") else href
-            ref_match = re.search(r"requisition/(\d+)", href)
-            ref = ref_match.group(1) if ref_match else ""
-
-            # Split title on last comma: "Senior HR Officer, Human Resources Office"
-            # → title = "Senior HR Officer", dept = "Human Resources Office"
-            if "," in full_title:
-                last_comma = full_title.rfind(",")
-                title = full_title[:last_comma].strip()
-                dept  = full_title[last_comma + 1:].strip()
-            else:
-                title = full_title
-                dept  = "Lingnan University"
-
-            result.append({
-                "id":               make_id("LU", ref or title[:25]),
-                "title":            title,
-                "rank":             detect_rank(title),
-                "university":       "LU",
-                "university_full":  "Lingnan University",
-                "department":       dept,
-                "deadline":         "",
-                "is_new":           "TRUE",
-                "reference":        ref,
-                "position_type":    detect_type(title),
-                "salary":           "",
-                "start_date":       "",
-                "apply_url":        apply_url,
-                "description":      f"{title} — {dept}. Please visit the application link for full details.",
-            })
-        return result
+    def us_date(text):
+        # CSOD dates are M/D/YYYY ("9/25/2026"); "-" means none
+        try:
+            return datetime.strptime(clean(text), "%m/%d/%Y").strftime("%Y-%m-%d")
+        except (TypeError, ValueError):
+            return ""
 
     jobs = []
+    seen = set()
 
     try:
         from playwright.sync_api import sync_playwright
@@ -824,67 +1053,80 @@ def scrape_lingnan():
             browser = p.chromium.launch(headless=True)
             page = browser.new_page()
             page.set_extra_http_headers(HEADERS)
-            page.goto("https://lingnan.csod.com/ux/ats/careersite/4/home?c=lingnan", timeout=30000)
-            page.wait_for_load_state("networkidle", timeout=20000)
+            searches = []
+            page.on("request", lambda r: searches.append(r) if "rec-job-search" in r.url and r.method == "POST" else None)
+            page.goto(f"{SITE}?c=lingnan", timeout=60000)
+            page.wait_for_load_state("networkidle", timeout=30000)
 
-            total_pages = page.evaluate("""
-                () => {
-                    const btns = Array.from(document.querySelectorAll(
-                        '[class*="paginat"] a, [class*="paginat"] button, nav a, nav button'
-                    ));
-                    const nums = btns.map(b => parseInt(b.textContent.trim())).filter(n => !isNaN(n) && n > 0);
-                    return nums.length ? Math.max(...nums) : 1;
-                }
-            """)
-            print(f"  ↳ Detected {total_pages} pages")
+            # 1) Replay the page's own search request asking for every job
+            if searches:
+                try:
+                    req = searches[0]
+                    payload = json.loads(req.post_data or "{}")
+                    payload["pageNumber"], payload["pageSize"] = 1, 200
+                    keep = ("authorization", "content-type", "csod-accept-language", "accept")
+                    resp = page.request.post(req.url, data=json.dumps(payload),
+                                             headers={k: v for k, v in req.headers.items() if k.lower() in keep})
+                    data = (resp.json() or {}).get("data") or {}
+                    for r in data.get("requisitions") or []:
+                        ref = str(r.get("requisitionId") or "")
+                        full_title = clean(r.get("displayJobTitle") or "")
+                        if not ref or len(full_title) < 5 or ref in seen:
+                            continue
+                        seen.add(ref)
+                        jobs.append(make_job(ref, full_title, us_date(r.get("postingEffectiveDate")),
+                                             us_date(r.get("postingExpirationDate")), r.get("externalDescription")))
+                    print(f"  ↳ Search API: {len(jobs)} of {data.get('totalCount')} jobs")
+                except Exception as e:
+                    print(f"  ⚠️  Search API replay failed ({e}); paging through results instead")
 
-            seen = set()
-
-            for pg in range(1, total_pages + 1):
-                jobs.extend(parse_jobs(page.content(), seen))
-
-                if pg >= total_pages:
-                    break
-
-                clicked = page.evaluate(f"""
-                    () => {{
-                        const target = {pg + 1};
-                        const btns = Array.from(document.querySelectorAll(
-                            '[class*="paginat"] a, [class*="paginat"] button, nav a, nav button'
-                        ));
-                        const btn = btns.find(b => parseInt(b.textContent.trim()) === target);
+            # 2) Fallback: click through the result pages, waiting for each to change
+            if not jobs:
+                page_num = 1
+                while page_num <= 20:
+                    for a in BeautifulSoup(page.content(), "html.parser").find_all("a", href=re.compile(r"requisition", re.I)):
+                        ref_match = re.search(r"requisition/(\d+)", a.get("href", ""))
+                        ref = ref_match.group(1) if ref_match else ""
+                        full_title = clean(a.get_text())
+                        if not ref or len(full_title) < 5 or ref in seen:
+                            continue
+                        seen.add(ref)
+                        jobs.append(make_job(ref, full_title))
+                    first = page.evaluate("() => document.querySelector('a[href*=requisition]')?.getAttribute('href')")
+                    clicked = page.evaluate(f"""() => {{
+                        const btn = [...document.querySelectorAll('[class*="paginat"] a, [class*="paginat"] button, nav a, nav button')]
+                            .find(b => parseInt(b.textContent.trim()) === {page_num + 1})
+                            || document.querySelector('[aria-label="Next"]:not([disabled]), [title="Next"]:not([disabled])');
                         if (btn) {{ btn.click(); return true; }}
-                        const next = document.querySelector('[aria-label="Next"], [title="Next"]');
-                        if (next) {{ next.click(); return true; }}
                         return false;
-                    }}
-                """)
-
-                if not clicked:
-                    print(f"  ⚠️  Could not click to page {pg + 1}")
-                    break
-
-                page.wait_for_load_state("networkidle", timeout=10000)
-                page.wait_for_timeout(1000)
+                    }}""")
+                    if not clicked:
+                        break
+                    try:
+                        page.wait_for_function(
+                            "f => document.querySelector('a[href*=requisition]')?.getAttribute('href') !== f",
+                            arg=first, timeout=15000)
+                    except Exception:
+                        print(f"  ⚠️  Page {page_num + 1} didn't load")
+                        break
+                    page_num += 1
 
             # Fetch detail pages for descriptions (skip known good summaries)
-            to_fetch = [j for j in jobs if not _has_good_desc(j["id"])]
+            to_fetch = [j for j in jobs if not _has_good_desc(j["id"]) and PLACEHOLDER_MARKER in j["description"]]
             if to_fetch:
                 print(f"  ↳ Fetching {len(to_fetch)} detail pages for descriptions...")
                 found = 0
-                for idx, j in enumerate(to_fetch, 1):
+                for j in to_fetch:
                     try:
-                        page.goto(j["apply_url"], timeout=20000, wait_until="networkidle")
+                        page.goto(j["apply_url"], timeout=30000, wait_until="networkidle")
                         page.wait_for_timeout(1500)
                         text = page.inner_text("body")
-                        lines = [l.strip() for l in text.splitlines() if len(l.strip()) > 60]
+                        lines = [l.strip() for l in text.splitlines() if len(l.strip()) > 30]
                         if lines:
-                            j["description"] = "\n\n".join(lines[:20])[:3000]
+                            j["description"] = "\n\n".join(lines[:60])[:8000]
                             found += 1
                     except Exception:
                         pass
-                    if idx % 10 == 0 or idx == len(to_fetch):
-                        print(f"  ↳ {idx}/{len(to_fetch)} done")
                 print(f"  ↳ Got descriptions for {found}/{len(to_fetch)} jobs")
             # Restore cached summaries for skipped jobs
             for j in jobs:
@@ -1039,10 +1281,10 @@ def scrape_hku():
                                 else:
                                     j["description"] = PLACEHOLDER_MARKER
                                 continue
-                            lines = [l.strip() for l in text.splitlines() if len(l.strip()) > 60]
+                            lines = [l.strip() for l in text.splitlines() if len(l.strip()) > 30]
                             # Guard against short/error pages slipping through WAF check
                             if lines and len(" ".join(lines)) >= 200:
-                                j["description"] = "\n\n".join(lines[:20])[:3000]
+                                j["description"] = "\n\n".join(lines[:60])[:8000]
                                 found += 1
                             else:
                                 j["description"] = PLACEHOLDER_MARKER
@@ -1182,8 +1424,12 @@ def scrape_hkust():
                     for j in jobs:
                         if j["reference"] in il_map:
                             new_url = il_map[j["reference"]]
-                            if new_url != j["apply_url"]:
-                                # URL corrected — clear cached description so it gets re-fetched
+                            # Refresh the cached summary only if the link changed since
+                            # the last run. (This compared against the PeopleSoft URL
+                            # built above, so it always differed and ~50 HKUST jobs
+                            # were re-summarised every day.)
+                            prev_url = (_previous_rows.get(j["id"]) or {}).get("apply_url", "")
+                            if prev_url and prev_url != new_url:
                                 _existing_descriptions.pop(j["id"], None)
                             j["apply_url"] = new_url
                 except Exception:
@@ -1191,7 +1437,8 @@ def scrape_hkust():
 
                 page.close()
 
-            # Fetch Interfolio detail pages only — PeopleSoft URLs are HKUST-internal and always timeout
+            # Fetch Interfolio detail pages only. The PeopleSoft links are the ones
+            # HKUST itself publishes, but their pages need a portal session.
             to_fetch = [
                 j for j in jobs
                 if is_within_retention(j["deadline"])
@@ -1210,9 +1457,9 @@ def scrape_hkust():
                         text = detail_page.inner_text("body")
                         if any(m in text.lower() for m in BOT_MARKERS):
                             continue
-                        lines = [l.strip() for l in text.splitlines() if len(l.strip()) > 60]
+                        lines = [l.strip() for l in text.splitlines() if len(l.strip()) > 30]
                         if lines:
-                            j["description"] = "\n\n".join(lines[:20])[:3000]
+                            j["description"] = "\n\n".join(lines[:60])[:8000]
                             found += 1
                     except Exception:
                         pass
@@ -1241,8 +1488,8 @@ def scrape_cityu_detail(apply_url, page):
         text = page.inner_text("body")
         if any(m in text.lower() for m in BOT_MARKERS):
             return ""
-        lines = [l.strip() for l in text.splitlines() if len(l.strip()) > 60]
-        return "\n\n".join(lines[:20])[:3000] if lines else ""
+        lines = [l.strip() for l in text.splitlines() if len(l.strip()) > 30]
+        return "\n\n".join(lines[:60])[:8000] if lines else ""
     except Exception:
         return ""
 
@@ -1360,184 +1607,118 @@ def scrape_cityu():
 
 def scrape_hkbu():
     """
-    HKBU — Oracle HCM Cloud ATS
-    Hits the Oracle recruiting API directly with pagination (25 jobs/page).
-    URL pattern discovered via Playwright network interception.
+    HKBU — Oracle HCM Cloud Candidate Experience (site "hkbu", siteNumber CX_1)
+    Calls the same recruitingCEJobRequisitions query the careers site makes
+    (finder=findReqs); limit=200 returns every job with its description in one
+    request, so no detail pages are needed. (The old "CandidateExperience"
+    finder returned 400 on every run.) Falls back to scrolling the careers site.
     """
     print("📋 Scraping HKBU...")
 
-    BASE = "https://fa-ewqq-saasfaprod1.fa.ocs.oraclecloud.com"
-    API  = f"{BASE}/hcmRestApi/resources/latest/recruitingCEJobRequisitions"
+    BASE  = "https://fa-ewqq-saasfaprod1.fa.ocs.oraclecloud.com"
+    SITE  = f"{BASE}/hcmUI/CandidateExperience/en/sites/hkbu"
+    API   = f"{BASE}/hcmRestApi/resources/latest/recruitingCEJobRequisitions"
+    EXPAND = ("requisitionList.workLocation,requisitionList.otherWorkLocations,"
+              "requisitionList.secondaryLocations,flexFieldsFacet.values,requisitionList.requisitionFlexFields")
+    FACETS = "WORK_LOCATIONS%3BWORKPLACE_TYPES%3BTITLES%3BCATEGORIES%3BORGANIZATIONS%3BPOSTING_DATES%3BFLEX_FIELDS%3BLOCATIONS"
+    PAGE  = 200
 
-    # Exact finder string observed in network requests
-    FINDER = (
-        "CandidateExperience;siteNumber=CX_1,"
-        "facetsList=LOCATIONS%3BWORK_LOCATIONS%3BTITLES%3BCATEGORIES"
-        "%3BORGANIZATIONS%3BPOSTING_DATES%3BFLEX_FIELDS"
-    )
+    def split_title(full_title, fallback_dept=""):
+        # "Senior Officer, Office of Student Affairs" → title, dept
+        if "," in full_title:
+            last = full_title.rfind(",")
+            return full_title[:last].strip(), full_title[last + 1:].strip()
+        return full_title, fallback_dept or infer_dept_from_title(full_title)
 
-    HKBU_HEADERS = {
-        **HEADERS,
-        "Referer":  f"{BASE}/hcmUI/CandidateExperience/en/sites/hkbu/jobs",
-        "Origin":   BASE,
-    }
+    def html_text(fragment):
+        return BeautifulSoup(fragment, "html.parser").get_text("\n", strip=True) if fragment else ""
 
     jobs = []
     seen = set()
-    offset = 0
 
     try:
-        while True:
-            # Build URL directly to avoid requests double-encoding the finder string
-            url = f"{API}?onlyData=true&finder={FINDER}&limit=25&offset={offset}&sortBy=POSTING_DATES_DESC"
-            resp = requests.get(url, headers=HKBU_HEADERS, timeout=20)
+        offset, total = 0, None
+        while total is None or offset < total:
+            finder = (f"findReqs;siteNumber=CX_1,facetsList={FACETS},limit={PAGE},"
+                      f"{'offset=' + str(offset) + ',' if offset else ''}sortBy=POSTING_DATES_DESC")
+            # Built by hand: requests would re-encode the finder's separators
+            resp = requests.get(f"{API}?onlyData=true&expand={EXPAND}&finder={finder}",
+                                headers={**HEADERS, "Accept": "application/json"}, timeout=30)
             resp.raise_for_status()
-            data = resp.json()
-
-            items    = data.get("items", [])
-            has_more = data.get("hasMore", False)
-
-            for r in items:
-                full_title = clean(str(
-                    r.get("Title") or r.get("title") or
-                    r.get("JobTitle") or r.get("displayTitle") or ""
-                ))
-                if not full_title or full_title in seen:
+            item = (resp.json().get("items") or [{}])[0]
+            reqs = item.get("requisitionList") or []
+            total = int(item.get("TotalJobsCount") or 0)
+            for r in reqs:
+                ref = str(r.get("Id") or "").strip()
+                full_title = clean(r.get("Title") or "")
+                if not ref or not full_title or ref in seen:
                     continue
-                seen.add(full_title)
-
-                ref = str(r.get("Id") or r.get("id") or r.get("RequisitionNumber") or
-                          r.get("requisitionNumber") or r.get("ExternalReqNumber") or "")
-                apply_url = f"{BASE}/hcmUI/CandidateExperience/en/sites/hkbu/job/{ref}" if ref else f"{BASE}/hcmUI/CandidateExperience/en/sites/hkbu/jobs"
-
-                deadline = parse_date_text(str(
-                    r.get("PostedEndDate") or r.get("postedEndDate") or
-                    r.get("ClosingDate") or r.get("closingDate") or ""
-                ))
-
-                desc_raw = str(
-                    r.get("ExternalDescriptionStr") or r.get("ShortDescription") or
-                    r.get("description") or ""
-                )
-                # Strip HTML tags if present
-                if "<" in desc_raw:
-                    desc_text = clean(BeautifulSoup(desc_raw, "html.parser").get_text("\n"))
-                else:
-                    desc_text = clean(desc_raw)
-
-                # Dept: comma split or "sits under" pattern
-                if "," in full_title:
-                    last = full_title.rfind(",")
-                    title = full_title[:last].strip()
-                    dept  = full_title[last + 1:].strip()
-                else:
-                    title = full_title
-                    dept  = infer_dept_from_title(full_title)
-
-                if not dept and desc_text:
+                seen.add(ref)
+                title, dept = split_title(full_title, clean(r.get("Department") or r.get("Organization") or ""))
+                desc_text = "\n\n".join(t for t in (
+                    html_text(r.get("ShortDescriptionStr")),
+                    html_text(r.get("ExternalResponsibilitiesStr")),
+                    html_text(r.get("ExternalQualificationsStr")),
+                ) if t)
+                if not dept:
                     m = re.search(r"sits under (?:the\s+)?([A-Z][^,.]{3,60}?)(?:\s+at our|\s+campus|,|\.|$)", desc_text)
-                    if m:
-                        dept = m.group(1).strip()
-                dept = dept or "Hong Kong Baptist University"
-
+                    dept = m.group(1).strip() if m else ""
+                end_date = str(r.get("PostingEndDate") or "")[:10]
                 jobs.append({
-                    "id":               make_id("HKBU", ref or title[:25]),
+                    "id":               make_id("HKBU", ref),
                     "title":            title,
                     "rank":             detect_rank(title),
                     "university":       "HKBU",
                     "university_full":  "Hong Kong Baptist University",
-                    "department":       dept,
-                    "deadline":         deadline,
-                    "is_new":           "TRUE" if is_active(deadline) else "FALSE",
+                    "department":       dept or "Hong Kong Baptist University",
+                    "deadline":         end_date if ISO_DATE.match(end_date) else "",
+                    "is_new":           "TRUE",
+                    "date_posted":      str(r.get("PostedDate") or "")[:10],
                     "reference":        ref,
                     "position_type":    detect_type(title),
                     "salary":           "",
                     "start_date":       "",
-                    "apply_url":        apply_url,
-                    "description":      desc_text[:3000] if desc_text else f"{title} — {dept}. Please visit the application link for full details.",
+                    "apply_url":        f"{SITE}/job/{ref}",
+                    "description":      desc_text[:8000] if len(desc_text) > 80 else
+                                        f"{title} — {dept or 'HKBU'}. Please visit the application link for full details.",
                 })
-
-            if not has_more or not items:
+            if not reqs:
                 break
-            offset += 25
-            if offset > 1000:
-                break
-
-        # Fetch detail pages to fill in missing closing dates
+            offset += PAGE
+        print(f"  ↳ API: {len(jobs)} of {total} jobs")
     except Exception as e:
         print(f"  ⚠️  Direct API failed ({e}), falling back to Playwright...")
+        jobs, seen = [], set()
         try:
             from playwright.sync_api import sync_playwright
             with sync_playwright() as p:
                 browser = p.chromium.launch(headless=True)
                 page = browser.new_page()
                 page.set_extra_http_headers(HEADERS)
-                page.goto(f"{BASE}/hcmUI/CandidateExperience/en/sites/hkbu/jobs", timeout=30000)
+                page.goto(f"{SITE}/jobs", timeout=60000)
                 page.wait_for_timeout(5000)
-                prev_height = 0
-                stale = 0
+                prev_height, stale = 0, 0
                 for _ in range(60):
                     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
                     page.wait_for_timeout(2500)
                     height = page.evaluate("() => document.body.scrollHeight")
-                    if height == prev_height:
-                        stale += 1
-                        if stale >= 3:
-                            break
-                    else:
-                        stale = 0
+                    stale = stale + 1 if height == prev_height else 0
+                    if stale >= 3:
+                        break
                     prev_height = height
-                job_data = page.evaluate("""
-                    () => {
-                        var results = [];
-                        var seen = {};
-                        Array.from(document.querySelectorAll("a")).forEach(function(a) {
-                            if (!a.href || a.href.indexOf("/job/") === -1) return;
-                            var title = a.textContent.trim();
-                            var cardText = "";
-                            var el = a.parentElement;
-                            for (var i = 0; i < 6; i++) {
-                                if (!el) break;
-                                if (!title || title.length < 4) {
-                                    var h = el.querySelector("h1,h2,h3,h4,[class*=title],[class*=job-name]");
-                                    if (h && h.textContent.trim().length > 4) title = h.textContent.trim();
-                                }
-                                if (el.textContent.trim().length > 100) {
-                                    cardText = el.textContent.trim().slice(0, 500);
-                                    break;
-                                }
-                                el = el.parentElement;
-                            }
-                            if (!title || title.length < 4 || seen[title]) return;
-                            seen[title] = true;
-                            results.push({ href: a.href, title: title, cardText: cardText });
-                        });
-                        return results;
-                    }
-                """)
+                links = page.evaluate("""() => [...document.querySelectorAll('a[href*="/job/"]')]
+                    .map(a => ({href: a.href, title: (a.textContent || '').trim()}))""")
                 browser.close()
-            seen2 = set()
-            for jd in job_data:
-                full_title = clean(jd["title"])
-                if not full_title or full_title in seen2:
-                    continue
-                seen2.add(full_title)
-                ref_match = re.search(r"/job/(\d+)", jd["href"])
+            for link in links:
+                ref_match = re.search(r"/job/(\d+)", link["href"])
                 ref = ref_match.group(1) if ref_match else ""
-                card_text = jd.get("cardText", "")
-
-                # Dept: comma split only
-                if "," in full_title:
-                    last = full_title.rfind(",")
-                    title = full_title[:last].strip()
-                    dept  = full_title[last + 1:].strip()
-                else:
-                    title = full_title
-                    dept  = infer_dept_from_title(full_title)
-
-                # Fall back to university name if still blank
+                full_title = clean(link["title"])
+                if not ref or len(full_title) < 4 or ref in seen:
+                    continue
+                seen.add(ref)
+                title, dept = split_title(full_title)
                 jobs.append({
-                    "id":               make_id("HKBU", ref or title[:25]),
+                    "id":               make_id("HKBU", ref),
                     "title":            title,
                     "rank":             detect_rank(title),
                     "university":       "HKBU",
@@ -1549,52 +1730,31 @@ def scrape_hkbu():
                     "position_type":    detect_type(title),
                     "salary":           "",
                     "start_date":       "",
-                    "apply_url":        jd["href"],
+                    "apply_url":        f"{SITE}/job/{ref}",
                     "description":      f"{title}{' — ' + dept if dept else ''}. Please visit the application link for full details.",
                 })
+            # Descriptions for jobs without a cached summary (usually just today's new ones)
+            needs_desc = [j for j in jobs if not _has_good_desc(j["id"])]
+            if needs_desc:
+                with sync_playwright() as p:
+                    browser = p.chromium.launch(headless=True)
+                    detail_page = browser.new_page()
+                    detail_page.set_extra_http_headers(HEADERS)
+                    for j in needs_desc:
+                        try:
+                            detail_page.goto(j["apply_url"], timeout=30000, wait_until="domcontentloaded")
+                            detail_page.wait_for_timeout(2500)
+                            text = detail_page.inner_text("body")
+                            lines = [l.strip() for l in text.splitlines() if len(l.strip()) > 30]
+                            if lines and not any(m in text.lower() for m in BOT_MARKERS):
+                                j["description"] = "\n\n".join(lines[:60])[:8000]
+                        except Exception:
+                            pass
+                    browser.close()
         except Exception as e2:
             print(f"  ⚠️  Playwright also failed: {e2}")
 
-    # Fetch detail pages for jobs missing a closing date or description
-    needs_detail = [j for j in jobs if (not j["deadline"] or not _has_good_desc(j["id"])) and j["apply_url"]]
-    if needs_detail:
-        print(f"  ↳ Fetching {len(needs_detail)} detail pages for descriptions/dates...")
-        try:
-            from playwright.sync_api import sync_playwright
-            with sync_playwright() as p:
-                browser = p.chromium.launch(headless=True)
-                detail_page = browser.new_page()
-                detail_page.set_extra_http_headers(HEADERS)
-                found_dates = 0
-                found_descs = 0
-                for job in needs_detail:
-                    try:
-                        if _has_good_desc(job["id"]):
-                            job["description"] = _existing_descriptions[job["id"]]
-                            continue
-                        detail_page.goto(job["apply_url"], timeout=20000, wait_until="domcontentloaded")
-                        detail_page.wait_for_timeout(2000)
-                        text = detail_page.inner_text("body")
-                        if any(m in text.lower() for m in BOT_MARKERS):
-                            continue
-                        if not job["deadline"]:
-                            m = re.search(r'[Cc]losing\s+[Dd]ate[:\s]+(\d{1,2}\s+\w+\s+\d{4})', text)
-                            if m:
-                                job["deadline"] = parse_date_text(m.group(1))
-                                job["is_new"] = "TRUE" if is_active(job["deadline"]) else "FALSE"
-                                found_dates += 1
-                        lines = [l.strip() for l in text.splitlines() if len(l.strip()) > 60]
-                        if lines:
-                            job["description"] = "\n\n".join(lines[:20])[:3000]
-                            found_descs += 1
-                    except Exception:
-                        pass
-                detail_page.close()
-                browser.close()
-            print(f"  ↳ Got descriptions for {found_descs}/{len(needs_detail)} jobs, dates for {found_dates}")
-        except Exception as pe:
-            print(f"  ↳ Detail page fetch failed: {pe}")
-    # Restore cached summaries for skipped jobs
+    # Keep cached summaries
     for j in jobs:
         if _has_good_desc(j["id"]):
             j["description"] = _existing_descriptions[j["id"]]
@@ -1629,12 +1789,18 @@ def scrape_cuhk():
             for URL, section_name in SECTIONS:
                 page = browser.new_page()
                 page.set_extra_http_headers(HEADERS)
-                page.goto(URL, timeout=60000, wait_until="domcontentloaded")
-
-                try:
-                    page.wait_for_selector("table tr td a", timeout=20000)
-                except Exception:
-                    print(f"  ⚠️  {section_name}: timed out waiting for job table")
+                # One retry: a timed-out section used to be skipped silently,
+                # leaving CUHK with half its jobs (30 Jul – 13 Aug 2026)
+                loaded = False
+                for attempt in (1, 2):
+                    try:
+                        page.goto(URL, timeout=60000, wait_until="domcontentloaded")
+                        page.wait_for_selector("table tr td a", timeout=30000)
+                        loaded = True
+                        break
+                    except Exception:
+                        print(f"  ⚠️  {section_name}: job table didn't load (attempt {attempt})")
+                if not loaded:
                     page.close()
                     continue
 
@@ -1713,8 +1879,15 @@ def scrape_cuhk():
     except Exception as e:
         print(f"  ⚠️  Playwright failed: {e}")
 
-    # Fetch detail pages for jobs missing a closing date or a good description
-    needs_detail = [j for j in jobs if (not j["deadline"] or not _has_good_desc(j["id"])) and j["apply_url"]]
+    # Reuse closing dates found on earlier runs. Only open a detail page for a
+    # job without a cached summary, or — once a week per job — one still
+    # missing a date (this used to re-open every CUHK job page every day).
+    for j in jobs:
+        prev = _previous_rows.get(j["id"])
+        if prev and not j["deadline"] and ISO_DATE.match(prev.get("deadline") or ""):
+            j["deadline"] = prev["deadline"]
+    needs_detail = [j for j in jobs if j["apply_url"] and (
+        not _has_good_desc(j["id"]) or (not j["deadline"] and due_for_recheck(j["id"])))]
     if needs_detail:
         print(f"  ↳ Fetching {len(needs_detail)} detail pages for dates/descriptions...")
         try:
@@ -1742,9 +1915,9 @@ def scrape_cuhk():
                             start_marker = "Description\n"
                             start = text.find(start_marker)
                             block = text[start + len(start_marker):] if start > 0 else text
-                            lines = [l.strip() for l in block.splitlines() if len(l.strip()) > 60]
+                            lines = [l.strip() for l in block.splitlines() if len(l.strip()) > 30]
                             if lines:
-                                job["description"] = "\n\n".join(lines[:15])[:3000]
+                                job["description"] = "\n\n".join(lines[:60])[:8000]
                                 found_desc += 1
                     except Exception:
                         pass
@@ -1848,7 +2021,7 @@ def scrape_hksyu():
                     reader = pypdf.PdfReader(io.BytesIO(r.content))
                     text = "\n".join(page.extract_text() or "" for page in reader.pages).strip()
                     if text and len(text) > 80:
-                        j["description"] = text[:3000]
+                        j["description"] = text[:8000]
                         found += 1
                 except Exception:
                     pass
@@ -1927,17 +2100,20 @@ def scrape_sfu():
             deadline = ""
             desc_text = ""
             if content:
-                body = content.get_text()
-                m = re.search(r'Deadline\s*[\n\r]+\s*(\d{1,2}\s+\w+\s+202\d)', body)
-                if m:
-                    deadline = parse_date_text(m.group(1))
+                # The line after "Deadline": a date or "Until the Position is Filled"
+                # (normalise_deadline() turns the latter into a deadline note)
+                lines = [l.strip() for l in content.get_text("\n").splitlines() if l.strip()]
+                for i, line in enumerate(lines[:-1]):
+                    if re.fullmatch(r"Deadline:?", line, re.I):
+                        deadline = lines[i + 1]
+                        break
                 parts = []
                 for p in content.find_all(["p", "li"]):
                     t = clean(p.get_text(" "))
                     if t and len(t) > 20 and not re.match(r'Deadline|Until the Position', t, re.I):
                         parts.append(t)
                 if parts:
-                    desc_text = "\n\n".join(parts)[:3000]
+                    desc_text = "\n\n".join(parts)[:8000]
 
             jobs.append({
                 "id":               make_id("SFU", ref or title_clean[:25]),
@@ -1952,7 +2128,7 @@ def scrape_sfu():
                 "position_type":    detect_type(title_clean),
                 "salary":           "",
                 "start_date":       "",
-                "apply_url":        url,
+                "apply_url":        text_fragment_url(url, title_clean),
                 "description":      desc_text or f"{title_clean}{' — ' + dept if dept else ''}. Please visit the application link for full details.",
             })
             sect_count += 1
@@ -2021,7 +2197,7 @@ def scrape_hsu():
                     if 150 < len(clean(tag.get_text(" "))) < 5000
                 ]
                 if candidates:
-                    desc_text = max(candidates, key=len)[:3000]
+                    desc_text = max(candidates, key=len)[:8000]
 
             jobs.append({
                 "id":               make_id("HSU", ref or title[:25]),
@@ -2168,9 +2344,9 @@ def scrape_hkmu():
                         detail_page.goto(j["apply_url"], timeout=30000, wait_until="networkidle")
                         detail_page.wait_for_timeout(2000)
                         text = detail_page.inner_text("body")
-                        lines = [l.strip() for l in text.splitlines() if len(l.strip()) > 60]
+                        lines = [l.strip() for l in text.splitlines() if len(l.strip()) > 30]
                         if lines:
-                            j["description"] = "\n\n".join(lines[:20])[:3000]
+                            j["description"] = "\n\n".join(lines[:60])[:8000]
                             found += 1
                     except Exception:
                         pass
@@ -2286,7 +2462,7 @@ def scrape_vtc():
                             if any(m in raw_text.lower() for m in BOT_MARKERS):
                                 raw_text = ""
                             if raw_text and len(raw_text) > 80:
-                                description = summarise_description(raw_text, title, dept)
+                                description = raw_text[:8000]   # summarised once in main()
                             else:
                                 description = PLACEHOLDER_MARKER
                         except Exception as e:
@@ -2355,7 +2531,10 @@ def scrape_cpce():
                     continue
                 dept     = clean(cells[0].get_text())
                 title    = clean(cells[1].get_text())
-                deadline = parse_date_text(clean(cells[2].get_text()))
+                # The column is "Initial screening date/Closing date": usually
+                # the date review *starts* (the post stays open after it), so
+                # it only becomes a deadline if the detail page says so.
+                listed_date = parse_date_text(clean(cells[2].get_text()))
                 ref      = clean(cells[3].get_text())
                 if not title or len(title) < 5:
                     continue
@@ -2369,10 +2548,11 @@ def scrape_cpce():
                     "university":      "CPCE",
                     "university_full": "HKCC / SPEED (CPCE)",
                     "department":      dept or "CPCE",
-                    "deadline":        deadline,
+                    "deadline":        "",
+                    "_listed_date":    listed_date,
                     "is_new":          "TRUE",
                     "reference":       ref,
-                    "position_type":   section_name,
+                    "position_type":   detect_type(title),
                     "salary":          "",
                     "start_date":      "",
                     "apply_url":       f"{BASE}/detail?id={data_id}",
@@ -2381,38 +2561,38 @@ def scrape_cpce():
         except Exception as e:
             print(f"  ⚠️  CPCE section {section_id} failed: {e}")
 
-    # ── Detail pages for descriptions ────────────────────────────────
-    needs_desc = [j for j in jobs if not _has_good_desc(j["id"])]
-    if needs_desc:
-        print(f"  ↳ Fetching {len(needs_desc)} detail pages...")
-        found = 0
-        for j in needs_desc:
-            try:
-                dsoup = get_soup(j["apply_url"])
-                if not dsoup:
-                    continue
-                text = dsoup.get_text("\n", strip=True)
-                # Extract from "Duties" to "Conditions of Service" or "Apply Now"
-                start = next((text.find(m) for m in ["Duties\n", "Duties\r"] if text.find(m) > -1), -1)
-                end   = next((text.find(m) for m in ["Apply Now", "Posting Date", "Conditions of Service"] if text.find(m) > -1), -1)
-                if start > -1:
-                    block = text[start:end] if end > start else text[start:]
-                else:
-                    block = text
-                lines = [l.strip() for l in block.splitlines() if len(l.strip()) > 30]
-                if lines:
-                    j["description"] = "\n\n".join(lines[:20])[:3000]
-                    found += 1
-                # Closing date if not set
-                if not j["deadline"]:
-                    m = re.search(r'screening date[^:]*:\s*(.+?)(?:\n|$)', text, re.I)
-                    if not m:
-                        m = re.search(r'Consideration of applications will commence on (.+?) until', text)
-                    if m:
-                        j["deadline"] = parse_date_text(m.group(1).strip())
-            except Exception:
-                pass
-        print(f"  ↳ Got descriptions for {found}/{len(needs_desc)} jobs")
+    # ── Detail pages: date wording for every job (static pages, one request
+    #    each), plus the description for jobs without a cached summary
+    if jobs:
+        print(f"  ↳ Fetching {len(jobs)} detail pages...")
+    found = 0
+    for j in jobs:
+        listed = j.pop("_listed_date", "")
+        text = ""
+        try:
+            dsoup = get_soup(j["apply_url"])
+            text = dsoup.get_text("\n", strip=True) if dsoup else ""
+        except Exception:
+            pass
+        closing = re.search(r"closing date[^:\n]{0,20}[:\s]+([^\n]{6,40})", text, re.I)
+        closing_date = date_in_text(closing.group(1)) if closing else ""
+        commence = re.search(r"Consideration of applications will commence on (.+?) until", text, re.I | re.S)
+        if closing_date:
+            j["deadline"] = closing_date
+        elif commence or listed:
+            start = date_in_text(commence.group(1)) if commence else listed
+            pretty = datetime.strptime(start, "%Y-%m-%d").strftime("%-d %b %Y") if ISO_DATE.match(start or "") else ""
+            j["deadline_note"] = f"Applications considered from {pretty} until filled" if pretty else "Open until filled"
+        if text and not _has_good_desc(j["id"]):
+            # Extract from "Duties" to "Conditions of Service" or "Apply Now"
+            start = next((text.find(m) for m in ["Duties\n", "Duties\r"] if text.find(m) > -1), -1)
+            end   = next((text.find(m) for m in ["Apply Now", "Posting Date", "Conditions of Service"] if text.find(m) > -1), -1)
+            block = (text[start:end] if end > start else text[start:]) if start > -1 else text
+            lines = [l.strip() for l in block.splitlines() if len(l.strip()) > 30]
+            if lines:
+                j["description"] = "\n\n".join(lines[:60])[:8000]
+                found += 1
+    print(f"  ↳ Got new descriptions for {found} jobs")
 
     # Restore cached summaries
     for j in jobs:
@@ -2555,7 +2735,7 @@ def scrape_hkuspace():
                 block = text[start:end] if start > -1 and end > start else (text[start:] if start > -1 else "")
                 lines = [l.strip() for l in block.splitlines() if len(l.strip()) > 30]
                 if lines:
-                    j["description"] = "\n\n".join(lines[:20])[:3000]
+                    j["description"] = "\n\n".join(lines[:60])[:8000]
                     found += 1
                 # Closing date from detail page if not already set
                 if not j["deadline"]:
@@ -2683,12 +2863,12 @@ def scrape_chuhai():
                                 val = cells[0].get_text(separator=" ", strip=True)
                                 if val:
                                     parts.append(val)
-                        desc_text = "\n".join(p for p in parts if len(p) > 10)[:3000]
+                        desc_text = "\n".join(p for p in parts if len(p) > 10)[:8000]
                     else:
                         # Paragraph-based format (Academic / Management)
                         lines = [p.get_text(separator=" ", strip=True)
                                  for p in body.find_all("p") if p.get_text(strip=True)]
-                        desc_text = "\n".join(ln for ln in lines if len(ln) > 20)[:3000]
+                        desc_text = "\n".join(ln for ln in lines if len(ln) > 20)[:8000]
 
                     # Closing date from "Closing Date:" table cell
                     for td in body.find_all("td"):
@@ -2717,10 +2897,10 @@ def scrape_chuhai():
                     "deadline":        deadline,
                     "is_new":          "TRUE" if is_active(deadline) else "FALSE",
                     "reference":       ref,
-                    "position_type":   detect_type(title) if pos_type == "Research / Project" else pos_type,
+                    "position_type":   detect_type(title),
                     "salary":          "",
                     "start_date":      "",
-                    "apply_url":       apply_url,
+                    "apply_url":       text_fragment_url(apply_url, title),
                     "description":     desc_text,
                 })
 
@@ -2836,7 +3016,7 @@ def scrape_thei():
                         "salary":          "",
                         "start_date":      "",
                         "apply_url":       card["url"],
-                        "description":     full_text[:3000],
+                        "description":     full_text[:8000],
                     })
                 except Exception as e:
                     print(f"  ⚠️  Error fetching {card['url']}: {e}")
@@ -3044,8 +3224,9 @@ def main():
             print(f"  ⚠️  Could not read previous CSV: {e}")
 
     # Expose existing descriptions so scrapers can skip re-fetching known jobs
-    global _existing_descriptions
+    global _existing_descriptions, _previous_rows
     _existing_descriptions = {jid: row.get("description", "") for jid, row in existing.items()}
+    _previous_rows = existing
 
     all_jobs = []
     health_runs, health_results = None, {}
@@ -3060,6 +3241,10 @@ def main():
             sys.exit(1)
         all_jobs = SCRAPERS[uni]()
         scraped_ids = {j["id"] for j in all_jobs}
+        # Keep every other institution's rows so jobs.csv isn't overwritten
+        # with a single university
+        own_codes = set(SCRAPER_UNI_CODES.get(uni, []))
+        all_jobs += [r for code, rows in existing_rows.items() if code not in own_codes for r in rows]
     else:
         # Scrape all
         health_runs = load_health_runs()
@@ -3113,6 +3298,8 @@ def main():
             time.sleep(1)  # polite delay between universities
 
     all_jobs = deduplicate(all_jobs)
+    for j in all_jobs:
+        normalise_deadline(j)
     # Keep: active jobs, no-deadline jobs, and jobs closed within the last 14 days
     all_jobs = [j for j in all_jobs if is_within_retention(j.get("deadline", ""))]
 
@@ -3170,7 +3357,6 @@ def main():
         d = desc.strip().lower()
         return any(re.search(p, d) for p in POOR_PATTERNS)
 
-    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     to_summarise = []
     for j in all_jobs:
         prev_desc = existing.get(j["id"], {}).get("description", "")
@@ -3179,18 +3365,16 @@ def main():
         elif not _is_poor_content(j.get("description", "")):
             to_summarise.append(j)
 
-    if to_summarise:
-        if api_key:
-            print(f"\n🤖 Summarising {len(to_summarise)} descriptions via Claude Haiku...")
-            for idx, j in enumerate(to_summarise, 1):
-                j["description"] = summarise_description(
-                    j["description"], j["title"], j["department"]
-                )
-                if idx % 5 == 0 or idx == len(to_summarise):
-                    print(f"  ↳ {idx}/{len(to_summarise)} summaries done")
-            print(f"  ✅ Summarisation complete")
-        else:
-            print(f"  ℹ️  ANTHROPIC_API_KEY not set — {len(to_summarise)} descriptions left as raw text")
+    summarise_jobs(to_summarise)
+
+    # Summary closing date ↔ deadline column (fills blanks, fixes stale dates)
+    for j in all_jobs:
+        reconcile_summary_deadline(j)
+        # Raw (unsummarised) text is only kept in full for the next attempt at
+        # summarising; cap it so a Claude outage can't bloat jobs.csv
+        if "**" not in (j.get("description") or "") and len(j.get("description") or "") > 3000:
+            j["description"] = j["description"][:3000]
+    all_jobs = [j for j in all_jobs if is_within_retention(j.get("deadline", ""))]
 
     new_count    = sum(1 for j in all_jobs if j["is_new"] == "TRUE")
     active_count = sum(1 for j in all_jobs if is_active(j.get("deadline", "")))
@@ -3204,7 +3388,7 @@ def main():
     # Write CSV
     OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(OUTPUT_FILE, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=FIELDNAMES)
+        writer = csv.DictWriter(f, fieldnames=FIELDNAMES, extrasaction="ignore")
         writer.writeheader()
         writer.writerows(all_jobs)
 
