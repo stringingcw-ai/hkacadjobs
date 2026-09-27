@@ -1,0 +1,57 @@
+name: Diag live (temporary)
+on:
+  push:
+    branches: [claude/epic-lovelace-2w6gza]
+    paths: [".github/workflows/diag-live.yml"]
+permissions:
+  contents: read
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    timeout-minutes: 200
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: scraper/requirements.txt
+      - name: Install
+        run: |
+          pip install -r scraper/requirements.txt pytest==9.1.1 pyflakes==4.0.0
+          playwright install --with-deps chromium
+      - name: Lint and tests
+        run: python -m pyflakes scraper && python -m pytest -q scraper/tests
+      - name: Supabase SRI
+        if: always()
+        run: |
+          want=$(grep -o 'sha384-[A-Za-z0-9+/=]*' index.html | head -1)
+          got="sha384-$(curl -sfL https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js | openssl dgst -sha384 -binary | openssl base64 -A)"
+          echo "want $want"; echo "got  $got"; test "$want" = "$got" && echo SRI-MATCH
+      - name: Live summaries
+        if: always()
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        working-directory: scraper
+        run: cd .. && PYTHONPATH=scraper python scraper/_diag_summaries.py
+      - name: Snapshot
+        if: always()
+        run: cp jobs.csv /tmp/before.csv
+      - name: Full scrape (no API key)
+        if: always()
+        run: python scraper/scraper.py
+      - name: HKU patch (no API key)
+        if: always()
+        run: timeout 900 python scraper/patch_hku_descriptions.py --reset-queue --all || echo "patch exit $?"
+      - name: Pages (twice, second must write nothing)
+        if: always()
+        run: python scraper/generate_job_pages.py && python scraper/generate_job_pages.py
+      - name: Health
+        if: always()
+        run: python scraper/health.py --notify-outcome skipped || true
+      - name: Compare
+        if: always()
+        run: python scraper/_diag_compare.py
+      - name: Link check
+        if: always()
+        run: python scraper/check_links.py || true
