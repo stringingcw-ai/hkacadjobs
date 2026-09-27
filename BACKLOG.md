@@ -177,6 +177,12 @@ tracked in the report, not here. New operations items are in §9.
 **Symptom:** No "Join 500+ Hong Kong researchers" or "1,537 open positions tracked daily" in the hero or footer. Trust signals are absent.
 **Fix:** Pull subscriber count from Supabase at build time (or periodically), render as a small pill near the hero or in the footer. Requires a nightly write of the count into a static JSON file since we don't want live DB reads from every visitor.
 
+### [P2] Show how many people viewed a job — M
+**Symptom:** Nothing tells a visitor that a job is attracting interest, a simple form of social proof and urgency.
+**Fix:** Show "👀 50+ people viewed this job" in the detail panel and on the job's own page, and a small "Popular" badge in the listing for the week's most-viewed jobs. Only from 20 unique viewers in the last 30 days, shown in rounded tiers (20+, 50+, 100+, 250+): small numbers look like low interest, and tiers avoid false precision. Tune the threshold once real numbers are in (e.g. so about half the jobs show it). Source the counts from GA4, which already records `job_detail_viewed` with `job_id` and page views of `/jobs/…` pages: a nightly workflow step reads each job's unique viewers via the GA4 Data API and publishes a small `views.json` that the site and job pages read in the browser. That means no per-visit database writes, no public counter anyone could inflate, bot filtering by GA4, and the job pages stay unchanged. Counts update daily and miss visitors who block analytics, which is fine for social proof.
+**Setup (owner):** a Google Cloud service account with Viewer access to the GA4 property, its key and the property ID as GitHub secrets, and `job_id` registered as a GA4 custom dimension.
+**Evidence:** index.html `trackEvent('job_detail_viewed', …)`; scraper/generate_job_pages.py (job pages).
+
 ### [P1] "Closing soon" reminders for saved jobs — M *(Health check §8.2.9)*
 **Symptom:** Users bookmark jobs, then miss the deadline.
 **Fix:** For signed-in users with saved positions, email a reminder 3 days and 1 day before each saved job's deadline (only jobs with a real `deadline` date). Needs saved positions stored in Supabase (check whether bookmarks sync there today), then a daily pass in `notify.py`.
@@ -307,7 +313,7 @@ scraping, data accuracy and job-page SEO, so the retention loop now works and it
 
 **P1 backlog:** Homepage ItemList schema, fonts preload, saved-filter prompt, related jobs in the panel, apply return-hook, social proof, last-scrape pill, ARIA pass, sign-in tracking, weekly owner report.
 
-**P2 backlog:** Skeleton rows, service worker / PWA / web push, per-job share, recent searches, keyboard-navigable multiselects, emoji aria, skip link, source attribution, re-engagement email, A/B harness, "extended / re-advertised" badges, summary refresh, `date_posted` and logos, scraper speed-ups, deploy pages without committing.
+**P2 backlog:** Job view counts, skeleton rows, service worker / PWA / web push, per-job share, recent searches, keyboard-navigable multiselects, emoji aria, skip link, source attribution, re-engagement email, A/B harness, "extended / re-advertised" badges, summary refresh, `date_posted` and logos, scraper speed-ups, deploy pages without committing.
 
 ---
 
