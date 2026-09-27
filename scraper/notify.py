@@ -26,7 +26,7 @@ import sys
 import time
 import urllib.request
 import urllib.parse
-from datetime import date, datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone
 from html import escape
 from pathlib import Path
 
