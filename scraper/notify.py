@@ -21,6 +21,7 @@ import os
 import re
 import secrets
 import ssl
+import sys
 import time
 import urllib.request
 import urllib.parse
@@ -152,7 +153,59 @@ def load_new_jobs():
 
 # ── Filter matching ───────────────────────────────────────────────────────────
 
-def job_matches_filter(job, state):
+INDEX_HTML = SCRIPT_DIR.parent / "index.html"
+
+
+def _parse_js_groups(source, const_name):
+    """Extract `const NAME = [ { group?: '..', area: '..', kw: ['..'] }, ... ];` entries."""
+    m = re.search(rf"const {const_name}\s*=\s*\[(.*?)\n\];", source, re.S)
+    if not m:
+        return []
+    entries = []
+    for body in re.findall(r"\{([^{}]*)\}", m.group(1)):
+        area = re.search(r"area:\s*'([^']*)'", body)
+        kw = re.search(r"kw:\s*\[([^\]]*)\]", body)
+        if not (area and kw):
+            continue
+        group = re.search(r"group:\s*'([^']*)'", body)
+        entries.append({
+            "group": group.group(1) if group else None,
+            "area": area.group(1),
+            "kw": re.findall(r"'([^']*)'", kw.group(1)),
+        })
+    return entries
+
+
+def load_site_taxonomy(path=INDEX_HTML):
+    """Read AREA_GROUPS / DEPT_GROUPS from index.html so alerts classify
+    departments exactly like the site's Category and group filters do.
+
+    Fails loudly if the arrays can't be found: silently ignoring a saved
+    filter's category would email jobs the subscriber never asked for.
+    """
+    source = Path(path).read_text(encoding="utf-8")
+    areas = _parse_js_groups(source, "AREA_GROUPS")
+    groups = _parse_js_groups(source, "DEPT_GROUPS")
+    if len(areas) < 5 or len(groups) < 10:
+        raise RuntimeError(
+            f"Could not parse AREA_GROUPS/DEPT_GROUPS from {path} "
+            f"({len(areas)} areas, {len(groups)} groups) — update _parse_js_groups()"
+        )
+    return {"areas": areas, "groups": groups}
+
+
+def _classify(dept, entries, key):
+    """Port of classifyArea() / classifyDeptGroup() in index.html."""
+    d = (dept or "").lower()
+    if not d:
+        return "Other"
+    for e in entries:
+        if any(k in d for k in e["kw"]):
+            return e[key]
+    return "Other"
+
+
+def job_matches_filter(job, state, taxonomy):
     """Mirror the filterJobs() logic from index.html."""
     # Role filter
     role = state.get("role", "")
@@ -171,29 +224,35 @@ def job_matches_filter(job, state):
     if ranks and job["rank"] not in ranks:
         return False
 
-    # Area filter (maps to position_type)
-    area = state.get("area", "")
-    if area and job.get("position_type", "") != area:
+    # Category filter: the academic area derived from the department
+    # (classifyArea), e.g. "Medicine & Health" — not position_type
+    area = state.get("area") or ""
+    if area and _classify(job.get("department"), taxonomy["areas"], "area") != area:
         return False
 
-    # Keyword search (title + department + description)
-    search = state.get("search", "").lower().strip()
+    # Department group chips within the category (classifyDeptGroup)
+    dept_groups = state.get("deptGroups") or []
+    if dept_groups and _classify(job.get("department"), taxonomy["groups"], "group") not in dept_groups:
+        return False
+
+    # Keyword search: the whole phrase, as typed, in any of the fields the site searches
+    search = (state.get("search") or "").lower().strip()
     if search:
-        haystack = f"{job['title']} {job.get('department', '')} {job.get('description', '')}".lower()
-        if not all(word in haystack for word in search.split()):
+        fields = ("title", "department", "university", "university_full", "description")
+        if not any(search in (job.get(k) or "").lower() for k in fields):
             return False
 
     return True
 
 
-def match_jobs_to_subscriptions(new_jobs, subscriptions):
+def match_jobs_to_subscriptions(new_jobs, subscriptions, taxonomy):
     """Return list of (subscription, matched_jobs) for subscriptions with ≥1 match."""
     results = []
     for sub in subscriptions:
         state = sub.get("filter_state") or {}
         if isinstance(state, str):
             state = json.loads(state)
-        matched = [j for j in new_jobs if job_matches_filter(j, state)]
+        matched = [j for j in new_jobs if job_matches_filter(j, state, taxonomy)]
         if matched:
             results.append((sub, matched))
     return results
@@ -210,10 +269,19 @@ UNI_DISPLAY = {
 }
 
 
+def unsubscribe_url(token):
+    """Page that confirms and removes the subscription(s) behind `token`.
+
+    A digest can merge several saved filters, so `token` may be a comma-separated
+    list; index.html unsubscribes each one.
+    """
+    return f"{SITE_URL}/?unsubscribe={urllib.parse.quote(token, safe=',')}"
+
+
 def render_email(sub, jobs):
     label     = sub.get("filter_label", "Your filter")
     token     = sub.get("token", "")
-    unsub_url = f"{SITE_URL}/?unsubscribe={token}"
+    unsub_url = unsubscribe_url(token)
     today     = date.today().strftime("%d %b %Y")
     count     = len(jobs)
 
@@ -301,16 +369,20 @@ def render_email(sub, jobs):
 
 # ── Email sending ─────────────────────────────────────────────────────────────
 
-def send_email(to_email, subject, html, text):
+def send_email(to_email, subject, html, text, unsub_url=None):
     if not RESEND_API_KEY:
         raise RuntimeError("RESEND_API_KEY not set")
-    payload = json.dumps({
+    body = {
         "from": f"HKAcadJobs <{FROM_EMAIL}>",
         "to": [to_email],
         "subject": subject,
         "html": html,
         "text": text,
-    }).encode()
+    }
+    if unsub_url:
+        # Lets mail clients show their own "Unsubscribe" button
+        body["headers"] = {"List-Unsubscribe": f"<{unsub_url}>"}
+    payload = json.dumps(body).encode()
     req = urllib.request.Request(
         "https://api.resend.com/emails",
         data=payload,
@@ -385,15 +457,24 @@ def main():
     # whose saved filter has been deleted entirely). Anonymous/legacy subs
     # without a user_id are kept as-is.
     enabled_keys = get_enabled_filter_keys()
+    logged_in = sum(1 for s in subs if s.get("user_id"))
     subs, dropped = filter_active_subscriptions(subs, enabled_keys)
+    # Exit non-zero (after sending) when most logged-in alerts are being
+    # skipped: that is how a UI bug silenced 28 of 29 alerts for months.
+    # The workflow's health check turns this exit code into a failed run.
+    too_many_skipped = dropped >= 3 and dropped > logged_in / 2
     if dropped:
         print(f"Skipped {dropped} subscription(s) with alerts toggled off")
+    if too_many_skipped:
+        print(f"::warning::{dropped} of {logged_in} logged-in subscriptions skipped because "
+              "saved_filters.alert_enabled is not true — see supabase/2026-09-alert-fixes.sql")
     if not subs:
         print("No active subscriptions after applying alert_enabled filter.")
-        return
+        sys.exit(2 if too_many_skipped else 0)
 
     # Match
-    matches = match_jobs_to_subscriptions(new_jobs, subs)
+    taxonomy = load_site_taxonomy()
+    matches = match_jobs_to_subscriptions(new_jobs, subs, taxonomy)
     print(f"Subscribers with matches: {len(matches)}")
 
     # Group by email so each subscriber gets one digest (not one per filter)
@@ -401,19 +482,24 @@ def main():
     for sub, jobs in matches:
         email = sub["email"]
         if email not in by_email:
-            by_email[email] = {"sub": sub, "jobs": [], "labels": []}
+            by_email[email] = {"sub": sub, "jobs": [], "labels": [], "tokens": []}
         seen_ids = {j["id"] for j in by_email[email]["jobs"]}
         for j in jobs:
             if j["id"] not in seen_ids:
                 by_email[email]["jobs"].append(j)
                 seen_ids.add(j["id"])
         by_email[email]["labels"].append(sub.get("filter_label", "Your filter"))
+        if sub.get("token"):
+            by_email[email]["tokens"].append(sub["token"])
     print(f"Unique recipients: {len(by_email)}")
 
     sent = 0
     for email, info in by_email.items():
         combined_label = " + ".join(dict.fromkeys(info["labels"]))
-        merged_sub = {**info["sub"], "filter_label": combined_label}
+        # One unsubscribe click should stop the whole digest, so include every
+        # subscription token merged into it.
+        combined_token = ",".join(dict.fromkeys(info["tokens"]))
+        merged_sub = {**info["sub"], "filter_label": combined_label, "token": combined_token}
         jobs = info["jobs"]
         subject = f"HKAcadJobs: {len(jobs)} new job{'s' if len(jobs) != 1 else ''} matching \"{combined_label}\""
         html, text = render_email(merged_sub, jobs)
@@ -424,7 +510,7 @@ def main():
                 print(f"      • {j['title']} ({j['university']})")
         else:
             try:
-                send_email(email, subject, html, text)
+                send_email(email, subject, html, text, unsub_url=unsubscribe_url(combined_token))
                 print(f"  ✅ Sent to {email} ({len(jobs)} jobs)")
                 sent += 1
                 time.sleep(0.3)
@@ -433,6 +519,10 @@ def main():
 
     if not args.dry_run:
         print(f"\n── Done: {sent}/{len(by_email)} emails sent")
+        if sent < len(by_email):
+            sys.exit(1)
+    if too_many_skipped:
+        sys.exit(2)
 
 
 if __name__ == "__main__":

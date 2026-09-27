@@ -57,7 +57,9 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-  gtag('config', 'G-GSSYS240VQ');
+  // Keep email unsubscribe tokens out of analytics page URLs
+  gtag('config', 'G-GSSYS240VQ', /[?&]unsubscribe=/.test(location.search)
+    ? { page_location: location.href.replace(/([?&]unsubscribe=)[^&#]*/, '$1redacted') } : {});
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -873,6 +875,17 @@
       <p>We sent a sign-in link to <strong id="authSentEmail"></strong>.<br>Click it to sign in — the link expires in 1 hour.</p>
       <p style="margin-top:14px;font-size:0.78rem;color:var(--muted);">The link will open in a new tab. You can close this one.</p>
     </div>
+  </div>
+</div>
+
+<!-- UNSUBSCRIBE MODAL — opened by the ?unsubscribe=<token> link in alert emails -->
+<div class="modal-overlay" id="unsubOverlay" onclick="closeUnsubModal()">
+  <div class="modal" style="max-width:380px;" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeUnsubModal()">✕</button>
+    <div class="auth-modal-icon" id="unsubIcon">🔕</div>
+    <h2 style="text-align:center;margin-bottom:4px;" id="unsubTitle">Stop these job alerts?</h2>
+    <p class="modal-sub" style="text-align:center;" id="unsubText">You'll stop receiving the alert emails this link came from. Your saved filters stay in your account.</p>
+    <button class="auth-submit" id="unsubBtn" onclick="confirmUnsubscribe()">Unsubscribe</button>
   </div>
 </div>
 
@@ -2659,6 +2672,55 @@ const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     lock: async (_name, _acquireTimeout, fn) => fn(),
   }
 });
+
+// ── Email unsubscribe links (?unsubscribe=<token>[,<token>…])
+// Read at load, before filterJobs() rewrites the URL and without waiting for
+// jobs.csv. Unsubscribing needs a click, so mail scanners that open links
+// can't unsubscribe anyone.
+const _unsubTokens = (new URLSearchParams(location.search).get('unsubscribe') || '')
+  .split(',').map(t => t.trim()).filter(Boolean);
+if (_unsubTokens.length) {
+  history.replaceState(null, '', location.pathname);
+  document.getElementById('unsubOverlay').classList.add('open');
+}
+function closeUnsubModal() {
+  document.getElementById('unsubOverlay').classList.remove('open');
+}
+async function _unsubscribeToken(token) {
+  // Preferred: SECURITY DEFINER function from supabase/2026-09-alert-fixes.sql
+  const { data, error } = await _sb.rpc('unsubscribe_alert', { p_token: token });
+  if (!error) return Number(data) || 0;
+  console.error('[unsub] rpc error:', error);
+  // Fallback if the function isn't installed: direct delete by token
+  // (only works where an anon DELETE policy exists on subscriptions).
+  const res = await _sb.from('subscriptions').delete().eq('token', token).select('token');
+  if (res.error) throw res.error;
+  return (res.data || []).length;
+}
+async function confirmUnsubscribe() {
+  const btn = document.getElementById('unsubBtn');
+  btn.disabled = true;
+  btn.textContent = 'Unsubscribing…';
+  let removed = 0, failed = false;
+  for (const token of _unsubTokens) {
+    try { removed += await _unsubscribeToken(token); }
+    catch (err) { console.error('[unsub] error:', err); failed = true; }
+  }
+  const ok = removed > 0;
+  document.getElementById('unsubIcon').textContent = ok ? '✅' : '⚠️';
+  document.getElementById('unsubTitle').textContent =
+    ok ? "You're unsubscribed" : failed ? 'Something went wrong' : 'No active alert found';
+  document.getElementById('unsubText').textContent = ok
+    ? "You won't receive these alert emails any more. You can switch alerts back on from your saved filters at any time."
+    : "If you're still getting alert emails, sign in and switch off the 🔔 on your saved filter, or tell us via “Feedback & errors” at the bottom of the page.";
+  btn.disabled = false;
+  btn.textContent = 'Done';
+  btn.onclick = closeUnsubModal;
+  trackEvent('alert_unsubscribed', { result: ok ? 'ok' : failed ? 'error' : 'not_found' });
+  // A signed-in user's bell state just changed server-side
+  if (ok && _currentUser) _loadSavedFiltersFromDb(_currentUser.id).catch(() => {});
+}
+
 let _acctDropdownOpen = false;
 
 // Close dropdown when clicking outside
@@ -2922,14 +2984,24 @@ async function toggleFilterAlert(filterId) {
     }
     // Embed _alertEnabled in filter_state so it persists on re-login without
     // needing a new DB column or a working subscriptions SELECT policy.
-    if (f.dbId) {
-      const newState = { ...(f.state || {}), _alertEnabled: turning_on };
-      _sb.from('saved_filters').update({ filter_state: newState, alert_enabled: turning_on })
-        .eq('id', f.dbId).then(({ error }) => {
-          if (error) console.error('[auth] update saved_filter error:', error);
-          else f.state = newState; // keep local copy in sync
-        });
-    }
+    // notify.py only emails filters whose saved_filters.alert_enabled is true,
+    // so this write must land even for a filter saved moments ago.
+    const newState = { ...(f.state || {}), _alertEnabled: turning_on };
+    const saveAlertFlag = f.dbId
+      ? _sb.from('saved_filters').update({ filter_state: newState, alert_enabled: turning_on }).eq('id', f.dbId)
+      // No dbId yet (e.g. "Save filter" with alerts on): upsert on (user_id, local_id)
+      // so this write wins whether or not the initial sync — which ignores
+      // duplicates — has reached the DB yet.
+      : _sb.from('saved_filters').upsert({
+          user_id: _currentUser.id, label: f.label,
+          filter_state: newState, local_id: String(f.id),
+          created_at: f.createdAt || new Date().toISOString().slice(0, 10),
+          alert_enabled: turning_on,
+        }, { onConflict: 'user_id,local_id' });
+    saveAlertFlag.then(({ error }) => {
+      if (error) console.error('[auth] update saved_filter error:', error);
+      else f.state = newState; // keep local copy in sync
+    });
     localStorage.setItem('hkaj_sf', JSON.stringify(savedFilters));
   } catch (err) {
     // Revert optimistic update on failure

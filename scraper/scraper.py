@@ -13,8 +13,10 @@ Requirements:
 """
 
 import csv
+import json
 import os
 import re
+import statistics
 import sys
 import time
 import argparse
@@ -2919,6 +2921,42 @@ SCRAPERS = {
 }
 
 
+# Scraper name → university code(s) used in the CSV. Used to fall back to the
+# previous run's rows when a scraper crashes or under-delivers.
+SCRAPER_UNI_CODES = {
+    "polyu": ["PolyU"], "eduhk": ["EdUHK"], "lingnan": ["LU"],
+    "hku": ["HKU"], "hkust": ["HKUST"], "cityu": ["CityU"],
+    "hkbu": ["HKBU"], "cuhk": ["CUHK"], "hkmu": ["HKMU"],
+    "hsu": ["HSU"], "sfu": ["SFU"], "hksyu": ["HKSYU"],
+    "vtc": ["VTC"], "hkuspace": ["HKUSPACE"], "cpce": ["CPCE"],
+    "chuhai": ["HKCHC"], "thei": ["THEI"],
+}
+
+# ── Scrape health: every full run appends per-scraper results to this file;
+#    scraper/health.py reads it after publishing and fails the workflow if any
+#    institution crashed, came back empty, or came back well short of usual.
+HEALTH_FILE          = Path(__file__).parent / "scrape_health.json"
+HEALTH_KEEP_RUNS     = 30    # runs kept in the file
+PARTIAL_RATIO        = 0.7   # fewer than this share of the usual count = partial failure
+PARTIAL_MIN_BASELINE = 10    # small portals swing naturally; only an empty result counts there
+
+
+def load_health_runs():
+    try:
+        return json.loads(HEALTH_FILE.read_text(encoding="utf-8")).get("runs", [])
+    except (OSError, ValueError):
+        return []
+
+
+def expected_count(runs, name, previous_count):
+    """A scraper's usual job count: the median of its last 7 recorded runs plus
+    the previous CSV's count, so it works from the first run and settles within
+    a few days if a portal genuinely shrinks."""
+    samples = [r["results"][name]["scraped"] for r in runs[-7:] if name in r.get("results", {})]
+    samples.append(previous_count)
+    return statistics.median(samples)
+
+
 def deduplicate(jobs):
     """Remove duplicate jobs by id."""
     seen = set()
@@ -2974,6 +3012,7 @@ def main():
     _existing_descriptions = {jid: row.get("description", "") for jid, row in existing.items()}
 
     all_jobs = []
+    health_runs, health_results = None, {}
 
     if args.uni:
         # Scrape single university
@@ -2983,41 +3022,49 @@ def main():
             sys.exit(1)
         all_jobs = SCRAPERS[uni]()
     else:
-        # Scraper name → university code(s) used in the CSV.
-        # Used to fall back to existing jobs when a scraper returns 0 results.
-        SCRAPER_UNI_CODES = {
-            "polyu": ["PolyU"], "eduhk": ["EdUHK"], "lingnan": ["LU"],
-            "hku": ["HKU"], "hkust": ["HKUST"], "cityu": ["CityU"],
-            "hkbu": ["HKBU"], "cuhk": ["CUHK"], "hkmu": ["HKMU"],
-            "hsu": ["HSU"], "sfu": ["SFU"], "hksyu": ["HKSYU"],
-            "vtc": ["VTC"], "hkuspace": ["HKUSPACE"], "cpce": ["CPCE"],
-            "chuhai": ["HKCHC"], "thei": ["THEI"],
-        }
         # Scrape all
+        health_runs = load_health_runs()
         for name, scraper in SCRAPERS.items():
+            previous = [r for code in SCRAPER_UNI_CODES.get(name, []) for r in existing_rows.get(code, [])]
+            expected = expected_count(health_runs, name, len(previous))
+            error = ""
             try:
-                jobs = scraper()
-                if not jobs and existing_rows:
-                    # Scraper returned nothing — likely a temporary fetch failure.
-                    # Fall back to the previous day's jobs for this university so
-                    # they don't re-appear as "new" on the next successful run.
-                    uni_codes = SCRAPER_UNI_CODES.get(name, [])
-                    fallback = [r for code in uni_codes for r in existing_rows.get(code, [])]
-                    if fallback:
-                        print(f"  ⚠️  {name} returned 0 jobs — keeping {len(fallback)} existing jobs as fallback")
-                        all_jobs.extend(fallback)
-                    else:
-                        print(f"  ⚠️  {name} returned 0 jobs and no fallback available")
-                else:
-                    all_jobs.extend(jobs)
-                time.sleep(1)  # polite delay between universities
+                jobs = scraper() or []
             except Exception as e:
                 print(f"  ❌ {name} crashed: {e}")
-                uni_codes = SCRAPER_UNI_CODES.get(name, [])
-                fallback = [r for code in uni_codes for r in existing_rows.get(code, [])]
-                if fallback:
-                    print(f"     ↳ Keeping {len(fallback)} existing {name} jobs as fallback")
-                    all_jobs.extend(fallback)
+                jobs, error = [], f"{type(e).__name__}: {e}"
+
+            if error:
+                status = "crashed"
+            elif not jobs:
+                status = "empty"
+            elif expected >= PARTIAL_MIN_BASELINE and len(jobs) < PARTIAL_RATIO * expected:
+                status = "partial"
+            else:
+                status = "ok"
+
+            # On any failure, keep the previous run's rows for this institution
+            # that weren't re-scraped, so they don't vanish today and come back
+            # tomorrow as "new" (re-alerted, re-summarised, new date_added).
+            kept = []
+            if status != "ok":
+                scraped_ids = {j["id"] for j in jobs}
+                kept = [r for r in previous if r["id"] not in scraped_ids]
+                print(f"  ⚠️  {name}: {status} — {len(jobs)} scraped vs ~{expected:.0f} usual; "
+                      f"keeping {len(kept)} jobs from the previous run")
+            all_jobs.extend(jobs)
+            all_jobs.extend(kept)
+
+            health_results[name] = {
+                "university": ",".join(SCRAPER_UNI_CODES.get(name, [])),
+                "status": status,
+                "scraped": len(jobs),
+                "expected": round(expected),
+                "kept_from_previous": len(kept),
+            }
+            if error:
+                health_results[name]["error"] = error[:300]
+            time.sleep(1)  # polite delay between universities
 
     all_jobs = deduplicate(all_jobs)
     # Keep: active jobs, no-deadline jobs, and jobs closed within the last 14 days
@@ -3102,6 +3149,24 @@ def main():
         writer.writerows(all_jobs)
 
     print(f"✅ Saved to {OUTPUT_FILE}")
+
+    # Record this run for scraper/health.py (full runs only; written after the
+    # CSV so a recorded run always means data was published)
+    if health_runs is not None:
+        health_runs.append({
+            "date": today_str,
+            "run_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "total_jobs": len(all_jobs),
+            "new_jobs": new_count,
+            "results": health_results,
+        })
+        HEALTH_FILE.write_text(
+            json.dumps({"runs": health_runs[-HEALTH_KEEP_RUNS:]}, indent=1, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        problems = {n: r["status"] for n, r in health_results.items() if r["status"] != "ok"}
+        print(f"🩺 Scrape health: {'all institutions OK' if not problems else problems}")
+
     print(f"🌐 Your website will update automatically within minutes.\n")
 
 

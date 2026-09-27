@@ -90,7 +90,11 @@ Jobs with a known deadline are retained for up to **14 days after expiry**, then
 ├── HKBU.png            # HKBU logo (local asset)
 ├── CHANGELOG.md        # Full update history by date
 ├── scraper/
-│   └── scraper.py      # Python scraper for all 17 institutions
+│   ├── scraper.py      # Python scraper for all 17 institutions
+│   ├── notify.py       # Job alert emails (Supabase subscriptions → Resend)
+│   ├── health.py       # Fails the daily run when a scraper under-delivers
+│   └── scrape_health.json  # Per-institution results of recent runs (written by scraper.py)
+├── supabase/           # One-off SQL to run in the Supabase SQL editor
 └── .github/
     └── workflows/
         └── scrape.yml  # GitHub Actions workflow (daily + manual trigger)
@@ -148,6 +152,8 @@ The scraper compares each run against the previous `jobs.csv` to determine which
 The site is hosted on GitHub Pages from the `main` branch root under the custom domain **www.hkacadjobs.org**. No build step — `index.html` reads `jobs.csv` directly via `fetch()`.
 
 The GitHub Actions workflow (`.github/workflows/scrape.yml`) runs the scraper daily, commits the updated `jobs.csv`, and pushes — triggering an automatic Pages redeploy. You can also trigger it manually from the Actions tab.
+
+**Scrape health:** each institution's result is compared with its usual job count (median of recent runs). If a scraper crashes, returns nothing, or returns under 70% of usual, the previous run's jobs for that institution are kept (so they don't reappear as "new" and get re-alerted), and the final *Check scrape health* step fails the run so GitHub emails you. Add a `HEALTH_ALERT_EMAIL` repository secret to also receive a Resend email with the details.
 
 ---
 

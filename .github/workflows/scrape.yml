@@ -37,7 +37,8 @@ jobs:
         run: python scraper/patch_hku_descriptions.py --reset-queue --all
 
       - name: Send job alert emails
-        continue-on-error: true
+        id: notify
+        continue-on-error: true   # never block publishing; the health check below reports failures
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
@@ -53,7 +54,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -f jobs.csv sitemap.xml
+          git add -f jobs.csv sitemap.xml scraper/scrape_health.json
           git add -f jobs/
           if git diff --cached --quiet; then
             echo "No changes — skipping commit"
@@ -66,3 +67,15 @@ jobs:
             git rebase -X ours origin/main
             git push
           fi
+
+      # Runs after publishing so data still goes out. Fails the run (GitHub then
+      # emails you) if any university crashed, came back empty or far below its
+      # usual count, or if alert emails failed. Set the HEALTH_ALERT_EMAIL secret
+      # to also get a Resend email with the details.
+      - name: Check scrape health
+        if: always()
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          ALERT_FROM_EMAIL: ${{ secrets.ALERT_FROM_EMAIL }}
+          HEALTH_ALERT_EMAIL: ${{ secrets.HEALTH_ALERT_EMAIL }}
+        run: python scraper/health.py --notify-outcome "${{ steps.notify.outcome }}"
