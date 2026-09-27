@@ -16,16 +16,59 @@ the eight areas requested. It is based on evidence from the repository and its h
   bulk-checked live. The HKUST PeopleSoft host was reachable through an external fetch, and it refused the connection.
 - Supabase, GA4 and Search Console data are not accessible. The SQL / GA4 checks to run are listed below.
 
-> **Status (27 Sep):** implemented and merged:
-> - Top-10 items **1**, **2** and **5**
-> - item **4** (HKU loads every row in one request, verified live: 402 listing links, 371 jobs)
-> - item **10** (THEi follows its grids' page URLs, verified live: 25 jobs; split reference numbers fixed)
-> - the matching half of item **6** (the "sent" log is still open)
-> - the partial-failure half of item **3** (the persistent `first_seen` registry is still open)
+> **Status (28 Sep): all Top-10 items and the non-growth recommendations are implemented, tested and live.**
+> The manual Supabase step is done. What remains is listed at the end of this block.
 >
-> Two manual steps remain: run `supabase/2026-09-alert-fixes.sql` in Supabase, and optionally add a
-> `HEALTH_ALERT_EMAIL` secret. Items 7–9 are still open.
-
+> | # | Fix | Status |
+> |---|---|---|
+> | 1 | Alerts reach subscribers | ✅ UI saves `alert_enabled` when alerts are turned on; existing rows backfilled |
+> | 2 | Unsubscribe | ✅ `?unsubscribe=` page restored; `List-Unsubscribe` header added |
+> | 3 | False "NEW" flags | ✅ Persistent job registry (first/last seen, 60-day reappear window); on partial failures the previous rows are kept (up to 14 days); 797 reset `date_added` values repaired |
+> | 4 | HKU "More Jobs" loop | ✅ Every row in one request (371 jobs) |
+> | 5 | Scrape health gate | ✅ Per-institution counts vs a 7-run median; the run fails and emails the owner; also fails on malformed `jobs.csv` rows |
+> | 6 | Alert matching + sent log | ✅ Mirrors the site's filters; no job emailed twice; links to the job page with UTM tags; sent only after the pages are live |
+> | 7 | HKUST | ✅ Cached summaries are reused (no daily re-summarising). PeopleSoft links are kept: they work (see the correction in §5) |
+> | 8 | Deadlines / CPCE / `validThrough` | ✅ `deadline` holds dates only (0 free-text values, was 216); wording moves to `deadline_note`; CPCE lists 29 jobs (was 6); `validThrough` only from real dates |
+> | 9 | Homepage content for crawlers | ✅ Newest 50 jobs pre-rendered into `index.html`; static canonical; the CSVs stay blocked in `robots.txt` |
+> | 10 | THEi | ✅ All 25 current jobs scraped |
+>
+> Beyond the Top 10:
+> - §1 and §2: CUHK retries; HKBU and Lingnan use their careers sites' own APIs; SFU and Chu Hai deep-link to each job.
+>   A full scrape now takes about 10 minutes (was 25–110). Summaries use structured output and the Batches API (half
+>   price), with a longer input. Each job is summarised once. Summary dates are reconciled with the listing, and
+>   salary and start date are filled from the summary. Token use and cost are logged.
+> - §4: HTML escaping, HKT dates, pagination, and a non-zero exit when most alerts are skipped.
+> - §5: closed `?job=` links explain the job has closed. Closed jobs keep a `noindex` page for 60 days. A weekly
+>   Apply-link check runs on GitHub's runners.
+> - §6: stable job pages (rewritten only when a job changes) with real sitemap `lastmod` values. JobPosting data is
+>   fixed (`sameAs`, salary, no `applicantLocationRequirements`); BreadcrumbList, related jobs, a tracked Apply
+>   button on job pages, a favicon, UTM tags on emails, and the expired welcome modal removed.
+> - §7: the scraper is split into `core.py`, `summaries.py` and `sites/<institution>.py`, with 71 tests and a CI
+>   workflow. Also: XSS escaping, a `jobs-lite.csv` first paint, the Supabase SDK pinned with SRI, pinned
+>   dependencies with caching, `-X theirs`, a timeout, concurrency control, HKT everywhere, the README updated and
+>   the dead workflow deleted.
+>
+> Verified by a full live run on GitHub's runners (27 Sep):
+> - 16 of 17 institutions returned their usual counts. HSU was flagged "partial" because it removed 7 jobs; their
+>   links now return 404.
+> - Only genuinely new jobs were flagged NEW.
+> - A second page build wrote 0 files, and all JSON-LD parses.
+> - Real Claude calls (direct and batch) returned structured summaries.
+> - Every Apply link opened, except HSU's 7 removed jobs.
+>
+> **Still open (not growth):**
+> - Summaries are reused per job id. They aren't refreshed when an ad is edited, although the listing's deadline
+>   always wins. A job that vanishes while its portal is healthy is re-summarised when it returns. The §2.3 content-hash
+>   store would cover both.
+> - About 100 HKUST jobs have no Interfolio page and show a placeholder description. HKUST's PeopleSoft pages are
+>   reachable from GitHub's runners, so the HKUST scraper could fetch them.
+> - `date_posted` is still empty for several portals, and JSON-LD has no organisation `logo`.
+> - §7 performance ideas (a shared Playwright browser, condition waits everywhere, concurrent scraping) are less
+>   urgent now that a run takes ~10 minutes. Deploying `/jobs` with `actions/deploy-pages` instead of committing HTML
+>   is optional, since pages now change only when jobs do.
+> - Outside the code: mark `apply_click`, `alert_subscribed` and `sign_up` as GA4 key events and build the funnel.
+>   In Search Console, resubmit the sitemap and watch the Job Posting report as pages are re-crawled.
+> - §8 growth items, apart from Google for Jobs eligibility and related-jobs links, which are done.
 ---
 
 ## Scorecard
@@ -53,7 +96,7 @@ the eight areas requested. It is based on evidence from the repository and its h
 | 4 | Fix the HKU "More Jobs" loop (wait for the row count to grow and validate against the button's own count) | `scraper.py:981-1024` | S |
 | 5 | Add a scrape health gate: compare per-institution counts to a 7-day median, then fail the run or open an issue or email the owner | new `scraper/health.py`, `scrape.yml` | S |
 | 6 | Make alert matching mirror the site (area → academic area, dept groups, phrase search) and add a "sent" log so nobody is emailed twice | `notify.py:155-186` | S |
-| 7 | HKUST: fix the cache-invalidation bug and stop publishing PeopleSoft links | `scraper.py:1207-1212` | S |
+| 7 | HKUST: fix the cache-invalidation bug ~~and stop publishing PeopleSoft links~~ (the links work; see §5) | `scraper.py:1207-1212` | S |
 | 8 | Normalise deadlines (no free text in `deadline`), fix CPCE screening date, fix JSON-LD `validThrough` | `scraper.py:186, 2383`; `generate_job_pages.py:163-175` | S |
 | 9 | Pre-render the latest jobs into `index.html` at build time, or unblock `/jobs.csv` for Googlebot | `generate_job_pages.py`, `robots.txt:3` | S–M |
 | 10 | Repair the THEi scraper (broken ~7 weeks, serving 25 stale jobs) | `scrape_thei()` | M |
@@ -301,7 +344,7 @@ fallback signal. The fix:
 | Institution | Link type | Assessment |
 |---|---|---|
 | PolyU, HKU, CUHK, HKMU, LU, HKBU, VTC, CPCE, HKU SPACE, HSU, THEi | Per-job detail page | ✅ Correct pattern |
-| **HKUST** | 53 Interfolio ✅ / **106 `hrmsxprod.psft.ust.hk:8044` PeopleSoft** | 🔴 An external fetch got `ECONNREFUSED 143.89.12.36:8044`, and the code says "PeopleSoft URLs are HKUST-internal and always timeout" (`scraper.py:1219`). **About 67% of HKUST "Apply" buttons are dead for the public.** |
+| **HKUST** | 53 Interfolio ✅ / 106 `hrmsxprod.psft.ust.hk:8044` PeopleSoft | ✅ **Correction (27 Sep):** these are the links HKUST's own careers page uses. From GitHub's runners they return HTTP 200, and the weekly link check found all 158 HKUST links working. The earlier connection refusal came from the network this audit ran from, not from HKUST. |
 | SFU | 30 jobs → 3 listing pages | 🟠 Not a deep link |
 | Chu Hai | 4 of 5 jobs share one URL | 🟠 |
 | CityU | Listing page + `?ref=` | 🟡 Check that the ref anchors or opens the job |
