@@ -4,6 +4,34 @@ All notable changes to HKAcadJobs are recorded here, grouped by date.
 
 ---
 
+## 2026-09-27
+
+Fixes from the September health check (`HEALTH_CHECK_2026-09.md`).
+
+### Alerts
+- Alerts reach subscribers again (`alert_enabled` is saved when alerts are turned on); the unsubscribe link works and emails carry a `List-Unsubscribe` header
+- Matching mirrors the site's filters (area, department groups, phrase search); a sent log means no job is emailed twice; emails link to the job's page (with UTM tags) and go out only once the page is live
+
+### Scraping and data
+- Scrape health gate: an institution that crashes, returns nothing or far fewer jobs than usual keeps its previous jobs and fails the run, so the owner is emailed
+- Job registry: jobs that briefly drop off a portal keep their original date and aren't flagged NEW again
+- HKU loads every job in one request; THEi, HKBU and Lingnan use each careers site's own paging or API; CUHK retries and reuses known deadlines; HKUST no longer re-summarises jobs daily; SFU and Chu Hai deep-link to each job with text fragments; CPCE's screening date is no longer treated as a deadline
+- `deadline` holds dates only; wording such as "Open until filled" moves to a new `deadline_note` column
+- AI summaries use structured output (and the Batches API at half price); each job is summarised once; salary and start date are filled from the summary
+- The scraper is split into `core.py`, `summaries.py` and one module per institution in `sites/`, with a pytest suite
+
+### Site and SEO
+- Job data and URL parameters are escaped before rendering; only http(s) apply links are used
+- The table paints from `jobs-lite.csv`, then loads descriptions; closed `?job=` links explain that the job has closed
+- Job pages are stable (rewritten only when the job changes), have valid JobPosting data, breadcrumbs, related jobs and a tracked Apply button; closed jobs keep a `noindex` page for 60 days
+- The newest 50 jobs are written into `index.html` for crawlers; static canonical URL and favicon added; expired welcome modal removed
+
+### Operations
+- Pinned dependencies, pip and browser caching, a run timeout, no overlapping runs, an off-peak schedule; the dead one-off workflow is removed
+- New weekly Apply-link check and a lint + tests workflow
+
+---
+
 ## 2026-04-11
 
 ### SEO — Static job pages overhaul

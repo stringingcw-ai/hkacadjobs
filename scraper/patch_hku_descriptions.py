@@ -15,10 +15,7 @@ Usage:
 
 import argparse
 import csv
-import os
-import re
 import random
-import sys
 from pathlib import Path
 
 # ── Paths
@@ -117,7 +114,7 @@ def save_persisted_queue(remaining: list):
 
 def summarise(raw_text: str, title: str, dept: str):
     """Same structured summary as the daily scraper → (summary, extras)."""
-    from scraper import summarise_job
+    from summaries import summarise_job
     return summarise_job(raw_text, title, dept)
 
 
@@ -155,7 +152,7 @@ def fetch_batch(batch: list, jobs: dict) -> tuple[int, int]:
                 text = page.inner_text("body")
 
                 if any(m in text.lower() for m in BOT_MARKERS):
-                    print(f"    ⚠️  WAF/bot-check detected — skipping")
+                    print("    ⚠️  WAF/bot-check detected — skipping")
                     still_poor += 1
                     continue
 
@@ -172,7 +169,7 @@ def fetch_batch(batch: list, jobs: dict) -> tuple[int, int]:
 
                 if is_good(summary):
                     jobs[job["id"]]["description"] = summary
-                    from scraper import apply_summary_extras
+                    from summaries import apply_summary_extras
                     apply_summary_extras(jobs[job["id"]], extras)
                     fetched_ok += 1
                     print(f"    ✓  Good description ({len(summary)}c)")
@@ -272,10 +269,10 @@ def main():
         queue = remaining_queue
 
         if not args.all:
-            print(f"\n  Stopping after 1 batch (run with --all to continue, or run again for next batch)")
+            print("\n  Stopping after 1 batch (run with --all to continue, or run again for next batch)")
             break
 
-    print(f"\n── Summary ──────────────────────────────────────────")
+    print("\n── Summary ──────────────────────────────────────────")
     print(f"  Batches run  : {batch_num}")
     print(f"  Total fixed  : {total_fixed}")
     remaining = build_queue(jobs)

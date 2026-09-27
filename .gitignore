@@ -9,3 +9,4 @@ __pycache__/
 *.pyc
 .env.local
 scraper/.env.local
+.pytest_cache/
