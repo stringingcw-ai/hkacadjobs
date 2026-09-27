@@ -2597,46 +2597,46 @@ function showActionToast(msg) {
 // ── Daily rotating academic quote
 (function() {
   const QUOTES = [
-    // Verified: from his Nobel lecture and writings on biochemistry
-    { text: "Research is to see what everybody else has seen, and to think what nobody else has thought.", attr: "Albert Szent-Györgyi · Nobel Prize in Physiology or Medicine, 1937" },
-    // Verified: Life magazine interview, May 2, 1955
-    { text: "The important thing is not to stop questioning. Curiosity has its own reason for existing.", attr: "Albert Einstein · Nobel Prize in Physics, 1921" },
-    // Verified: Real Time with Bill Maher, HBO, 2011
-    { text: "The good thing about science is that it's true whether or not you believe in it.", attr: "Neil deGrasse Tyson · Astrophysicist & Director, Hayden Planetarium" },
-    // Verified: widely attributed to his social media and public talks
-    { text: "The universe is under no obligation to make sense to you.", attr: "Neil deGrasse Tyson · Astrophysicist & Director, Hayden Planetarium" },
-    // Verified: Science and Hypothesis (1902), Ch. 9
-    { text: "Science is built up of facts, as a house is built of stones; but an accumulation of facts is no more a science than a heap of stones is a house.", attr: "Henri Poincaré · Mathematician & Theoretical Physicist" },
-    // Verified: Caltech commencement address, 'Cargo Cult Science', 1974
-    { text: "The first principle is that you must not fool yourself — and you are the easiest person to fool.", attr: "Richard Feynman · Nobel Prize in Physics, 1965" },
-    // Verified: letter to Carl Seelig, March 11, 1952
-    { text: "I have no special talent. I am only passionately curious.", attr: "Albert Einstein · Nobel Prize in Physics, 1921" },
-    // Verified: essay 'What I Believe', Forum and Century, 1930
-    { text: "The most beautiful thing we can experience is the mysterious. It is the source of all true art and science.", attr: "Albert Einstein · Nobel Prize in Physics, 1921" },
-    // Verified: widely attributed to Asimov across multiple essays and interviews
-    { text: "The most exciting phrase to hear in science, the one that heralds new discoveries, is not 'Eureka!' but 'That's funny…'", attr: "Isaac Asimov · Professor of Biochemistry, Boston University" },
-    // Verified: The Evolution of Physics (1938), co-authored with Leopold Infeld
-    { text: "To raise new questions, new possibilities, to regard old problems from a new angle, requires creative imagination.", attr: "Albert Einstein · Nobel Prize in Physics, 1921" },
-    // Verified: essay 'Physics and Reality', Journal of the Franklin Institute, 1936
-    { text: "The whole of science is nothing more than a refinement of everyday thinking.", attr: "Albert Einstein · Nobel Prize in Physics, 1921" },
-    // Verified: Plato's Apology, 38a
-    { text: "The unexamined life is not worth living.", attr: "Socrates · as recorded in Plato's Apology, 38a" },
-    // Verified: Nicomachean Ethics, Book II, Ch. 1
-    { text: "For the things we have to learn before we can do them, we learn by doing them.", attr: "Aristotle · Nicomachean Ethics, Book II" },
-    // Verified: Essays, 'Of Studies' (1625)
-    { text: "Reading maketh a full man; conference a ready man; and writing an exact man.", attr: "Francis Bacon · Essays, 'Of Studies' (1625)" },
-    // Verified: Critique of Practical Reason (1788), Conclusion
-    { text: "Two things fill the mind with ever new and increasing admiration and awe: the starry heavens above me and the moral law within me.", attr: "Immanuel Kant · Critique of Practical Reason (1788)" },
-    // Verified: What I Believe (1925)
-    { text: "The good life is one inspired by love and guided by knowledge.", attr: "Bertrand Russell · Nobel Prize in Literature, 1950 · What I Believe (1925)" },
-    // Verified: Preface to The General Theory of Employment, Interest and Money (1936)
-    { text: "The difficulty lies not so much in developing new ideas as in escaping from old ones.", attr: "John Maynard Keynes · The General Theory, Preface (1936)" },
-    // Verified: Four Quartets, 'Little Gidding' (1942)
-    { text: "We shall not cease from exploration, and the end of all our exploring will be to arrive where we started and know the place for the first time.", attr: "T.S. Eliot · Nobel Prize in Literature, 1948 · Four Quartets (1942)" },
-    // Verified: Return to Tipasa, in Summer (L'Été, 1954)
-    { text: "In the depth of winter, I finally learned that within me there lay an invincible summer.", attr: "Albert Camus · Nobel Prize in Literature, 1957 · Return to Tipasa (1954)" },
-    // Verified: Worstward Ho (1983)
-    { text: "Ever tried. Ever failed. No matter. Try again. Fail again. Fail better.", attr: "Samuel Beckett · Nobel Prize in Literature, 1969 · Worstward Ho (1983)" },
+    // Letter to Robert Hooke, 5 February 1675/6
+    { text: "If I have seen further it is by standing on the shoulders of Giants.", attr: "Isaac Newton · letter to Robert Hooke (1676)" },
+    // Analects 2.15, James Legge's translation
+    { text: "Learning without thought is labour lost; thought without learning is perilous.", attr: "Confucius · The Analects, 2.15" },
+    // You and Your Research, talk at Bell Communications Research, 7 March 1986
+    { text: "If you do not work on an important problem, it's unlikely you'll do important work.", attr: "Richard Hamming · Turing Award, 1968 · You and Your Research (1986)" },
+    // Letter to her brother Joseph, 18 March 1894 (in Eve Curie, Madame Curie, 1937)
+    { text: "One never notices what has been done; one can only see what remains to be done.", attr: "Marie Curie · Nobel Prizes in Physics (1903) and Chemistry (1911)" },
+    // The Prophet (1923), 'On Teaching'
+    { text: "If he is indeed wise he does not bid you enter the house of his wisdom, but rather leads you to the threshold of your own mind.", attr: "Kahlil Gibran · The Prophet (1923)" },
+    // Lecture at the University of Lille, 7 December 1854
+    { text: "In the fields of observation chance favours only the prepared mind.", attr: "Louis Pasteur · lecture at the University of Lille (1854)" },
+    // Zhuangzi, ch. 3 'The Secret of Caring for Life', Burton Watson's translation
+    { text: "Your life has a limit but knowledge has none.", attr: "Zhuangzi · The Secret of Caring for Life" },
+    // Computing Machinery and Intelligence, Mind (1950), closing sentence
+    { text: "We can only see a short distance ahead, but we can see plenty there that needs to be done.", attr: "Alan Turing · Computing Machinery and Intelligence (1950)" },
+    // Letter to her father Ellis Franklin, summer 1940 (in Brenda Maddox, Rosalind Franklin, 2002)
+    { text: "Science and everyday life cannot and should not be separated.", attr: "Rosalind Franklin · X-ray crystallographer · letter to her father (1940)" },
+    // Letters to Lucilius, 7.8: "homines, dum docent, discunt"
+    { text: "While we teach, we learn.", attr: "Seneca · Letters to Lucilius, 7.8" },
+    // Laboratory notebook, 19 March 1850 (in Bence Jones, The Life and Letters of Faraday, 1870)
+    { text: "Nothing is too wonderful to be true if it be consistent with the laws of nature.", attr: "Michael Faraday · laboratory notebook (1850)" },
+    // Analects 2.17, James Legge's translation
+    { text: "When you know a thing, to hold that you know it; and when you do not know a thing, to allow that you do not know it — this is knowledge.", attr: "Confucius · The Analects, 2.17" },
+    // Written on his Caltech blackboard, found at his death in February 1988
+    { text: "What I cannot create, I do not understand.", attr: "Richard Feynman · Nobel Prize in Physics, 1965 · his last blackboard (1988)" },
+    // Advice for a Young Investigator (1897), trans. Neely Swanson and Larry W. Swanson
+    { text: "Any man could, if he were so inclined, be the sculptor of his own brain.", attr: "Santiago Ramón y Cajal · Nobel Prize in Physiology or Medicine, 1906" },
+    // Moralia, 'On Listening to Lectures', 48c, Babbitt's translation (Loeb, 1927)
+    { text: "The mind does not require filling like a bottle, but rather, like wood, it only requires kindling…", attr: "Plutarch · On Listening to Lectures" },
+    // Metaphysics, Book I, 980a, W. D. Ross's translation
+    { text: "All men by nature desire to know.", attr: "Aristotle · Metaphysics, Book I" },
+    // You and Your Research, talk at Bell Communications Research, 7 March 1986
+    { text: "Knowledge and productivity are like compound interest.", attr: "Richard Hamming · Turing Award, 1968 · You and Your Research (1986)" },
+    // Tao Te Ching, ch. 64, James Legge's translation
+    { text: "The journey of a thousand li commenced with a single step.", attr: "Laozi · Tao Te Ching, ch. 64" },
+    // Sketch of the Analytical Engine, translator's Note A (1843)
+    { text: "The Analytical Engine weaves algebraical patterns just as the Jacquard-loom weaves flowers and leaves.", attr: "Ada Lovelace · Notes on the Analytical Engine (1843)" },
+    // On the Origin of Species (1859), closing sentence
+    { text: "From so simple a beginning endless forms most beautiful and most wonderful have been, and are being, evolved.", attr: "Charles Darwin · On the Origin of Species (1859)" },
   ];
 
   const textEl = document.getElementById('heroQuoteText');
