@@ -15,4 +15,4 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -r scraper/requirements.txt && playwright install --with-deps chromium
-      - run: python scraper/_diag_hkust.py
+      - run: cd scraper && python _diag_hkust.py

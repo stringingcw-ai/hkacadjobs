@@ -135,13 +135,14 @@ def scrape_hkust():
 
                 page.close()
 
-            # Fetch Interfolio detail pages only. The PeopleSoft links are the ones
-            # HKUST itself publishes, but their pages need a portal session.
+            # Fetch detail pages for jobs without a summary yet: Interfolio pages,
+            # and for PeopleSoft jobs the content-only view (/psc/) of the page
+            # HKUST links to. The /psp/ portal page needs a session; /psc/ doesn't.
             to_fetch = [
                 j for j in jobs
                 if is_within_retention(j["deadline"])
                 and not _has_good_desc(j["id"])
-                and "interfolio" in j.get("apply_url", "")
+                and ("interfolio" in j.get("apply_url", "") or "psft.ust.hk" in j.get("apply_url", ""))
             ]
             if to_fetch:
                 print(f"  ↳ Fetching {len(to_fetch)} detail pages for descriptions...")
@@ -150,9 +151,17 @@ def scrape_hkust():
                 found = 0
                 for idx, j in enumerate(to_fetch, 1):
                     try:
-                        detail_page.goto(j["apply_url"], timeout=20000, wait_until="networkidle")
-                        detail_page.wait_for_timeout(2000)
-                        text = detail_page.inner_text("body")
+                        if "psft.ust.hk" in j["apply_url"]:
+                            detail_page.goto(j["apply_url"].replace("/psp/", "/psc/"), timeout=30000,
+                                             wait_until="networkidle")
+                            text = detail_page.inner_text("body")
+                            if "Job Posting Details" not in text:
+                                continue      # empty template: not a PeopleSoft posting
+                            text = text.split("Job Posting Details", 1)[1]
+                        else:
+                            detail_page.goto(j["apply_url"], timeout=20000, wait_until="networkidle")
+                            detail_page.wait_for_timeout(2000)
+                            text = detail_page.inner_text("body")
                         if any(m in text.lower() for m in BOT_MARKERS):
                             continue
                         lines = [l.strip() for l in text.splitlines() if len(l.strip()) > 30]

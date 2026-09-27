@@ -1,33 +1,17 @@
-"""Temporary: can HKUST PeopleSoft job descriptions be read from GitHub's runners?"""
-import csv
-from playwright.sync_api import sync_playwright
-rows = [r for r in csv.DictReader(open("jobs.csv", encoding="utf-8"))
-        if r["university"] == "HKUST" and "psft" in r["apply_url"]][:3]
-with sync_playwright() as p:
-    b = p.chromium.launch()
-    for r in rows:
-        for label, url in [("psp", r["apply_url"]), ("psc", r["apply_url"].replace("/psp/", "/psc/"))]:
-            pg = b.new_page()
-            try:
-                resp = pg.goto(url, timeout=40000, wait_until="networkidle")
-                pg.wait_for_timeout(3000)
-                print(f"\n=== {r['id']} {label} status={resp.status if resp else None} url={pg.url[:120]}")
-                for f in pg.frames:
-                    try:
-                        t = f.inner_text("body")
-                    except Exception as e:
-                        t = f"<err {e}>"
-                    print(f"  frame {f.name!r} {f.url[:100]} len={len(t)}")
-                    print("   ", t[:700].replace("\n", " | "))
-            except Exception as e:
-                print(f"=== {r['id']} {label} ERROR {e}")
-            pg.close()
-    # the careers page: does a card link to a detail page with text?
-    pg = b.new_page()
-    pg.goto("https://hkustcareers.hkust.edu.hk/join-us/current-opening/academic-careers", timeout=40000, wait_until="networkidle")
-    pg.wait_for_timeout(3000)
-    links = pg.evaluate("() => [...document.querySelectorAll('a')].map(a => [a.innerText.trim().slice(0,60), a.href]).filter(x => x[1] && !x[1].includes('#'))")
-    ext = [l for l in links if 'hkustcareers' not in l[1]]
-    print("\nlinks:", len(links), "external:", len(ext))
-    for l in ext[:25]: print("  ", l)
-    b.close()
+"""Temporary: run the HKUST scraper live with the published data as its cache."""
+import csv, time
+import core
+from sites.hkust import scrape_hkust
+rows = {r["id"]: r for r in csv.DictReader(open("../jobs.csv", encoding="utf-8"))}
+core._existing_descriptions.update({i: r["description"] for i, r in rows.items()})
+core._previous_rows.update(rows)
+t = time.time()
+jobs = scrape_hkust()
+print(f"took {time.time() - t:.0f}s; {len(jobs)} jobs")
+thin = [j for j in jobs if "Please visit the application link" in j["description"]]
+raw = [j for j in jobs if not j["description"].startswith("**") and j not in thin]
+print(f"summaries {sum(j['description'].startswith('**') for j in jobs)}, new raw text {len(raw)}, still thin {len(thin)}")
+for j in raw[:3]:
+    print("-", j["id"], len(j["description"]), j["description"][:300].replace("\n", " | "))
+for j in thin[:5]:
+    print("thin:", j["id"], j["apply_url"][:110])
