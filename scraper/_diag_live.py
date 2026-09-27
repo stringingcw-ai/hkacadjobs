@@ -15,3 +15,4 @@ print("\nRef-number context in each description:")
 for j in jobs:
     m = re.search(r".{0,40}Ref(?:erence)?\.?\s*No.{0,70}", j["description"], re.I | re.S)
     print(f"  {j['id']}: {m.group(0).replace(chr(10), ' ⏎ ') if m else '(no Ref No. text)'}")
+# rerun
