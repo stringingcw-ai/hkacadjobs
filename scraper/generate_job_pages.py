@@ -269,7 +269,7 @@ PAGE_CSS = """
       --muted: #7a7568;
       --border: #d8d3c8;
       --white: #ffffff;
-      --header: #002147;   /* Oxford blue, as on the homepage */
+      --header: #2b3240;   /* Midnight, as on the homepage */
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -463,7 +463,7 @@ def page_html(*, meta_title: str, meta_desc: str, canonical: str, robots: str,
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#002147">
+  <meta name="theme-color" content="#2b3240">
   <title>{html.escape(meta_title)}</title>
   <meta name="description" content="{html.escape(meta_desc)}">
   <link rel="canonical" href="{canonical}">
