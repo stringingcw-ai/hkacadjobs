@@ -64,7 +64,6 @@
     ? { page_location: location.href.replace(/([?&]unsubscribe=)[^&#]*/, '$1redacted') } : {});
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
   /* ─────────────────────────────────────────────
      CONFIGURATION — edit SHEET_CSV_URL below
@@ -365,6 +364,11 @@
   .uni-logo { width: 20px; height: 20px; object-fit: contain; border-radius: 2px; flex-shrink: 0; }
   .dept-tag { display: inline-block; background: #e8e4dc; border-radius: 4px; padding: 3px 9px; font-size: 0.75rem; color: #3d3a34; font-weight: 500; }
   .deadline-cell { font-size: 0.83rem; white-space: nowrap; }
+  .deadline-cell.deadline-note { white-space: normal; font-size: 0.75rem; color: var(--muted); max-width: 150px; text-align: center; line-height: 1.35; }
+  .notice-banner { display: none; align-items: flex-start; gap: 12px; background: var(--white); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; font-size: 0.85rem; line-height: 1.5; }
+  .notice-banner a { color: var(--accent); font-weight: 600; }
+  .notice-banner .notice-close { margin-left: auto; background: none; border: none; font-size: 1.2rem; line-height: 1; cursor: pointer; color: var(--muted); }
+  .desc-loading { color: var(--muted); font-style: italic; }
   @media (max-width: 768px) { .deadline-cell::before { content: "Deadline: "; } }
   .days-left { display: block; font-size: 0.7rem; margin-top: 2px; }
   .days-left.urgent { color: #c0392b; font-weight: 600; }
@@ -458,22 +462,6 @@
   .modal-section ul li { font-size: 0.85rem; line-height: 1.8; color: #2a2a2a; }
   .modal-disclaimer { font-size: 0.75rem; color: var(--muted); line-height: 1.6; border-top: 1px solid var(--cream); padding-top: 16px; margin-top: 8px; }
 
-  /* WELCOME MODAL */
-  .welcome-modal { width: min(480px, 92vw); padding: 0; overflow: hidden; }
-  .welcome-modal-header { background: var(--accent); color: var(--paper); padding: 32px 32px 24px; text-align: center; }
-  .welcome-modal-header h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; margin-bottom: 6px; color: var(--paper); }
-  .welcome-modal-header p { font-size: 0.82rem; color: rgba(255,255,255,0.75); }
-  .welcome-modal-body { padding: 28px 32px 24px; }
-  .welcome-feature { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 22px; }
-  .welcome-feature:last-of-type { margin-bottom: 0; }
-  .welcome-feature-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--cream); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
-  .welcome-feature-text h4 { font-size: 0.88rem; font-weight: 700; color: var(--ink); margin-bottom: 3px; }
-  .welcome-feature-text p { font-size: 0.8rem; color: var(--muted); line-height: 1.55; }
-  .welcome-modal-footer { padding: 0 32px 28px; display: flex; flex-direction: column; gap: 10px; }
-  .welcome-cta { width: 100%; padding: 11px; background: var(--accent); color: var(--paper); border: none; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
-  .welcome-cta:hover { background: #8f3415; }
-  .welcome-skip { background: none; border: none; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; color: var(--muted); cursor: pointer; text-align: center; padding: 4px; }
-  .welcome-skip:hover { color: var(--ink); }
 
   /* REPORT MODAL */
   .report-form label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 5px; margin-top: 16px; }
@@ -726,6 +714,7 @@
 <!-- MAIN -->
 <main>
 <div class="main-layout">
+  <div class="notice-banner" id="closedJobNotice" role="status"></div>
   <div class="error-state" id="errorState">
     <strong>⚠️ Could not load job listings</strong>
     <p>Could not load <code>jobs.csv</code>. The file may not be available yet.</p>
@@ -908,43 +897,6 @@
   </div>
 </div>
 
-<!-- WELCOME MODAL -->
-<div class="modal-overlay" id="welcomeOverlay" onclick="closeWelcomeModal()">
-  <div class="modal welcome-modal" onclick="event.stopPropagation()">
-    <div class="welcome-modal-header">
-      <h2>What's new on HKAcadJobs</h2>
-      <p>New features to help you track opportunities</p>
-    </div>
-    <div class="welcome-modal-body">
-      <div class="welcome-feature">
-        <div class="welcome-feature-icon">🔑</div>
-        <div class="welcome-feature-text">
-          <h4>Account sign-in</h4>
-          <p>Sign in with just your email — no password needed. Your data syncs across all your devices.</p>
-        </div>
-      </div>
-      <div class="welcome-feature">
-        <div class="welcome-feature-icon">🔔</div>
-        <div class="welcome-feature-text">
-          <h4>Job alerts</h4>
-          <p>Save a filter and subscribe to email alerts. Get notified whenever new matching roles are posted.</p>
-        </div>
-      </div>
-      <div class="welcome-feature">
-        <div class="welcome-feature-icon">🔖</div>
-        <div class="welcome-feature-text">
-          <h4>Saved filters &amp; bookmarks</h4>
-          <p>Sign in to keep your saved searches and bookmarked jobs permanently — even after clearing your browser.</p>
-        </div>
-      </div>
-    </div>
-    <div class="welcome-modal-footer">
-      <button class="welcome-cta" onclick="closeWelcomeModal(); openAuthModal();">Sign in to get started</button>
-      <button class="welcome-skip" onclick="closeWelcomeModal()">Maybe later</button>
-    </div>
-  </div>
-</div>
-
 <!-- REPORT MODAL -->
 <div class="modal-overlay" id="reportOverlay" onclick="closeReport()">
   <div class="modal" onclick="event.stopPropagation()">
@@ -1012,6 +964,11 @@
   </div>
 </div>
 
+<!-- Supabase SDK: exact version + integrity hash. To upgrade, change the version and
+     recompute the hash of dist/umd/supabase.js from the npm package. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"
+        integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok"
+        crossorigin="anonymous"></script>
 <script>
 // ── University colours (keyed by short code)
 const UNI_COLORS = { HKU:'#005BAB', CUHK:'#6B3A8A', HKUST:'#003D7C', PolyU:'#8B0000', CityU:'#00843D', HKBU:'#C8102E', LU:'#1B4F72', EdUHK:'#E67E22', HKMU:'#00704A', HSU:'#1b5b4d', SFU:'#8B1A1A', HKSYU:'#003366', VTC:'#003087', HKUSPACE:'#005BAB', CPCE:'#8B0000', HKCHC:'#003366', THEI:'#442e66' };
@@ -1044,7 +1001,7 @@ const UNI_LOGOS = {
 };
 function uniLogoHtml(code, cls) {
   const src = UNI_LOGOS[code];
-  if (src) return `<img class="${cls}" src="${src}" alt="${code}" onerror="this.style.display='none'">`;
+  if (src) return `<img class="${cls}" src="${src}" alt="${esc(code)}" onerror="this.style.display='none'">`;
   const col = uniColor(code);
   return `<span style="display:inline-block;width:20px;height:20px;border-radius:50%;background:${col};flex-shrink:0;"></span>`;
 }
@@ -1163,6 +1120,24 @@ let ALL_JOBS = [];
 let filtered  = [];
 let currentView = 'all';
 let openJobId   = null;
+
+// ── Escaping: job data comes from scraped pages and URLs, so anything put
+// into innerHTML goes through esc(), and only http(s) links are used.
+function esc(v) {
+  return String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function safeUrl(u) {
+  const url = String(u || '').trim();
+  return /^https?:\/\//i.test(url) ? url : '#';
+}
+// Deadline as shown: a date, or wording such as "Open until filled"
+function hasDeadlineDate(j) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(j.deadline || '');
+}
+function deadlineText(j) {
+  if (hasDeadlineDate(j)) return fmtDate(j.deadline);
+  return j.deadline_note || j.deadline || 'N/A';   // older data kept wording in deadline
+}
 
 // ── Analytics
 function trackEvent(name, params) {
@@ -1529,7 +1504,7 @@ function renderSavedFiltersSection() {
       const card = document.createElement('div'); card.className = 'sf-card';
       const tags = filterCriteriaTags(f.state);
       const tagsHTML = tags.length
-        ? tags.map(t => `<span class="sf-card-tag">${t}</span>`).join('')
+        ? tags.map(t => `<span class="sf-card-tag">${esc(t)}</span>`).join('')
         : '<span class="sf-card-tag sf-all">All jobs</span>';
       const alertOn = !!f.alertEnabled;
       const alertTitle = !_currentUser
@@ -1538,7 +1513,7 @@ function renderSavedFiltersSection() {
       const bellFill = alertOn ? 'currentColor' : 'none';
       card.innerHTML = `
         <div class="sf-card-header">
-          <span class="sf-card-name">${f.label}</span>
+          <span class="sf-card-name">${esc(f.label)}</span>
           <button class="sf-alert-btn${alertOn ? ' active' : ''}" title="${alertTitle}" aria-label="${alertTitle}">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="${bellFill}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
           </button>
@@ -1742,34 +1717,62 @@ function parseCSV(text) {
   }).filter(r => r.title || r.id);
 }
 
-// ── Load jobs.csv (generated by scraper, lives in same repo)
-async function loadData() {
+// ── Load the listing (both files are written by the daily build): jobs-lite.csv
+// has everything except descriptions and paints the table fast; jobs.csv then
+// fills in descriptions. If the lite file is missing, jobs.csv is used alone.
+const LITE_CSV_URL = "./jobs-lite.csv";
+async function fetchText(url, ms) {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 15000);
+  const timer = setTimeout(() => controller.abort(), ms);
   try {
-    const res = await fetch(SHEET_CSV_URL, { signal: controller.signal });
+    const res = await fetch(url, { signal: controller.signal });
+    if (!res.ok) throw new Error(`HTTP ${res.status} — ${url.replace('./', '')} not found. Has the scraper run yet?`);
+    return await res.text();
+  } finally {
     clearTimeout(timer);
-    if (!res.ok) throw new Error(`HTTP ${res.status} — jobs.csv not found. Has the scraper run yet?`);
-    const text = await res.text();
-    const rows = parseCSV(text);
+  }
+}
+
+async function loadData() {
+  try {
+    let rows = [], full = false;
+    try { rows = parseCSV(await fetchText(LITE_CSV_URL, 15000)); } catch (e) { rows = []; }
+    if (!rows.length) { rows = parseCSV(await fetchText(SHEET_CSV_URL, 15000)); full = true; }
     if (!rows.length) throw new Error('jobs.csv is empty');
     // Derive latest scrape date first so NEW badge matches the header count exactly
     const _latestDate = rows.map(r => r.date_added).filter(Boolean).sort().at(-1) || null;
     ALL_JOBS = rows.map((r, i) => ({ ...r, _id: r.id || String(i), is_new: _latestDate && r.date_added === _latestDate && String(r.is_new).toLowerCase() !== 'false', area: classifyArea(r.department), deptGroup: classifyDeptGroup(r.department) }));
     initUI();
+    if (!full) hydrateDescriptions();
   } catch (err) {
-    clearTimeout(timer);
     showError(err.name === 'AbortError' ? 'Request timed out — please reload the page.' : err.message);
   }
 }
 
+async function hydrateDescriptions() {
+  try {
+    const byId = new Map(parseCSV(await fetchText(SHEET_CSV_URL, 60000)).map(r => [r.id, r.description || '']));
+    ALL_JOBS.forEach(j => { j.description = byId.get(j.id) ?? ''; });
+  } catch (err) {
+    console.warn('[data] descriptions could not be loaded:', err);
+    ALL_JOBS.forEach(j => { if (j.description === undefined) j.description = ''; });
+  }
+  // Search also matches descriptions, so re-run an active search
+  if (document.getElementById('searchInput').value.trim()) filterJobs();
+  const panelJob = openJobId && ALL_JOBS.find(x => x._id === openJobId);
+  const el = document.getElementById('panelDesc');
+  if (panelJob && el) el.innerHTML = descriptionHtml(panelJob);
+}
+
 function showError(reason) {
   document.getElementById('loadingState').style.display = 'none';
+  // Fall back to the newest jobs written into this page at build time
+  document.getElementById('latestJobs')?.classList.add('show');
   document.getElementById('errorState').style.display = 'block';
   document.getElementById('navMeta').textContent = 'Data unavailable';
   if (reason) {
     const detail = document.getElementById('errorState').querySelector('p');
-    if (detail) detail.innerHTML += `<br><br><strong>Reason:</strong> <code>${reason}</code>`;
+    if (detail) detail.innerHTML += `<br><br><strong>Reason:</strong> <code>${esc(reason)}</code>`;
   }
 }
 
@@ -1859,7 +1862,6 @@ function initUI() {
 
   filterJobs();
   updateBkUI();
-  maybeShowWelcome();
 
   // Deep-link: auto-open panel if ?job=ID is in the URL
   const jobParam = urlParams.get('job');
@@ -1871,8 +1873,25 @@ function initUI() {
       // ?job= deep-link isn't treated as duplicate content with the homepage.
       updateJobCanonical(match);
       openPanel(match._id);
+    } else {
+      showClosedJobNotice(jobParam);
     }
   }
+}
+
+// A ?job= link (shared, bookmarked or from an old email) whose job has left the listings
+function showClosedJobNotice(jobId) {
+  const el = document.getElementById('closedJobNotice');
+  const prefix = String(jobId).split('-')[0].toLowerCase();
+  const uni = [...new Set(ALL_JOBS.map(j => j.university))].find(u => u && u.toLowerCase() === prefix);
+  el.innerHTML = '<div><strong>That position is no longer listed.</strong> It has most likely closed. '
+    + (uni ? `<a href="?uni=${encodeURIComponent(uni)}">See current openings at ${esc(uniDisplay(uni))}</a>, or browse all positions below.`
+           : 'Browse the current positions below.')
+    + '</div><button class="notice-close" aria-label="Dismiss">×</button>';
+  el.style.display = 'flex';
+  el.querySelector('.notice-close').onclick = () => { el.style.display = 'none'; };
+  history.replaceState({}, '', location.pathname);
+  trackEvent('job_link_closed', { job_id: String(jobId).slice(0, 60) });
 }
 
 // Match the slugify used by scraper/generate_job_pages.py so the canonical
@@ -2142,7 +2161,7 @@ function buildEmptyState() {
     html += '<p style="font-size:0.84rem;color:var(--muted);margin-bottom:14px;">Try removing a filter to broaden your search:</p>';
     html += '<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px;">';
     activeFilters.forEach((f, i) => {
-      html += `<button class="empty-filter-chip" data-idx="${i}" style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border:1.5px solid var(--border);border-radius:20px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:0.8rem;color:var(--ink);cursor:pointer;transition:border-color 0.2s,background 0.2s;">✕ ${f.label}</button>`;
+      html += `<button class="empty-filter-chip" data-idx="${i}" style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border:1.5px solid var(--border);border-radius:20px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:0.8rem;color:var(--ink);cursor:pointer;transition:border-color 0.2s,background 0.2s;">✕ ${esc(f.label)}</button>`;
     });
     html += '</div>';
   }
@@ -2150,7 +2169,7 @@ function buildEmptyState() {
   html += '<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;">';
   html += '<button class="apply-btn" onclick="clearAllFilters()">Reset all filters</button>';
   if (search) {
-    html += `<button class="apply-btn" style="background:var(--ink);" onclick="promptAlertForSearch()">Get alerted for "${search.length > 20 ? search.slice(0,20) + '…' : search}"</button>`;
+    html += `<button class="apply-btn" style="background:var(--ink);" onclick="promptAlertForSearch()">Get alerted for "${esc(search.length > 20 ? search.slice(0,20) + '…' : search)}"</button>`;
   }
   html += '</div>';
 
@@ -2207,26 +2226,28 @@ function renderTable() {
     row.onclick = () => openPanel(j._id);
     row.innerHTML = `
       <td onclick="event.stopPropagation()">
-        <button class="bk-btn${isBk?' saved':''}" title="${isBk?'Remove from saved':'Save'}" onclick="toggleBookmark('${j._id}',event)">${isBk?'<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>':'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>'}</button>
+        <button class="bk-btn${isBk?' saved':''}" title="${isBk?'Remove from saved':'Save'}">${isBk?'<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>':'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>'}</button>
       </td>
       <td>
-        <div class="job-title">${newB}${j.title}</div>
+        <div class="job-title">${newB}${esc(j.title)}</div>
         ${subL}
       </td>
-      <td><div class="uni-badge">${uniLogoHtml(j.university,'uni-logo')}${uniDisplay(j.university)||''}</div></td>
-      <td><span class="dept-tag">${j.department||'N/A'}</span></td>
+      <td><div class="uni-badge">${uniLogoHtml(j.university,'uni-logo')}${esc(uniDisplay(j.university)||'')}</div></td>
+      <td><span class="dept-tag">${esc(j.department||'N/A')}</span></td>
       <td>
         <div style="height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;">
-          <div class="deadline-cell">${fmtDate(j.deadline)}</div>
+          <div class="deadline-cell${hasDeadlineDate(j) ? '' : ' deadline-note'}">${esc(deadlineText(j))}</div>
           ${dl.text?`<span class="ptag ${dl.cls}">⏱ ${dl.text}</span>`:''}
         </div>
       </td>
       <td onclick="event.stopPropagation()">
-        <a class="apply-btn" href="${j.apply_url||'#'}" target="_blank" rel="noopener" onclick="trackEvent('apply_click',{job_id:'${j.id}',university:'${j.university}',rank:'${(j.rank||'').replace(/'/g,"\\'")}',source:'table_row'})">
+        <a class="apply-btn" href="${esc(safeUrl(j.apply_url))}" target="_blank" rel="noopener">
           Apply
           <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" width="11" height="11"><path d="M2 6h8M6.5 2.5L10 6l-3.5 3.5"/></svg>
         </a>
       </td>`;
+    row.querySelector('.bk-btn').onclick = e => toggleBookmark(j._id, e);
+    row.querySelector('.apply-btn').onclick = () => trackEvent('apply_click', { job_id: j.id, university: j.university, rank: j.rank || '', source: 'table_row' });
     tbody.appendChild(row);
   });
 }
@@ -2287,7 +2308,7 @@ function renderChips() {
   chips.forEach(c => {
     const chip = document.createElement('span');
     chip.className = 'filter-chip';
-    chip.innerHTML = `${c.label} <span>×</span>`;
+    chip.innerHTML = `${esc(c.label)} <span>×</span>`;
     chip.onclick = c.clear;
     bar.appendChild(chip);
   });
@@ -2313,6 +2334,32 @@ function renderChips() {
 }
 
 // ── Detail Panel
+// Descriptions arrive after the listing (see hydrateDescriptions), so a job
+// without one yet shows a placeholder that is filled in when they land.
+function descriptionHtml(j) {
+  if (j.description === undefined) return '<p class="desc-loading">Loading description…</p>';
+  const raw = j.description || '';
+  const BOT_MARKERS = ['security check', 'not a bot', 'verify that you are', 'cloudflare', 'complete the security'];
+  const text = BOT_MARKERS.some(m => raw.toLowerCase().includes(m))
+    ? 'Please visit the application link for full details.'
+    : (raw || 'No description provided.');
+  // Structured format: **Section**\n• bullet\n• bullet
+  if (text.includes('**') && text.includes('•')) {
+    return text.split('\n\n').map(block => {
+      const lines = block.split('\n');
+      const header = lines[0].replace(/\*\*/g, '').trim();
+      const bullets = lines.slice(1).filter(l => l.trim().startsWith('•'));
+      if (!bullets.length) return `<p>${esc(lines.join(' '))}</p>`;
+      return `<div class="desc-section">
+        <div class="desc-section-title">${esc(header)}</div>
+        <ul>${bullets.map(b => `<li>${esc(b.replace(/^•\s*/, ''))}</li>`).join('')}</ul>
+      </div>`;
+    }).join('');
+  }
+  // Legacy plain-prose fallback
+  return text.split('\n\n').map(p => `<p>${esc(p).replace(/\n/g, '<br>')}</p>`).join('');
+}
+
 function openPanel(id) {
   const j = ALL_JOBS.find(x => x._id === id);
   if (!j) return;
@@ -2329,53 +2376,33 @@ function openPanel(id) {
 
   document.getElementById('panelUniRow').innerHTML = `
     ${uniLogoHtml(j.university,'panel-uni-logo')}
-    <span class="panel-uni-name" style="color:${col}">${j.university_full||uniDisplay(j.university)||''}</span>`;
+    <span class="panel-uni-name" style="color:${col}">${esc(j.university_full||uniDisplay(j.university)||'')}</span>`;
   document.getElementById('panelTitle').textContent = j.title || '';
   document.getElementById('panelTags').innerHTML = `
-    <span class="ptag dept">${j.department||''}</span>
-    ${j.rank ? `<span class="ptag rank">${j.rank}</span>` : ''}
-    <span class="ptag ${dl.cls||'ok'}">⏱ ${fmtDate(j.deadline)}${dl.text?` · ${dl.text}`:''}</span>`;
+    <span class="ptag dept">${esc(j.department||'')}</span>
+    ${j.rank ? `<span class="ptag rank">${esc(j.rank)}</span>` : ''}
+    <span class="ptag ${dl.cls||'ok'}">⏱ ${esc(deadlineText(j))}${dl.text?` · ${dl.text}`:''}</span>`;
 
-  const descHtml = (() => {
-    const raw = j.description || '';
-    const BOT_MARKERS = ['security check', 'not a bot', 'verify that you are', 'cloudflare', 'complete the security'];
-    const text = BOT_MARKERS.some(m => raw.toLowerCase().includes(m))
-      ? 'Please visit the application link for full details.'
-      : (raw || 'No description provided.');
-    // Structured format: **Section**\n• bullet\n• bullet
-    if (text.includes('**') && text.includes('•')) {
-      return text.split('\n\n').map(block => {
-        const lines = block.split('\n');
-        const header = lines[0].replace(/\*\*/g, '').trim();
-        const bullets = lines.slice(1).filter(l => l.trim().startsWith('•'));
-        if (!bullets.length) return `<p>${lines.join(' ')}</p>`;
-        return `<div class="desc-section">
-          <div class="desc-section-title">${header}</div>
-          <ul>${bullets.map(b => `<li>${b.replace(/^•\s*/, '')}</li>`).join('')}</ul>
-        </div>`;
-      }).join('');
-    }
-    // Legacy plain-prose fallback
-    return text.split('\n\n').map(p => `<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
-  })();
-
+  const cell = (label, val, style) => val
+    ? `<div class="info-cell"><div class="info-label">${label}</div><div class="info-val"${style ? ` style="${style}"` : ''}>${esc(val)}</div></div>` : '';
+  const startDate = /^\d{4}-\d{2}-\d{2}$/.test(j.start_date || '') ? fmtDate(j.start_date) : j.start_date;
   document.getElementById('panelBody').innerHTML = `
     <div class="psection">
       <div class="info-grid">
-        ${j.date_added   ? `<div class="info-cell"><div class="info-label">Posted</div><div class="info-val">${fmtDate(j.date_added)}</div></div>` : ''}
-        ${j.reference    ? `<div class="info-cell"><div class="info-label">Reference</div><div class="info-val">${j.reference}</div></div>` : ''}
-        ${j.position_type? `<div class="info-cell"><div class="info-label">Position Type</div><div class="info-val">${j.position_type}</div></div>` : ''}
-        ${j.start_date   ? `<div class="info-cell"><div class="info-label">Start Date</div><div class="info-val">${j.start_date}</div></div>` : ''}
-        ${j.salary       ? `<div class="info-cell"><div class="info-label">Salary / Grade</div><div class="info-val" style="font-size:0.78rem">${j.salary}</div></div>` : ''}
+        ${cell('Posted', j.date_added && fmtDate(j.date_added))}
+        ${cell('Reference', j.reference)}
+        ${cell('Position Type', j.position_type)}
+        ${cell('Start Date', startDate)}
+        ${cell('Salary / Grade', j.salary, 'font-size:0.78rem')}
       </div>
     </div>
     <div class="psection">
       <div class="psection-title">About the Role <span class="ai-badge">Summarised by Claude Haiku 4.5</span></div>
-      ${descHtml}
+      <div id="panelDesc">${descriptionHtml(j)}</div>
     </div>`;
 
   const applyLink = document.getElementById('panelApplyLink');
-  applyLink.href = j.apply_url || '#';
+  applyLink.href = safeUrl(j.apply_url);
   applyLink.onclick = () => trackEvent('apply_click', { job_id: id, university: j.university, rank: j.rank, source: 'detail_panel' });
   document.getElementById('panelApplyText').textContent = `Apply on ${uniDisplay(j.university)}`;
   updatePanelSaveBtn(id);
@@ -2790,24 +2817,6 @@ function openAuthModal() {
 function closeAuthModal() {
   document.getElementById('authOverlay').classList.remove('open');
   document.body.style.overflow = '';
-}
-
-// ── Welcome modal
-const WELCOME_KEY = 'hkaj_welcome_v1';
-const WELCOME_EXPIRY = new Date('2026-04-10T00:00:00+08:00').getTime(); // 1 week from launch
-function closeWelcomeModal() {
-  document.getElementById('welcomeOverlay').classList.remove('open');
-  document.body.style.overflow = '';
-  localStorage.setItem(WELCOME_KEY, '1');
-}
-function maybeShowWelcome() {
-  if (_currentUser) return; // already signed in — no need to show
-  if (Date.now() > WELCOME_EXPIRY) return; // past 1-week window
-  if (localStorage.getItem(WELCOME_KEY)) return;
-  setTimeout(() => {
-    document.getElementById('welcomeOverlay').classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }, 1200);
 }
 
 async function sendMagicLink(e) {
