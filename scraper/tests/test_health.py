@@ -1,3 +1,4 @@
+import csv
 from datetime import datetime, timedelta, timezone
 
 import health
@@ -30,3 +31,21 @@ def test_missing_or_stale_record():
 def test_notify_failure_is_reported():
     assert health.find_problems(run(hku="ok"), "failure", NOW)
     assert health.find_problems(run(hku="ok"), "skipped", NOW) == []
+
+
+def write_csv(path, rows):
+    with open(path, "w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=["id", "title", "deadline"])
+        w.writeheader()
+        w.writerows(rows)
+
+
+def test_csv_check(tmp_path):
+    good = tmp_path / "good.csv"
+    write_csv(good, [{"id": "A-1", "title": "Job", "deadline": "2026-10-01"}, {"id": "A-2", "title": "Job", "deadline": ""}])
+    assert health.check_csv(good) == []
+    bad = tmp_path / "bad.csv"
+    write_csv(bad, [{"id": "A-1", "title": "Job", "deadline": "Open until filled"},
+                    {"id": "A-1", "title": "", "deadline": ""}])
+    problems = health.check_csv(bad)
+    assert len(problems) == 3

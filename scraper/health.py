@@ -8,7 +8,9 @@ green tick.
 Reads the latest run that scraper.py recorded in scraper/scrape_health.json and
 flags any institution that crashed, returned nothing, or returned well below
 its usual count (scraper.py has already kept the previous run's rows for those
-institutions). Also flags a missing/stale record and a failed notify step.
+institutions). Also flags a missing/stale record, a failed notify step, and
+jobs.csv rows the site can't use (a deadline that isn't a date, a missing id or
+title, a duplicate id).
 
 Prints a per-institution table (and writes it to the GitHub job summary), and if
 anything is wrong: emits error annotations, optionally emails HEALTH_ALERT_EMAIL
@@ -20,7 +22,9 @@ Usage (from repo root):
 """
 
 import argparse
+import csv
 import json
+import re
 import os
 import sys
 from datetime import datetime, timedelta, timezone
@@ -28,6 +32,7 @@ from html import escape
 from pathlib import Path
 
 HEALTH_FILE   = Path(__file__).parent / "scrape_health.json"
+CSV_PATH      = Path(__file__).parent.parent / "jobs.csv"
 MAX_AGE       = timedelta(hours=12)   # the record must come from this workflow run
 STATUS_ICON   = {"ok": "✅", "partial": "🟠", "empty": "🔴", "crashed": "🔴"}
 STATUS_MEANING = {
@@ -62,6 +67,28 @@ def find_problems(run, notify_outcome, now):
             problems.append(detail)
     if notify_outcome == "failure":
         problems.append("notify.py failed or skipped most alert subscriptions — see the 'Send job alert emails' step log")
+    return problems
+
+
+def check_csv(path=CSV_PATH):
+    """Problems with jobs.csv rows that would break the site or its data."""
+    try:
+        with open(path, newline="", encoding="utf-8") as f:
+            rows = list(csv.DictReader(f))
+    except OSError as e:
+        return [f"jobs.csv could not be read: {e}"]
+    problems = []
+    bad_deadline = [r["id"] for r in rows if r.get("deadline") and not re.match(r"^\d{4}-\d{2}-\d{2}$", r["deadline"])]
+    if bad_deadline:
+        problems.append(f"{len(bad_deadline)} jobs have a deadline that isn't a YYYY-MM-DD date "
+                        f"(e.g. {', '.join(bad_deadline[:3])})")
+    incomplete = [r.get("id") or "(no id)" for r in rows if not r.get("id") or not r.get("title")]
+    if incomplete:
+        problems.append(f"{len(incomplete)} jobs have no id or title (e.g. {', '.join(incomplete[:3])})")
+    ids = [r.get("id") for r in rows if r.get("id")]
+    dupes = sorted({i for i in ids if ids.count(i) > 1}) if len(ids) != len(set(ids)) else []
+    if dupes:
+        problems.append(f"{len(dupes)} job ids appear more than once (e.g. {', '.join(dupes[:3])})")
     return problems
 
 
@@ -111,7 +138,7 @@ def main():
     args = parser.parse_args()
 
     run = load_latest_run()
-    problems = find_problems(run, args.notify_outcome, datetime.now(timezone.utc))
+    problems = find_problems(run, args.notify_outcome, datetime.now(timezone.utc)) + check_csv()
     table = render_table(run) if run else "(no scrape record)"
 
     print("── HKAcadJobs scrape health ──────────────────────────")
