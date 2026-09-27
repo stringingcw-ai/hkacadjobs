@@ -2960,6 +2960,39 @@ def expected_count(runs, name, previous_count):
     return statistics.median(samples)
 
 
+# ── Job registry: the first and last day each job id was actually scraped.
+#    Unlike the previous CSV, it remembers jobs through portal outages, so a
+#    job that drops out and comes back keeps its original date_added and isn't
+#    re-flagged NEW (or re-alerted to subscribers).
+REGISTRY_FILE        = Path(__file__).parent / "job_registry.json"
+REAPPEAR_WINDOW_DAYS = 60    # absent longer than this → treated as a new posting
+REGISTRY_KEEP_DAYS   = 180   # forget ids not scraped for this long
+FALLBACK_MAX_DAYS    = 14    # stop showing a failing portal's old jobs after this
+
+
+def load_registry():
+    """{job id: [first_seen, last_seen]} as ISO dates (HKT)."""
+    try:
+        return json.loads(REGISTRY_FILE.read_text(encoding="utf-8")).get("jobs", {})
+    except (OSError, ValueError):
+        return {}
+
+
+def save_registry(registry):
+    cutoff = (TODAY - timedelta(days=REGISTRY_KEEP_DAYS)).isoformat()
+    lines = [f"{json.dumps(k, ensure_ascii=False)}:{json.dumps(v)}"
+             for k, v in sorted(registry.items()) if v[1] >= cutoff]
+    # One job per line keeps daily diffs small and readable
+    REGISTRY_FILE.write_text('{"version":1,"jobs":{\n' + ",\n".join(lines) + "\n}}\n", encoding="utf-8")
+
+
+def days_since(date_str):
+    try:
+        return (TODAY - date.fromisoformat(date_str)).days
+    except (TypeError, ValueError):
+        return 10 ** 6
+
+
 def deduplicate(jobs):
     """Remove duplicate jobs by id."""
     seen = set()
@@ -3016,6 +3049,8 @@ def main():
 
     all_jobs = []
     health_runs, health_results = None, {}
+    registry = load_registry()
+    scraped_ids = set()   # ids actually returned by a scraper today (not kept from before)
 
     if args.uni:
         # Scrape single university
@@ -3024,6 +3059,7 @@ def main():
             print(f"Unknown university: {uni}. Options: {', '.join(SCRAPERS.keys())}")
             sys.exit(1)
         all_jobs = SCRAPERS[uni]()
+        scraped_ids = {j["id"] for j in all_jobs}
     else:
         # Scrape all
         health_runs = load_health_runs()
@@ -3049,14 +3085,21 @@ def main():
             # On any failure, keep the previous run's rows for this institution
             # that weren't re-scraped, so they don't vanish today and come back
             # tomorrow as "new" (re-alerted, re-summarised, new date_added).
+            # Rows not actually scraped for FALLBACK_MAX_DAYS are dropped, so a
+            # portal that stays broken doesn't show stale jobs indefinitely.
             kept = []
             if status != "ok":
-                scraped_ids = {j["id"] for j in jobs}
-                kept = [r for r in previous if r["id"] not in scraped_ids]
+                these_ids = {j["id"] for j in jobs}
+                candidates = [r for r in previous if r["id"] not in these_ids]
+                kept = [r for r in candidates
+                        if days_since(registry.get(r["id"], [today_str, today_str])[1]) <= FALLBACK_MAX_DAYS]
+                stale = len(candidates) - len(kept)
                 print(f"  ⚠️  {name}: {status} — {len(jobs)} scraped vs ~{expected:.0f} usual; "
-                      f"keeping {len(kept)} jobs from the previous run")
+                      f"keeping {len(kept)} jobs from the previous run"
+                      + (f" (dropped {stale} not seen for {FALLBACK_MAX_DAYS}+ days)" if stale else ""))
             all_jobs.extend(jobs)
             all_jobs.extend(kept)
+            scraped_ids.update(j["id"] for j in jobs)
 
             health_results[name] = {
                 "university": ",".join(SCRAPER_UNI_CODES.get(name, [])),
@@ -3077,22 +3120,36 @@ def main():
     for j in all_jobs:
         j["rank"] = detect_rank(j["title"], j.get("description", ""))
 
-    # Override is_new and set date_added based on previous run.
-    # is_new = TRUE only for job IDs not seen in the previous CSV (new today).
+    # Override is_new and set date_added based on previous runs.
+    # is_new = TRUE only for job IDs never seen before (or not seen for
+    # REAPPEAR_WINDOW_DAYS) — a job that dropped out briefly isn't new.
     for j in all_jobs:
         # Ensure date_posted field exists (scrapers that don't set it leave it blank)
         if "date_posted" not in j:
             j["date_posted"] = ""
+        seen = registry.get(j["id"])
+        if seen and days_since(seen[1]) > REAPPEAR_WINDOW_DAYS:
+            seen = None   # back after a long gap: a new posting, with a fresh history
         if j["id"] in existing:
             j["is_new"] = "FALSE"
             j["date_added"] = existing[j["id"]]["date_added"]
             # Preserve previously captured date_posted if scraper didn't return one this run
             if not j["date_posted"]:
                 j["date_posted"] = existing[j["id"]].get("date_posted", "")
+        elif seen and days_since(seen[1]) <= REAPPEAR_WINDOW_DAYS:
+            # Back after a portal hiccup or partial scrape: keep its original date
+            j["is_new"] = "FALSE"
+            j["date_added"] = seen[0]
         else:
             # Don't mark as new if the deadline has already passed
             j["is_new"] = "TRUE" if is_active(j.get("deadline", "")) else "FALSE"
             j["date_added"] = today_str
+        # Flaps before the registry existed reset some date_added values
+        if seen and seen[0] < (j["date_added"] or today_str):
+            j["date_added"] = seen[0]
+        # Record today's sighting (only for jobs a scraper actually returned)
+        if j["id"] in scraped_ids:
+            registry[j["id"]] = [j["date_added"] or today_str, today_str]
 
     # ── AI summarisation via Claude Haiku
     # Reuse existing summaries for known jobs; only call the API for jobs
@@ -3156,6 +3213,7 @@ def main():
     # Record this run for scraper/health.py (full runs only; written after the
     # CSV so a recorded run always means data was published)
     if health_runs is not None:
+        save_registry(registry)
         health_runs.append({
             "date": today_str,
             "run_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
