@@ -68,11 +68,12 @@ create table if not exists public.match_profiles (
 );
 alter table public.match_profiles enable row level security;
 
+-- (select auth.…()) is evaluated once per query rather than once per row
 drop policy if exists "match_profiles_own_row" on public.match_profiles;
 create policy "match_profiles_own_row" on public.match_profiles
   for all to authenticated
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id and email = (auth.jwt() ->> 'email'));
+  using ((select auth.uid()) = user_id)
+  with check ((select auth.uid()) = user_id and email = ((select auth.jwt()) ->> 'email'));
 
 
 -- STEP 4 — The unsubscribe link in alert emails (?unsubscribe=<token>) also

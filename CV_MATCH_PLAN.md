@@ -1,6 +1,6 @@
 # CV matching: implementation plan
 
-**Status:** Phase 1 (the matching service) was built on 29 Sep 2026; the one-off setup is in README.md, "CV matching service". Phases 2 and 3 are not started. Where the build differs from the plan, the Phase 1 section below says what was built. Decisions made with the owner: sign-in required, no LinkedIn, Claude Sonnet 5.5, and nothing stored unless the user opts in to a saved profile with match alerts.
+**Status:** Phase 1 (the matching service) was built on 29 Sep 2026 and deployed on 30 Sep through the Supabase connector: the SQL was applied as the migrations `cv_match_2026_10` and `cv_match_2026_10_policy_select_auth`, and `match-jobs` version 1 is active. The one-off setup is in README.md, "CV matching service". Phases 2 and 3 are being built on the `claude/gallant-mendel-d4hyab` branch; nothing is on the live site yet. Where the build differs from the plan, the Phase 1 section below says what was built. Decisions made with the owner: sign-in required, no LinkedIn, Claude Sonnet 5.5, and nothing stored unless the user opts in to a saved profile with match alerts.
 
 ## Context
 
