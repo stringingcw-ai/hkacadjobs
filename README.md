@@ -125,11 +125,13 @@ Jobs with a known deadline are retained for up to **14 days after expiry**, then
 │   ├── alert_log.json      # Jobs already emailed to each subscription, keyed by a hash of its token
 │   ├── requirements.txt    # Pinned Python dependencies
 │   └── tests/          # pytest suite (python -m pytest scraper/tests)
-├── supabase/           # One-off SQL to run in the Supabase SQL editor
+├── supabase/           # One-off SQL to run in the Supabase SQL editor, and the Edge Functions
+│   └── functions/match-jobs/  # CV matching service (Deno/TypeScript; see "CV matching service" below)
 └── .github/workflows/
     ├── scrape.yml      # Daily: scrape → pages → publish → wait for deploy → alerts → health check
     ├── check-links.yml # Weekly Apply-link check
-    └── tests.yml       # Lint + tests on every change to the scraper or site
+    ├── tests.yml       # Lint + tests on every change to the scraper, site or functions
+    └── deploy-functions.yml  # Deploys supabase/functions when they change on main
 ```
 
 ---
@@ -201,6 +203,45 @@ The GitHub Actions workflow (`.github/workflows/scrape.yml`) runs the scraper da
 **Link check:** `.github/workflows/check-links.yml` opens every job's Apply link from GitHub's runners each Monday and fails (emailing you) when an institution has many broken links; the run page lists them.
 
 **Scrape health:** each institution's result is compared with its usual job count (median of recent runs). If a scraper crashes, returns nothing, or returns under 70% of usual, the previous run's jobs for that institution are kept (so they don't reappear as "new" and get re-alerted), and the final *Check scrape health* step fails the run so GitHub emails you. Add a `HEALTH_ALERT_EMAIL` repository secret to also receive a Resend email with the details.
+
+---
+
+## CV matching service
+
+`supabase/functions/match-jobs` is a Supabase Edge Function for signed-in users. It reads a CV, or a personal or
+academic web page, with Claude Sonnet 5.5 and builds a profile: field, specialisms, level, qualifications and
+languages. It then shortlists the 40 open jobs in `jobs.csv` whose wording best fits that profile, and asks Claude to
+rank them, with a short "why this fits you" and any gaps for each. The site calls it in two steps:
+`{"action": "profile", "text" | "url"}` returns the profile, which the user can check and edit, and
+`{"action": "match", "profile", "prefs"}` returns up to 12 matches. The CV is never stored, and emails, phone numbers
+and ID numbers are removed before anything is sent to Claude. The plan, including the website changes and the match
+alerts still to come, is in `CV_MATCH_PLAN.md`.
+
+**Setup (once):**
+1. Run `supabase/2026-10-cv-match.sql` in Supabase → SQL Editor.
+2. In Supabase → Edge Functions → Secrets, add `ANTHROPIC_API_KEY`. A key of its own makes the spend easy to follow.
+3. Add the repository secrets `SUPABASE_ACCESS_TOKEN` (Supabase → Account → Access Tokens) and
+   `SUPABASE_PROJECT_REF` (`xdlarqwycodfoahmkvha`), then run *Deploy functions* in the Actions tab. After that it
+   deploys by itself whenever the function changes on `main`.
+4. Set a monthly spend limit in the Anthropic Console as a hard stop.
+
+**Limits and settings** (optional Edge Function secrets; days follow Hong Kong time):
+
+| Secret | Default | Meaning |
+|---|---|---|
+| `USER_PROFILE_PER_DAY` | 3 | CV analyses per account per day |
+| `USER_MATCH_PER_DAY` | 10 | Match runs per account per day |
+| `DAILY_BUDGET_USD` | 10 | Site-wide Claude spend per day; matching pauses when it is reached |
+| `ALERT_DAILY_BUDGET_USD` | 3 | Claude spend per day for match alerts |
+| `MATCH_MODEL` | `claude-sonnet-5-5` | The Claude model |
+| `MATCH_ENABLED` | `true` | `false` pauses matching |
+
+**Cost:** about US$0.08 per match on Claude Sonnet 5.5, or about US$0.10 from a web page link. The query at the end of
+the SQL file shows use and spend per day.
+
+**Tests:** `cd supabase/functions/match-jobs && deno task check` formats, lints, type-checks and runs the tests, which
+use a fake Claude. `ANTHROPIC_API_KEY=… deno task eval` runs the eight test CVs in `testdata/personas.json` through the
+real pipeline (about US$0.70) and prints the matches for review.
 
 ---
 

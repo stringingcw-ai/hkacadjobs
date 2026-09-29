@@ -1,6 +1,6 @@
 # CV matching: implementation plan
 
-**Status:** proposed on 29 Sep 2026, not implemented yet. Decisions made with the owner: sign-in required, no LinkedIn, Claude Sonnet 5.5, and nothing stored unless the user opts in to a saved profile with match alerts.
+**Status:** Phase 1 (the matching service) was built on 29 Sep 2026; the one-off setup is in README.md, "CV matching service". Phases 2 and 3 are not started. Where the build differs from the plan, the Phase 1 section below says what was built. Decisions made with the owner: sign-in required, no LinkedIn, Claude Sonnet 5.5, and nothing stored unless the user opts in to a saved profile with match alerts.
 
 ## Context
 
@@ -50,11 +50,10 @@ Why this shape:
 
 ## Phase 1: Matching service (edge function, database, CI and deploy)
 
-**New: `supabase/functions/match-jobs/`**, with `deno.json` import map pinning `npm:@anthropic-ai/sdk`, `npm:zod`, `jsr:@std/csv` and `npm:@supabase/supabase-js@2.117.2`, the same version as the site.
+**New: `supabase/functions/match-jobs/`**, with a `deno.json` import map pinning `npm:@anthropic-ai/sdk@0.129.0` and `jsr:@std/csv`. The database is reached through plain PostgREST calls, so neither zod nor supabase-js is needed.
 - `index.ts`: the request handler.
   - CORS preflight; only `https://www.hkacadjobs.org` and localhost are allowed.
-  - Reads the JWT claims (the gateway has already verified them).
-  - Accepts only `role = authenticated` (a signed-in user: `sub`, `email`), not Supabase anonymous accounts (`is_anonymous`), or `service_role` (the alert run).
+  - Checks the caller's token with Supabase Auth (`/auth/v1/user`) and accepts only a signed-in user, not a Supabase anonymous account (`is_anonymous`). The alert run is recognised by the service key itself.
   - The public anon key alone gets 401 `sign_in_required`, which the site turns into the sign-up prompt.
   - `MATCH_ENABLED=false` is a kill switch that returns 503.
 - `jobs.ts`
@@ -69,7 +68,7 @@ Why this shape:
   - The score is multiplied by a rank factor: 1.0 if the job's rank is in `suitable_ranks`, 0.8 for `Other`, 0.5 otherwise.
   - Hard filters: open jobs only, the chosen role type (academic / non-academic via the `ACADEMIC_RANKS` labels, index.html:1229), and any institutions the user picked.
   - Keeps the top 40. For alerts, keeps at most 10 above a minimum score; with no candidates, no Claude call is made.
-- `claude.ts`: prompts, schemas (zod + `client.messages.parse()` with `output_config.format`) and the two calls.
+- `claude.ts`: prompts, JSON schemas (sent as `output_config.format`; replies are checked in `validate.ts`) and the calls.
   - `thinking` is omitted, so it is adaptive. `effort` is set explicitly: `low` for the profile, `medium` for ranking (Sonnet 5.5 defaults to `high`).
   - `max_tokens` is 4k for the profile and 8k for ranking. Timeout 60 s, `maxRetries: 1`.
   - Server-side refusal fallback is on (`fallbacks: "default"`, beta `server-side-fallback-2026-07-01`), as recommended for Sonnet 5.5.
@@ -79,11 +78,10 @@ Why this shape:
     - Enums: `career_stage`, `highest_degree`, `role_type`, `looks_like_cv`.
     - Numbers and labels: `years_experience`; `suitable_ranks` is a list of the site's `RANK_OPTIONS` labels (index.html:1233).
     - Lists: `disciplines`, `specialisms`, `skills`, `languages`, and `search_terms` (15–40 terms, including synonyms and Chinese equivalents where useful).
-  - **URL input:** adds `{type:"web_fetch_20260209", name:"web_fetch", max_uses:3, allowed_domains:[host], max_content_tokens:12000}`.
-    - `pause_turn` is resumed at most 3 times.
-    - A fetch error block becomes the message "we couldn't read that page — upload your CV instead".
-    - ORCID IDs are rewritten to ORCID's public record URL.
-    - If the API rejects web fetch combined with structured output, use a two-step fallback: fetch, then extract.
+  - **URL input** (as built, two calls): Claude reads the page with `{type:"web_fetch_20260209", name:"web_fetch", max_uses:2, allowed_domains:[host], max_content_tokens:10000}` and writes plain notes of at most 400 words. Contact details are removed from the notes, which then go through the same profile step as a CV. This avoids depending on web fetch and structured output working together.
+    - `pause_turn` is resumed at most twice.
+    - A failed fetch, or an "UNREADABLE" reply, becomes the message "we couldn't read that page — upload your CV instead".
+    - ORCID-specific handling was left out: ORCID pages need JavaScript, so users with only an ORCID link are asked for their CV.
   - **Ranking prompt:** acts as a Hong Kong higher-education recruiter.
     - Weighs discipline fit, seniority against rank, required degree or registration, years of experience and language requirements (Cantonese / Putonghua).
     - Must never use personal characteristics. Leaves out poor fits.

@@ -10,3 +10,8 @@ __pycache__/
 .env.local
 scraper/.env.local
 .pytest_cache/
+
+# Supabase CLI
+supabase/.temp/
+supabase/.branches/
+supabase/.env.local
