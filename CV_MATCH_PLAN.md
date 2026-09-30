@@ -1,8 +1,9 @@
 # CV matching: implementation plan
 
 **Status (30 Sep 2026):** All three phases are built on the `claude/gallant-mendel-d4hyab` branch. Nothing on the live site has changed.
-- **Live Supabase project:** has the database side, applied as the migrations `cv_match_2026_10`, `cv_match_2026_10_policy_select_auth` and `cv_match_2026_10_profile_prefs`. `match-jobs` version 1 is deployed.
-- **Before it can match anything:** the function needs the `ANTHROPIC_API_KEY` secret.
+- **Live Supabase project:** has the database side, applied as the migrations `cv_match_2026_10`, `cv_match_2026_10_policy_select_auth` and `cv_match_2026_10_profile_prefs`.
+- **The function:** `match-jobs` is deployed with its `ANTHROPIC_API_KEY` secret, running the same code as the branch.
+- **Quality check:** the eight test CVs went through Claude twice on 30 Sep, and the ranking prompt was tuned in between (see Verification).
 - **Owner's steps:** reviewing locally and launching are covered in `CV_MATCH_LAUNCH.md`; the setup is in README.md, "CV matching".
 - **Where the build differs from this plan:** each phase ends with an "As built" note.
 
@@ -279,6 +280,11 @@ Why this shape:
     - **Messages:** the daily-limit and LinkedIn messages show.
     - **Sign-out:** clears the matches, the pending sign-in intent and the consent tick.
 - **Quality check (≈ US$1):** run the 8 personas through the live pipeline once. Read the top matches and the why/gaps text, then adjust the weights, `effort` and prompts. Record the results in the PR.
+  - *As run on 30 Sep*, with the *CV match quality check* workflow against the 1,474 open jobs:
+    - [Run 1](https://github.com/stringingcw-ai/hkacadjobs/actions/runs/36783183330) (US$0.42) and [run 2](https://github.com/stringingcw-ai/hkacadjobs/actions/runs/36784032424) (US$0.43). Each CV cost about US$0.05 and took 10–17 seconds.
+    - The profiles, reasons and gaps were specific and fair.
+    - Run 1 offered two people posts well above their level as "possible" fits: a Chair Professor/Professor/Associate Professor post to the new civil-engineering PhD (62), and a Professor of Practice post to the nurse educator (52). The ranking prompt now leaves out posts two or more levels above the person unless the ad also welcomes their level.
+    - Run 2 confirmed the fix. Both posts are gone, while a Professor/Associate Professor/Assistant Professor post, which covers the PhD's level, rose from 66 to 72. The other results stayed much the same, so the weights and `effort` were left as they are.
 - **Live smoke test after deploy:**
   - On `https://www.hkacadjobs.org/?beta=match`, sign up with a new email and confirm the modal resumes after the magic link. Run one match.
   - Check the Supabase function logs (no CV text logged), the `match_usage` cost, the GA4 `sign_up` / `cv_match_*` events, and Anthropic Console usage.

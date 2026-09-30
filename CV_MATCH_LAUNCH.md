@@ -2,11 +2,12 @@
 
 **Where things stand (30 Sep 2026)**
 - **The branch:** everything is on `claude/gallant-mendel-d4hyab`, and nothing on the live site has changed.
-- **The live Supabase project:** already has the database tables and the `match-jobs` function.
-- **What's missing:** the function can't analyse a CV until it has a Claude API key (step 1 below).
+- **The live Supabase project:** has the database tables, the `match-jobs` function and its Claude API key (step 1, done). The function runs the same code as the branch.
+- **Quality:** the eight test CVs went through Claude twice. The matches and reasons read well, and the one problem the first run found is fixed (see the end of this file).
+- **Next:** your review on your computer (step 2).
 - **More detail:** the design is in `CV_MATCH_PLAN.md`; how it all works is in README.md, "CV matching".
 
-## 1. Before you review (about 10 minutes)
+## 1. Before you review (done 30 Sep)
 
 1. **Give the function a Claude API key.**
    - Create a key just for this in the Anthropic Console, so its spend is easy to follow.
@@ -33,7 +34,7 @@ Things to try:
 - [ ] **Signed out:** click "✨ Find jobs that fit your CV" in the header area. You should see the short intro, then "Sign up free".
 - [ ] **Sign in:** use the emailed link. It opens a new tab, signed in, straight at "Add your CV".
 - [ ] **Add your CV:** upload your own CV as a PDF or Word file. "Check the text we'll send" shows exactly what leaves your browser, with the contact details taken out.
-- [ ] **Check the profile:** adjust it if needed, tick "Save my profile and email me new jobs that fit it", then click "Find my matches". It takes about a minute.
+- [ ] **Check the profile:** adjust it if needed, tick "Save my profile and email me new jobs that fit it", then click "Find my matches". In the quality check, analysing and matching took 10–17 seconds per CV.
 - [ ] **Read the reasons:** open a match and read "Why this may suit you". Are the reasons fair and useful?
 - [ ] **My CV profile** (in the account menu): switch the alerts off and on, and try deleting the saved profile.
 - [ ] **Web page tab:** try a university staff page. Also try a LinkedIn link, which should be turned away with a tip.
@@ -67,7 +68,7 @@ A phone can't reach `localhost`. To test on your phone, open the live site with 
 
 - **Quality check with Claude.** This runs the eight test CVs through the real pipeline, costs about US$0.45, and shows the matches for us to judge.
   - Run it from GitHub → Actions → *CV match quality check* → Run workflow. It uses the repository's `ANTHROPIC_API_KEY` secret, the key the daily summaries use.
-  - "Run workflow" appears once the branch is merged. Until then it runs whenever the workflow file changes on the branch.
+  - "Run workflow" appears once the branch is merged. Until then it runs by itself when the workflow file, the matching prompts or the shortlist change on the branch.
 - **Hide subscribers' email addresses in the Actions logs.**
   - The existing filter alerts print each subscriber's full email address in the public GitHub Actions log ("✅ Sent to …").
   - The new match alerts print a masked form (`n***@example.com`). The same for the old lines would be a two-line change.
@@ -86,6 +87,7 @@ A phone can't reach `localhost`. To test on your phone, open the live site with 
     - `unsubscribe_alert`, which now also stops match alerts.
   - The `match-jobs` function, deployed as version 1.
 - **30 Sep:** migration `cv_match_2026_10_profile_prefs`, which adds a `prefs` column to `match_profiles` (then empty) so alert emails respect the institutions a user chose.
+- **30 Sep, after the quality check:** `match-jobs` redeployed with the tuned ranking prompt (Supabase lists it as version 3). The deployed files are identical to the branch.
 
 ## What has and hasn't been checked
 
@@ -96,8 +98,12 @@ A phone can't reach `localhost`. To test on your phone, open the live site with 
   - Chinese text in a PDF is read.
   - Nothing new loads while the feature is switched off.
 - 84 Python tests and 46 function tests. They include the new alert email, the institution choices and the 90-day clean-up.
+- Claude's real profiles and matches for the eight test CVs, through the quality check on 30 Sep: [run 1](https://github.com/stringingcw-ai/hkacadjobs/actions/runs/36783183330) (US$0.42) and [run 2](https://github.com/stringingcw-ai/hkacadjobs/actions/runs/36784032424) (US$0.43).
+  - The profiles, reasons and gaps were specific and fair. Each CV cost about US$0.05.
+  - Run 1 offered two people posts well above their level as "possible" fits: a Chair Professor post to a new PhD graduate, and a Professor of Practice post to a nurse educator. The ranking prompt now leaves out posts two or more levels above the person, unless the ad also welcomes their level.
+  - Run 2 confirmed the fix: both posts are gone, and the other results stayed much the same.
 
 **Not yet checked**
-- Claude's real profiles and reasons: that needs the key (steps 1 and 4).
+- A real CV through the live function. The quality check runs the same code on GitHub, not on Supabase, so your review in step 2 is its first real use. Afterwards, a Claude session can check the function's logs and the usage table.
 - A real sign-in email round trip on `localhost`.
 - Safari on an actual iPhone: the walkthrough used Chromium's phone mode.
