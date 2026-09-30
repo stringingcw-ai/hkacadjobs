@@ -1,0 +1,52 @@
+name: CV match quality check
+
+# Sends the eight test CVs in supabase/functions/match-jobs/testdata/personas.json through the real
+# matching pipeline (Claude, about US$0.45 a run, using the ANTHROPIC_API_KEY repository secret) and
+# shows each one's matches on the run page for a person to judge. Nothing is stored.
+# Run it from the Actions tab. It also runs when the matching prompts, the shortlist or this file
+# change on a claude/ branch, so a change can be checked before it's merged.
+on:
+  workflow_dispatch:
+  push:
+    branches: ["claude/**"]
+    paths:
+      - ".github/workflows/cv-match-eval.yml"
+      - "supabase/functions/match-jobs/claude.ts"
+      - "supabase/functions/match-jobs/shortlist.ts"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cv-match-eval
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+        working-directory: supabase/functions/match-jobs
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.9.x
+
+      - name: Run the test CVs through Claude
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: deno task eval 2>&1 | tee "$RUNNER_TEMP/eval.txt"
+
+      - name: Show the results on the run page
+        if: always()
+        run: |
+          {
+            echo "## CV match quality check"
+            echo
+            echo '```'
+            cat "$RUNNER_TEMP/eval.txt" 2>/dev/null || echo "(no output)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

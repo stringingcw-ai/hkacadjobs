@@ -217,10 +217,8 @@ tracked in the report, not here. New operations items are in §9.
 **Symptom:** Events are fired but no GA4 funnel is defined for `search → filter_active → job_detail_viewed → apply_click → alert_subscribed`. The drop-off we're analyzing in this doc is based on code reading, not production data.
 **Fix:** Define the funnel in GA4 Explore once `apply_click` and `search_no_results` ship. Track weekly drop-off rate at each step. Not a code change — operations task for the repo owner. *(Health check §8.3)* Also mark `apply_click` and `alert_subscribed` as key events, set event data retention to 14 months, register `university`, `rank`, `source` and `filter_type` as custom dimensions, and link Search Console (step-by-step guide given 2026-09-27). Apply clicks on static job pages arrive with `source: static_page`.
 
-### [P1] Sign-in isn't tracked — S
-**Symptom:** No event fires when someone completes the email (magic-link) sign-in, so sign-ups can't be a GA4 key event or a funnel step.
-**Fix:** Send GA4's recommended `login` event (`method: 'magic_link'`) from the Supabase `onAuthStateChange` `SIGNED_IN` handler, and `sign_up` when the account is new (e.g. `created_at` within the last minute).
-**Evidence:** index.html `_sb.auth.onAuthStateChange`, `sendMagicLink`.
+### [P1] ~~Sign-in isn't tracked — S~~ ✅ DONE 2026-09-30 (with CV matching)
+The tab a magic link opens sends GA4's `login` or `sign_up` event (`method: 'magic_link'`, `source: 'cv_match'` or `'site'`). It's `sign_up` when the email was confirmed at that sign-in. `created_at` isn't used, because the account is created when the link is requested. `magic_link_sent` counts the links requested.
 
 ### [P1] Weekly owner report email — M *(Health check §8.3)*
 **Symptom:** The owner has to open GA4, Supabase and GitHub separately to see how the site is doing.
@@ -270,6 +268,22 @@ tracked in the report, not here. New operations items are in §9.
 
 ## 9. Operations & monitoring
 
+### [P0] Switch to Supabase's new API keys before the end of 2026 — M
+**Symptom:** The project uses Supabase's legacy `anon` and `service_role` keys, which stop working at the end of 2026 (Supabase's migration guide, checked 30 Sep 2026). Without the switch, sign-in, saved jobs and filters, alert emails and CV matching all stop working.
+**Fix:** Follow Supabase's guide. Both kinds of key work side by side, so each part can move on its own, and the old keys are switched off last (that step can be undone).
+- Create the new keys in Supabase → Settings → API Keys.
+- Site: replace `SUPABASE_ANON_KEY` in index.html with the publishable key (`sb_publishable_…`). `cv-match.js` uses the same constant.
+- Daily run: put the publishable key and the secret key (`sb_secret_…`) in the GitHub secrets `SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_KEY`. The new keys may only be sent in the `apikey` header, so `_supabase_request` in `scraper/notify.py` and the calls in `scraper/match_alerts.py` must stop also sending them as `Authorization: Bearer`.
+- `match-jobs` function:
+  - Read the keys from `SUPABASE_PUBLISHABLE_KEYS` and `SUPABASE_SECRET_KEYS`. These hold JSON, and the key is under `default`.
+  - Recognise the alert run by its `apikey` header, not the Bearer token (`handler.ts`).
+  - Send the secret key only as `apikey` when writing usage rows (`usage.ts`).
+  - Set `verify_jwt = false`, because the platform's check doesn't understand the new keys. The function already checks users itself.
+- Check that nothing still uses the old keys, then deactivate them.
+- Optional and separate: move Supabase Auth to JWT signing keys.
+
+**Evidence:** https://supabase.com/docs/guides/getting-started/migrating-to-new-api-keys; index.html (`SUPABASE_ANON_KEY`), cv-match.js (`callApi`), scraper/notify.py, scraper/match_alerts.py, .github/workflows/scrape.yml, supabase/functions/match-jobs (`config.ts`, `index.ts`, `handler.ts`, `usage.ts`), supabase/config.toml.
+
 ### [P2] Email scrape-health alerts with details (`HEALTH_ALERT_EMAIL` secret) — S
 **Symptom:** When the daily run finds a problem (an institution crashed, came back empty or far below its usual count, alert emails failed, or `jobs.csv` has malformed rows), the *Check scrape health* step fails the run and GitHub sends its generic "run failed" email. The details (which institution, how many jobs, how many were kept from the previous run) are only on the run page.
 **Fix:** Add a repository secret `HEALTH_ALERT_EMAIL` (GitHub → Settings → Secrets and variables → Actions → New repository secret) with the address to notify. No code change is needed: `scraper/health.py` and `scraper/check_links.py` already send a Resend email with the per-institution table and the run link whenever it is set.
@@ -292,12 +306,22 @@ tracked in the report, not here. New operations items are in §9.
 **Symptom:** Generated HTML under `/jobs/` is committed daily. Pages are now rewritten only when a job changes, so repository growth has slowed a lot, but it still grows.
 **Fix:** Build the pages in the workflow and deploy with `actions/deploy-pages` instead of committing them.
 
+### CV matching follow-ups *(see CV_MATCH_PLAN.md)*
+- **Better recall with embeddings — M:** if the quality check shows good jobs missing from the 40-job keyword shortlist, add embeddings (e.g. Voyage), stored per job by the daily run.
+- **Topic tags per job — S:** add tags to the summary schema in `scraper/summaries.py`, so the shortlist and the site's filters can use them.
+- **One email instead of two — S:** someone with both saved-filter alerts and match alerts gets two emails a day. Merge them into one.
+- **Chinese interface for CV matching — M:** part of the Traditional and Simplified Chinese work in §1. CVs in Chinese already work.
+- **Automated browser test in CI — M:** the local review walkthrough of 30 Sep was run by hand. A Playwright job in `tests.yml` would catch regressions.
+
 ---
 
 ## Priority summary (quick-pick for next sprint)
 
-*Updated 2026-09-28.* Most of the April P0s have shipped (✅ above). The September health check fixed alerts,
+*Updated 2026-09-30.* Most of the April P0s have shipped (✅ above). The September health check fixed alerts,
 scraping, data accuracy and job-page SEO, so the retention loop now works and it's worth growing.
+
+**Deadline:** switch to Supabase's new API keys before the end of 2026 (§9). The old keys stop working then, and
+sign-in, alerts and CV matching would stop with them.
 
 **Growth, in suggested order:**
 1. Hero "email me all new jobs" signup with double opt-in (§5): alerts are reliable now, so this is the main retention lever.
@@ -311,7 +335,7 @@ scraping, data accuracy and job-page SEO, so the retention loop now works and it
 **Owner tasks (no code):** GA4 key events, funnel and custom dimensions (§6); Search Console follow-up (§6);
 `HEALTH_ALERT_EMAIL` secret (§9); partnership outreach (§1).
 
-**P1 backlog:** Homepage ItemList schema, fonts preload, saved-filter prompt, related jobs in the panel, apply return-hook, social proof, last-scrape pill, ARIA pass, sign-in tracking, weekly owner report.
+**P1 backlog:** Homepage ItemList schema, fonts preload, saved-filter prompt, related jobs in the panel, apply return-hook, social proof, last-scrape pill, ARIA pass, weekly owner report, CV matching follow-ups (§9).
 
 **P2 backlog:** Job view counts, skeleton rows, service worker / PWA / web push, per-job share, recent searches, keyboard-navigable multiselects, emoji aria, skip link, source attribution, re-engagement email, A/B harness, "extended / re-advertised" badges, summary refresh, `date_posted` and logos, scraper speed-ups, deploy pages without committing.
 

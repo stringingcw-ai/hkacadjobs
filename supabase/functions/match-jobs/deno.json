@@ -1,0 +1,16 @@
+{
+  "imports": {
+    "@anthropic-ai/sdk": "npm:@anthropic-ai/sdk@0.129.0",
+    "@std/assert": "jsr:@std/assert@1.0.19",
+    "@std/csv": "jsr:@std/csv@1.0.6"
+  },
+  "lock": false,
+  "tasks": {
+    "test": "deno test --allow-read=testdata",
+    "check": "deno fmt --check && deno lint && deno check index.ts eval.ts && deno test --allow-read=testdata",
+    "eval": "deno run --allow-read=testdata --allow-env --allow-net eval.ts"
+  },
+  "fmt": {
+    "lineWidth": 120
+  }
+}

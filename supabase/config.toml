@@ -1,0 +1,9 @@
+# Supabase CLI settings, used to deploy the Edge Functions in supabase/functions
+# (see .github/workflows/deploy-functions.yml). The database is not managed from
+# here: run the dated .sql files in this folder in the Supabase SQL Editor.
+project_id = "hkacadjobs"
+
+[functions.match-jobs]
+# Every call needs a valid Supabase token; the function then accepts only a
+# signed-in user's token, or the service key for the daily alert run.
+verify_jwt = true

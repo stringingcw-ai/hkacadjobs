@@ -1,0 +1,99 @@
+# CV matching: launch checklist
+
+**Where things stand (30 Sep 2026)**
+- **Live for everyone** since 30 Sep, as a trial of a few days. The branch `claude/gallant-mendel-d4hyab` was merged into `main`.
+- **The live Supabase project:** has the database tables, the `match-jobs` function and its Claude API key (step 1, done). The function runs the same code as `main`.
+- **Quality:** the eight test CVs went through Claude twice. The matches and reasons read well, and the one problem the first run found is fixed (see the end of this file).
+- **Most urgent:** your own sender for sign-in emails (step 3.1).
+- **To switch it off:** either set `CV_MATCH_PUBLIC = false` in `index.html`, which hides the buttons, or add the Supabase secret `MATCH_ENABLED` = `false` (Edge Functions → Secrets), after which the site says matching is paused. A Claude session can do either.
+- **More detail:** the design is in `CV_MATCH_PLAN.md`; how it all works is in README.md, "CV matching".
+
+## 1. Before launch (done 30 Sep)
+
+1. **Give the function a Claude API key.**
+   - Create a key just for this in the Anthropic Console, so its spend is easy to follow.
+   - Add it in Supabase → Edge Functions → Secrets as `ANTHROPIC_API_KEY`.
+   - Until then, "Analyse my CV" ends with "Something went wrong".
+2. **Let sign-in links come back to your computer.** In Supabase → Authentication → URL Configuration → Redirect URLs, add `http://localhost:8000/**`. Without it, the sign-in link takes you to the live site instead.
+3. **Set a monthly spend limit** in the Anthropic Console, as a hard stop on top of the site's own limits.
+   - The site's limits: US$10 a day for users, US$3 a day for alert emails.
+   - Each user can analyse 3 CVs and run 10 matches a day.
+
+## 2. Try it yourself
+
+On **https://www.hkacadjobs.org**, on a computer or your phone. Things to try:
+- [ ] **Signed out:** click "✨ Find jobs that fit your CV" in the header area. You should see the short intro, then "Sign up free".
+- [ ] **Sign in:** use the emailed link. It opens a new tab, signed in, straight at "Add your CV".
+- [ ] **Add your CV:** upload your own CV as a PDF or Word file. "Check the text we'll send" shows exactly what leaves your browser, with the contact details taken out.
+- [ ] **Check the profile:** adjust it if needed, tick "Save my profile and email me new jobs that fit it", then click "Find my matches". In the quality check, analysing and matching took 10–17 seconds per CV.
+- [ ] **Read the reasons:** open a match and read "Why this may suit you". Are the reasons fair and useful?
+- [ ] **My CV profile** (in the account menu): switch the alerts off and on, and try deleting the saved profile.
+- [ ] **Web page tab:** try a university staff page. Also try a LinkedIn link, which should be turned away with a tip.
+- [ ] **Signing out:** your matches should disappear from that browser.
+
+Each full run costs about US$0.05, a little more from a web page link. After you've tried it, a Claude session can check the matching service's logs and costs.
+
+To try a change before it goes live, see README.md, "Trying it locally".
+
+## 3. During the trial
+
+1. **Sign-in emails (most urgent).**
+   - Supabase's built-in email service sends only a few emails an hour for the whole site, on a best-effort basis. Every sign-in link counts, including for saved jobs and alerts, so a rush of sign-ups would block sign-in for everyone until the hour is up.
+   - Set up your own sender under Supabase → Authentication → Emails → SMTP settings. Resend, which already sends the alerts, works.
+   - Then raise the email rate limit.
+2. **Automatic function deploys (optional for now).** The function is already deployed. To deploy future changes by themselves:
+   - Add the GitHub repository secrets `SUPABASE_ACCESS_TOKEN` (Supabase → Account → Access Tokens) and `SUPABASE_PROJECT_REF` (value `xdlarqwycodfoahmkvha`).
+   - Then run *Deploy functions* in the Actions tab once.
+3. **Google Analytics.** Mark `sign_up` and `cv_match_results` as key events. That shows how many sign-ups the feature brings.
+   - The funnel is `cv_match_cta_click` → `cv_match_intro` → `cv_match_signin_prompt` → `magic_link_sent` → `sign_up` → `cv_match_submit` → `cv_match_profile` → `cv_match_results` → `apply_click` with `source` = `cv_match`.
+   - To break these down, register `where`, `input` and `code` as custom dimensions.
+4. **Read the privacy wording** (About → Privacy, also linked from the footer). It's live now.
+   - It's written as a collection notice in the spirit of Hong Kong's privacy law (PDPO).
+   - Check that it says what you're happy to promise. In particular, check the line about Anthropic not training on the data against the terms of your API account.
+5. **Launch: done 30 Sep.**
+   - `CV_MATCH_PUBLIC = true`, with violet buttons to mark the feature as new. A launch banner (`BANNER_VERSION`) can still be added.
+   - Match alert emails start with the first daily run after the merge, for anyone who saved their profile.
+
+## 4. Optional
+
+- **Quality check with Claude.** This runs the eight test CVs through the real pipeline, costs about US$0.45, and shows the matches for us to judge.
+  - Run it from GitHub → Actions → *CV match quality check* → Run workflow. It uses the repository's `ANTHROPIC_API_KEY` secret, the key the daily summaries use.
+  - It also runs by itself when the workflow file, the matching prompts or the shortlist change on a `claude/` branch, so a change can be checked before it's merged.
+- **Hide subscribers' email addresses in the Actions logs.**
+  - The existing filter alerts print each subscriber's full email address in the public GitHub Actions log ("✅ Sent to …").
+  - The new match alerts print a masked form (`n***@example.com`). The same for the old lines would be a two-line change.
+- **Supabase advisor warnings that predate this work:**
+  - `saved_jobs` and `saved_filters` policies re-check sign-in for every row, which is slower than needed.
+  - `rls_auto_enable` can be called by signed-out visitors.
+  - Leaked-password protection is off. That doesn't matter with magic links, but it's flagged.
+  - `subscriptions.user_id` has no index.
+
+## Changes made on the live Supabase project
+
+- **29–30 Sep:**
+  - The database side, as the migrations `cv_match_2026_10` and `cv_match_2026_10_policy_select_auth`:
+    - the `match_usage` and `match_profiles` tables;
+    - the `match_quota_status` function;
+    - `unsubscribe_alert`, which now also stops match alerts.
+  - The `match-jobs` function, deployed as version 1.
+- **30 Sep:** migration `cv_match_2026_10_profile_prefs`, which adds a `prefs` column to `match_profiles` (then empty) so alert emails respect the institutions a user chose.
+- **30 Sep, after the quality check:** `match-jobs` redeployed with the tuned ranking prompt (Supabase lists it as version 3). The deployed files are identical to the branch.
+
+## What has and hasn't been checked
+
+**Checked**
+- A 60-step browser walkthrough, on a desktop, a 390 px phone, and with the feature switched off. Sign-in, the database and the function were stubbed.
+  - Every step of the journey worked.
+  - Only the redacted text is sent.
+  - Chinese text in a PDF is read.
+  - Nothing new loads while the feature is switched off.
+- 84 Python tests and 46 function tests. They include the new alert email, the institution choices and the 90-day clean-up.
+- Claude's real profiles and matches for the eight test CVs, through the quality check on 30 Sep: [run 1](https://github.com/stringingcw-ai/hkacadjobs/actions/runs/36783183330) (US$0.42) and [run 2](https://github.com/stringingcw-ai/hkacadjobs/actions/runs/36784032424) (US$0.43).
+  - The profiles, reasons and gaps were specific and fair. Each CV cost about US$0.05.
+  - Run 1 offered two people posts well above their level as "possible" fits: a Chair Professor post to a new PhD graduate, and a Professor of Practice post to a nurse educator. The ranking prompt now leaves out posts two or more levels above the person, unless the ad also welcomes their level.
+  - Run 2 confirmed the fix: both posts are gone, and the other results stayed much the same.
+
+**Not yet checked**
+- A real CV through the live function. The quality check runs the same code on GitHub, not on Supabase, so your review in step 2 is its first real use. Afterwards, a Claude session can check the function's logs and the usage table.
+- A real sign-in email round trip on `localhost`.
+- Safari on an actual iPhone: the walkthrough used Chromium's phone mode.
