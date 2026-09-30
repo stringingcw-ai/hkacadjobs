@@ -6,9 +6,10 @@ All notable changes to HKAcadJobs are recorded here, grouped by date.
 
 ## 2026-09-30
 
-CV matching ("Find jobs that fit your CV"), in beta. Until launch it shows only after visiting with `?beta=match` (see `CV_MATCH_LAUNCH.md`).
+CV matching ("Find jobs that fit your CV"), live for everyone as a trial (see `CV_MATCH_LAUNCH.md`).
 
 ### CV matching
+- Violet buttons mark the new feature: "✨ Find jobs that fit your CV" at the top of the page, and "For you" in the nav once someone has matches
 - Signed-in users add a CV: a PDF, Word or text file, pasted text, or a link to a web page about their work. Claude Sonnet 5.5 builds a profile they can check and change, then picks the open positions that fit them best, with a reason and anything worth checking for each
 - Files are read in the browser, and email addresses, phone numbers, ID numbers and details such as date of birth are removed before any text is sent. The CV is never stored
 - A "Jobs that fit you" view with the reasons, fit labels next to matching jobs in the listing, and "Why this may suit you" in the job panel

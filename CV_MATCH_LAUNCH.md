@@ -1,13 +1,14 @@
-# CV matching: review and launch checklist
+# CV matching: launch checklist
 
 **Where things stand (30 Sep 2026)**
-- **The branch:** everything is on `claude/gallant-mendel-d4hyab`, and nothing on the live site has changed.
-- **The live Supabase project:** has the database tables, the `match-jobs` function and its Claude API key (step 1, done). The function runs the same code as the branch.
+- **Live for everyone** since 30 Sep, as a trial of a few days. The branch `claude/gallant-mendel-d4hyab` was merged into `main`.
+- **The live Supabase project:** has the database tables, the `match-jobs` function and its Claude API key (step 1, done). The function runs the same code as `main`.
 - **Quality:** the eight test CVs went through Claude twice. The matches and reasons read well, and the one problem the first run found is fixed (see the end of this file).
-- **Next:** your review on your computer (step 2).
+- **Most urgent:** your own sender for sign-in emails (step 3.1).
+- **To switch it off:** either set `CV_MATCH_PUBLIC = false` in `index.html`, which hides the buttons, or add the Supabase secret `MATCH_ENABLED` = `false` (Edge Functions → Secrets), after which the site says matching is paused. A Claude session can do either.
 - **More detail:** the design is in `CV_MATCH_PLAN.md`; how it all works is in README.md, "CV matching".
 
-## 1. Before you review (done 30 Sep)
+## 1. Before launch (done 30 Sep)
 
 1. **Give the function a Claude API key.**
    - Create a key just for this in the Anthropic Console, so its spend is easy to follow.
@@ -18,19 +19,9 @@
    - The site's limits: US$10 a day for users, US$3 a day for alert emails.
    - Each user can analyse 3 CVs and run 10 matches a day.
 
-## 2. Review it on your computer
+## 2. Try it yourself
 
-In the folder where you keep the repository:
-
-```
-git fetch origin claude/gallant-mendel-d4hyab
-git checkout claude/gallant-mendel-d4hyab
-python3 -m http.server 8000
-```
-
-Then open **http://localhost:8000/?beta=match**. Use `localhost` rather than your computer's network address. The `?beta=match` switch is remembered in that browser; `?beta=off` hides the feature again.
-
-Things to try:
+On **https://www.hkacadjobs.org**, on a computer or your phone. Things to try:
 - [ ] **Signed out:** click "✨ Find jobs that fit your CV" in the header area. You should see the short intro, then "Sign up free".
 - [ ] **Sign in:** use the emailed link. It opens a new tab, signed in, straight at "Add your CV".
 - [ ] **Add your CV:** upload your own CV as a PDF or Word file. "Check the text we'll send" shows exactly what leaves your browser, with the contact details taken out.
@@ -40,14 +31,14 @@ Things to try:
 - [ ] **Web page tab:** try a university staff page. Also try a LinkedIn link, which should be turned away with a tip.
 - [ ] **Signing out:** your matches should disappear from that browser.
 
-Each full run costs about US$0.05, a little more from a web page link. Screenshots of every step, on a desktop and a phone, were shared in the Claude session on 30 Sep. They use placeholder match reasons, not Claude's.
+Each full run costs about US$0.05, a little more from a web page link. After you've tried it, a Claude session can check the matching service's logs and costs.
 
-A phone can't reach `localhost`. To test on your phone, open the live site with `?beta=match` after the branch is merged. The feature stays hidden from everyone else until step 3.5 below.
+To try a change before it goes live, see README.md, "Trying it locally".
 
-## 3. Before going live
+## 3. During the trial
 
-1. **Sign-in emails.**
-   - Supabase's built-in email service sends only a few sign-in emails an hour, so a sign-up rush would be throttled.
+1. **Sign-in emails (most urgent).**
+   - Supabase's built-in email service sends only a few emails an hour for the whole site, on a best-effort basis. Every sign-in link counts, including for saved jobs and alerts, so a rush of sign-ups would block sign-in for everyone until the hour is up.
    - Set up your own sender under Supabase → Authentication → Emails → SMTP settings. Resend, which already sends the alerts, works.
    - Then raise the email rate limit.
 2. **Automatic function deploys (optional for now).** The function is already deployed. To deploy future changes by themselves:
@@ -56,19 +47,18 @@ A phone can't reach `localhost`. To test on your phone, open the live site with 
 3. **Google Analytics.** Mark `sign_up` and `cv_match_results` as key events. That shows how many sign-ups the feature brings.
    - The funnel is `cv_match_cta_click` → `cv_match_intro` → `cv_match_signin_prompt` → `magic_link_sent` → `sign_up` → `cv_match_submit` → `cv_match_profile` → `cv_match_results` → `apply_click` with `source` = `cv_match`.
    - To break these down, register `where`, `input` and `code` as custom dimensions.
-4. **Read the privacy wording** (About → Privacy, also linked from the footer).
+4. **Read the privacy wording** (About → Privacy, also linked from the footer). It's live now.
    - It's written as a collection notice in the spirit of Hong Kong's privacy law (PDPO).
    - Check that it says what you're happy to promise. In particular, check the line about Anthropic not training on the data against the terms of your API account.
-5. **Launch.**
-   - Set `CV_MATCH_PUBLIC = true` in `index.html`, and add a launch banner (`BANNER_VERSION`) if you'd like one.
-   - Merge the branch into `main` through a pull request. A Claude session can do all of this on request.
-   - Match alert emails start with the first daily run after the merge.
+5. **Launch: done 30 Sep.**
+   - `CV_MATCH_PUBLIC = true`, with violet buttons to mark the feature as new. A launch banner (`BANNER_VERSION`) can still be added.
+   - Match alert emails start with the first daily run after the merge, for anyone who saved their profile.
 
 ## 4. Optional
 
 - **Quality check with Claude.** This runs the eight test CVs through the real pipeline, costs about US$0.45, and shows the matches for us to judge.
   - Run it from GitHub → Actions → *CV match quality check* → Run workflow. It uses the repository's `ANTHROPIC_API_KEY` secret, the key the daily summaries use.
-  - "Run workflow" appears once the branch is merged. Until then it runs by itself when the workflow file, the matching prompts or the shortlist change on the branch.
+  - It also runs by itself when the workflow file, the matching prompts or the shortlist change on a `claude/` branch, so a change can be checked before it's merged.
 - **Hide subscribers' email addresses in the Actions logs.**
   - The existing filter alerts print each subscriber's full email address in the public GitHub Actions log ("✅ Sent to …").
   - The new match alerts print a masked form (`n***@example.com`). The same for the old lines would be a two-line change.

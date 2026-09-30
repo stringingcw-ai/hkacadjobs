@@ -225,8 +225,8 @@ email when a new job fits. `CV_MATCH_PLAN.md` has the design; `CV_MATCH_LAUNCH.m
   ID numbers and details such as date of birth are removed before any text is sent. The latest profile and matches
   stay in the browser (`hkaj_match`) until sign-out. Bump `CV_MATCH_VERSION` in `index.html` whenever either file
   changes, so browsers fetch the new copy.
-- **Before launch** it's hidden: it appears only after visiting with `?beta=match` (remembered in that browser;
-  `?beta=off` forgets it). Setting `CV_MATCH_PUBLIC = true` in `index.html` shows it to everyone.
+- **Who sees it:** everyone, while `CV_MATCH_PUBLIC = true` in `index.html`. Setting it to `false` hides it again;
+  it then appears only after visiting with `?beta=match` (remembered in that browser; `?beta=off` forgets it).
 - **The service:** `supabase/functions/match-jobs`, a Supabase Edge Function that accepts only signed-in users. It
   reads the CV or web page with Claude Sonnet 5.5 and builds a profile: field, specialisms, level, qualifications and
   languages. It then shortlists the 40 open jobs in `jobs.csv` whose wording best fits that profile, and asks Claude
@@ -248,7 +248,7 @@ email when a new job fits. `CV_MATCH_PLAN.md` has the design; `CV_MATCH_LAUNCH.m
    Authentication → Emails → SMTP settings; Resend works) and raise the email rate limit.
 
 **Trying it locally:** run `python3 -m http.server 8000` in the repository and open
-`http://localhost:8000/?beta=match`. It uses the live Supabase project, so the sign-in link must be allowed to come
+`http://localhost:8000`. It uses the live Supabase project, so the sign-in link must be allowed to come
 back to your computer: add `http://localhost:8000/**` in Supabase → Authentication → URL Configuration → Redirect URLs.
 Open it as `localhost`: the function turns away network addresses such as `192.168.…`.
 

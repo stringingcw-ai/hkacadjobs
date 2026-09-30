@@ -1,6 +1,6 @@
 # CV matching: implementation plan
 
-**Status (30 Sep 2026):** All three phases are built on the `claude/gallant-mendel-d4hyab` branch. Nothing on the live site has changed.
+**Status (30 Sep 2026):** All three phases are built, and the feature is live for everyone as a trial (merged from the `claude/gallant-mendel-d4hyab` branch).
 - **Live Supabase project:** has the database side, applied as the migrations `cv_match_2026_10`, `cv_match_2026_10_policy_select_auth` and `cv_match_2026_10_profile_prefs`.
 - **The function:** `match-jobs` is deployed with its `ANTHROPIC_API_KEY` secret, running the same code as the branch.
 - **Quality check:** the eight test CVs went through Claude twice on 30 Sep, and the ranking prompt was tuned in between (see Verification).

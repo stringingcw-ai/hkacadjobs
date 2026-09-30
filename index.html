@@ -1253,9 +1253,10 @@ function trackEvent(name, params) {
 
 // ── CV matching ("Find jobs that fit your CV"). The UI is in cv-match.js and cv-match.css,
 // loaded when first used; the matching runs in the match-jobs Supabase Edge Function.
-// Until launch it's shown only after visiting with ?beta=match (remembered in this browser,
-// ?beta=off forgets it). To launch, set CV_MATCH_PUBLIC to true.
-const CV_MATCH_PUBLIC  = false;
+// Shown to everyone while CV_MATCH_PUBLIC is true. Set it to false to hide the feature again;
+// then only visitors who came with ?beta=match see it (remembered in that browser, ?beta=off
+// forgets it).
+const CV_MATCH_PUBLIC  = true;
 const CV_MATCH_VERSION = '1';   // bump whenever cv-match.js or cv-match.css change
 const CV_MATCH_ON = (() => {
   try {
