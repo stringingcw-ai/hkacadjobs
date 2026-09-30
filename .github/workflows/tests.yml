@@ -3,9 +3,9 @@ name: Tests
 on:
   push:
     branches: [main]
-    paths: ["scraper/**", "index.html", "supabase/functions/**", ".github/workflows/tests.yml"]
+    paths: ["scraper/**", "index.html", "cv-match.js", "supabase/functions/**", ".github/workflows/tests.yml"]
   pull_request:
-    paths: ["scraper/**", "index.html", "supabase/functions/**", ".github/workflows/tests.yml"]
+    paths: ["scraper/**", "index.html", "cv-match.js", "supabase/functions/**", ".github/workflows/tests.yml"]
   workflow_dispatch:
 
 permissions:
@@ -47,3 +47,22 @@ jobs:
 
       - name: Format, lint, type-check and test match-jobs
         run: deno task check
+
+  site:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Syntax-check the site's JavaScript
+        run: |
+          node --check cv-match.js
+          python3 - <<'EOF'
+          import pathlib, re
+          html = pathlib.Path("index.html").read_text()
+          scripts = re.findall(r"<script(?![^>]*\bsrc=)(?![^>]*application/ld\+json)[^>]*>(.*?)</script>", html, re.S)
+          for i, js in enumerate(scripts):
+              pathlib.Path(f"/tmp/inline_{i}.js").write_text(js)
+          print(f"{len(scripts)} inline scripts in index.html")
+          EOF
+          for f in /tmp/inline_*.js; do node --check "$f"; done

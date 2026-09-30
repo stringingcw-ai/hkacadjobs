@@ -137,6 +137,16 @@
   .stat-label { font-size: 0.72rem; color: #888; letter-spacing: 0.06em; text-transform: uppercase; }
   .stat-item { opacity: 0; transform: translateY(10px); transition: opacity 0.5s ease, transform 0.5s ease; }
   .stat-item.visible { opacity: 1; transform: translateY(0); }
+  /* CV MATCHING — entry points; the rest of its styles are in cv-match.css */
+  body:not(.cvm-on) .cvm-only { display: none !important; }
+  .cvm-cta { margin-left: auto; align-self: center; text-align: center; animation: cvm-cta-in 0.5s ease 0.3s both; }
+  @keyframes cvm-cta-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .cvm-cta-btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 20px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.92rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 14px rgba(181,69,27,0.35); transition: background 0.15s, transform 0.1s; }
+  .cvm-cta-btn:hover { background: #c9541f; transform: translateY(-1px); }
+  .cvm-cta-count { background: rgba(255,255,255,0.22); border-radius: 10px; padding: 1px 7px; font-size: 0.75rem; }
+  .cvm-cta-note { font-size: 0.72rem; color: #9aa3b2; margin-top: 6px; }
+  .cvm-inline-link { background: none; border: none; padding: 0; font: inherit; font-weight: 600; color: var(--accent); text-decoration: underline; cursor: pointer; }
+  @media (max-width: 768px) { .cvm-cta { margin-left: 0; width: 100%; } .cvm-cta-btn { width: 100%; justify-content: center; } }
 
   /* HERO QUOTE ROTATOR */
   .hero-quote-wrap { max-width: 960px; margin-bottom: 16px; }
@@ -149,7 +159,7 @@
 
   /* FILTER BAR */
   .sticky-controls { position: sticky; top: 60px; z-index: 190; background: var(--white); border-bottom: 1px solid var(--border); }
-  .saved-view .sticky-controls { display: none; }
+  .saved-view .sticky-controls, .matches-view .sticky-controls { display: none; }
   .filter-bar { background: var(--white); padding: 10px 48px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; position: relative; z-index: 2; }
   .view-tabs { display: flex; background: var(--cream); border-radius: 7px; padding: 3px; border: 1px solid var(--border); }
   .view-tab { padding: 6px 16px; border-radius: 5px; font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.15s; color: var(--muted); display: flex; align-items: center; gap: 6px; border: none; background: none; font-family: 'DM Sans', sans-serif; }
@@ -392,7 +402,7 @@
   .saved-empty small { font-size: 0.8rem; display: block; margin-top: 6px; }
 
   /* SORT BAR */
-  .sort-bar { display: flex; align-items: center; gap: 8px; padding: 0 0 12px; font-size: 0.78rem; }
+  .sort-bar { display: flex; align-items: center; gap: 8px; padding: 0 0 12px; font-size: 0.78rem; flex-wrap: wrap; }
   .sort-bar-label { color: var(--muted); font-weight: 500; white-space: nowrap; }
   .sort-pill { padding: 4px 12px; border: 1.5px solid var(--border); border-radius: 16px; background: var(--white); font-family: 'DM Sans', sans-serif; font-size: 0.78rem; color: var(--muted); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
   .sort-pill:hover { border-color: var(--accent); color: var(--accent); }
@@ -597,7 +607,7 @@
 
   /* Posted-within filter chip row (above the sort bar) */
   #postedFilterRow { display: flex; align-items: center; gap: 8px; padding: 0 0 10px; font-size: 0.78rem; flex-wrap: wrap; }
-  body.saved-view #postedFilterRow { display: none; }
+  body.saved-view #postedFilterRow, body.matches-view #postedFilterRow { display: none; }
   .posted-filter-label { color: var(--muted); font-weight: 500; white-space: nowrap; }
   .posted-chip { padding: 4px 12px; border: 1.5px solid var(--border); border-radius: 16px; background: var(--white); font-family: 'DM Sans', sans-serif; font-size: 0.78rem; color: var(--muted); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
   .posted-chip:hover { border-color: var(--accent); color: var(--accent); }
@@ -636,6 +646,9 @@
     <button class="bookmark-nav-btn" id="savedNavBtn" style="display:none;" onclick="switchTab(currentView==='saved'?'all':'saved')">
       <span style="color:var(--bookmark)">★</span> Saved <span class="bk-count" id="navBkCount">0</span>
     </button>
+    <button class="bookmark-nav-btn cvm-nav-btn" id="cvmNavBtn" style="display:none;" onclick="openCvMatch('nav')" aria-label="Jobs that fit your CV">
+      <span aria-hidden="true">✨</span> <span class="cvm-nav-label">For you</span> <span class="bk-count visible cvm-nav-count" id="cvmNavCount"></span>
+    </button>
     <div class="acct-wrap" id="acctWrap">
       <button class="account-nav-btn" id="acctBtn" onclick="toggleAccountMenu()">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -646,6 +659,10 @@
           <div class="account-dropdown-email" id="acctDropdownEmail"></div>
           <div class="account-dropdown-sub">Signed in</div>
         </div>
+        <button class="account-dropdown-item cvm-only" id="cvmMenuItem" onclick="_setDropdownOpen(false);openCvMatch('menu')">
+          <span aria-hidden="true" style="width:14px;text-align:center;">✨</span>
+          My CV profile
+        </button>
         <button class="account-dropdown-item danger" id="signOutBtn" onclick="_promptSignOut()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
           Sign out
@@ -676,6 +693,10 @@
   <div class="stats-row">
     <div class="stat-item"><div class="stat-num" id="statTotal">—</div><div class="stat-label">Open Positions</div></div>
     <div class="stat-item"><div class="stat-num" id="statNew">—</div><div class="stat-label">New Today</div></div>
+    <div class="cvm-cta cvm-only">
+      <button type="button" class="cvm-cta-btn" id="cvmCtaBtn" onclick="openCvMatch('hero')">✨ Find jobs that fit your CV</button>
+      <div class="cvm-cta-note" id="cvmCtaNote">Free with an account · your CV is never stored</div>
+    </div>
   </div>
 
 </div>
@@ -834,7 +855,7 @@
 
 <footer>
   Data sourced daily from official university career portals ·
-  <a href="#" onclick="openAbout();return false;">About</a> · <a href="#" onclick="openReport();return false;">Feedback &amp; errors</a> · Not affiliated with any institution
+  <a href="#" onclick="openAbout();return false;">About</a> · <a href="#" onclick="openAbout('privacy');return false;">Privacy</a> · <a href="#" onclick="openReport();return false;">Feedback &amp; errors</a> · Not affiliated with any institution
   <br><br>
   AI summaries are generated automatically and may contain inaccuracies. Always refer to the official university career portal for the most accurate and up-to-date information.
 </footer>
@@ -855,7 +876,7 @@
 
     <div class="modal-section">
       <h3>What is this?</h3>
-      <p>HKAcadJobs is a free, independent job board that aggregates academic and university positions from 13 Hong Kong institutions. It is updated daily and requires no login or subscription.</p>
+      <p>HKAcadJobs is a free, independent job board that aggregates academic and university positions from 17 Hong Kong institutions. It is updated daily, and browsing needs no login or subscription.</p>
     </div>
 
     <div class="modal-section">
@@ -883,7 +904,8 @@
 
     <div class="modal-section">
       <h3>How it works</h3>
-      <p>A Python scraper runs daily via GitHub Actions, pulling job listings directly from each university's official career portal. AI-generated summaries (via Claude) provide a quick overview of each role. All data is stored in a CSV file and served as a static site with no backend.</p>
+      <p>A Python scraper runs daily via GitHub Actions, pulling job listings directly from each university's official career portal. AI-generated summaries (via Claude) provide a quick overview of each role. The listings are stored in a CSV file and served as a static site. Accounts, saved searches and job alerts use Supabase.</p>
+      <p class="cvm-only" style="margin-top:10px;">With a free account, you can also add your CV and we'll find the open positions that fit you best. Claude reads your CV and compares your experience with every open position, then explains each match.</p>
     </div>
 
     <div class="modal-section">
@@ -894,7 +916,25 @@
         <li>Star a position to save it for later — saved locally in your browser</li>
         <li>Apply filters and click <strong>🔖 Save filter</strong> to bookmark a search — access it anytime from the Saved tab</li>
         <li>Click the Saved button in the top bar to view your saved positions and saved filters</li>
+        <li class="cvm-only">Click <strong>✨ Find jobs that fit your CV</strong> to see the positions that best fit your experience. You can also get an email when a new one appears</li>
       </ul>
+    </div>
+
+    <div class="modal-section" id="aboutPrivacy">
+      <h3>Privacy</h3>
+      <p>You can browse without an account. We use Google Analytics to count visits and clicks. It doesn't get your name or email address.</p>
+      <p style="margin-top:8px;">If you create an account, we keep your email address and what you save (positions, filters and alerts) in our database, which runs on Supabase. Alert emails are sent through Resend.</p>
+      <div class="cvm-only" style="margin-top:8px;">
+        <p><strong>CV matching.</strong> When you use "Find jobs that fit your CV":</p>
+        <ul>
+          <li>Your file is read in your browser. Email addresses, phone numbers, ID numbers and details such as date of birth are removed before anything is sent.</li>
+          <li>The rest of the text, or the address of the web page you give us, goes to our matching service. There it is analysed by Claude, an AI model from Anthropic, which describes your experience and compares it with the open positions. Anthropic processes it for us and doesn't use it to train its models.</li>
+          <li>We don't store your CV or its text. For the daily usage limits we record the date, size and cost of each request against your account (not what it contained), and delete these records after 90 days.</li>
+          <li>Your latest profile and matches are kept in your browser so you can come back to them. Signing out clears them.</li>
+          <li>If you choose to save your profile for match alerts, we keep it with your email address. It records your fields, specialisms and experience level, never your name or contact details. You can delete it any time under <strong>My CV profile</strong>.</li>
+        </ul>
+      </div>
+      <p style="margin-top:8px;">To see, correct or delete your data, or with any privacy question, contact us through the <a href="#" onclick="closeAbout();openReport();return false;">feedback form</a>.</p>
     </div>
 
     <p class="modal-disclaimer">This site is not affiliated with any Hong Kong university. Data is sourced from official public career portals. AI summaries are generated automatically and may contain inaccuracies — always refer to the official university career portal for the most accurate information.</p>
@@ -930,8 +970,8 @@
     <button class="modal-close" onclick="closeAuthModal()">✕</button>
     <div id="authFormWrap">
       <div class="auth-modal-icon">🔑</div>
-      <h2 style="text-align:center;margin-bottom:4px;">Sign in to HKAcadJobs</h2>
-      <p class="modal-sub" style="text-align:center;">Sign in to save positions, filters &amp; job alerts across devices. No password needed.</p>
+      <h2 style="text-align:center;margin-bottom:4px;" id="authTitle">Sign in to HKAcadJobs</h2>
+      <p class="modal-sub" style="text-align:center;" id="authSub">Sign in to save positions, filters &amp; job alerts across devices. No password needed.</p>
       <form onsubmit="sendMagicLink(event)">
         <input class="auth-input" type="email" id="authEmail" placeholder="your@email.com" required autocomplete="email">
         <button type="submit" class="auth-submit" id="authSubmitBtn">Send magic link</button>
@@ -942,7 +982,7 @@
       <div class="auth-sent-icon">📬</div>
       <h3>Check your inbox</h3>
       <p>We sent a sign-in link to <strong id="authSentEmail"></strong>.<br>Click it to sign in — the link expires in 1 hour.</p>
-      <p style="margin-top:14px;font-size:0.78rem;color:var(--muted);">The link will open in a new tab. You can close this one.</p>
+      <p style="margin-top:14px;font-size:0.78rem;color:var(--muted);" id="authSentNote">The link will open in a new tab. You can close this one.</p>
     </div>
   </div>
 </div>
@@ -953,7 +993,7 @@
     <button class="modal-close" onclick="closeUnsubModal()">✕</button>
     <div class="auth-modal-icon" id="unsubIcon">🔕</div>
     <h2 style="text-align:center;margin-bottom:4px;" id="unsubTitle">Stop these job alerts?</h2>
-    <p class="modal-sub" style="text-align:center;" id="unsubText">You'll stop receiving the alert emails this link came from. Your saved filters stay in your account.</p>
+    <p class="modal-sub" style="text-align:center;" id="unsubText">You'll stop receiving the alert emails this link came from. Everything you've saved stays in your account.</p>
     <button class="auth-submit" id="unsubBtn" onclick="confirmUnsubscribe()">Unsubscribe</button>
   </div>
 </div>
@@ -1203,6 +1243,46 @@ function deadlineText(j) {
 // ── Analytics
 function trackEvent(name, params) {
   if (typeof gtag === 'function') gtag('event', name, params || {});
+}
+
+// ── CV matching ("Find jobs that fit your CV"). The UI is in cv-match.js and cv-match.css,
+// loaded when first used; the matching runs in the match-jobs Supabase Edge Function.
+// Until launch it's shown only after visiting with ?beta=match (remembered in this browser,
+// ?beta=off forgets it). To launch, set CV_MATCH_PUBLIC to true.
+const CV_MATCH_PUBLIC  = false;
+const CV_MATCH_VERSION = '1';   // bump whenever cv-match.js or cv-match.css change
+const CV_MATCH_ON = (() => {
+  try {
+    const beta = new URLSearchParams(location.search).get('beta');
+    if (beta === 'match') localStorage.setItem('hkaj_beta', 'match');
+    else if (beta === 'off') localStorage.removeItem('hkaj_beta');
+    return CV_MATCH_PUBLIC || localStorage.getItem('hkaj_beta') === 'match';
+  } catch (e) { return CV_MATCH_PUBLIC; }
+})();
+if (CV_MATCH_ON) document.body.classList.add('cvm-on');
+let _cvMatchLoading = null;
+function ensureCvMatch() {
+  if (!_cvMatchLoading) {
+    const load = (tag, attrs) => new Promise((resolve, reject) => {
+      const el = Object.assign(document.createElement(tag), attrs);
+      el.onload = resolve;
+      el.onerror = reject;
+      document.head.appendChild(el);
+    });
+    _cvMatchLoading = Promise.all([
+      load('link', { rel: 'stylesheet', href: 'cv-match.css?v=' + CV_MATCH_VERSION }),
+      load('script', { src: 'cv-match.js?v=' + CV_MATCH_VERSION }),
+    ]).catch(err => { _cvMatchLoading = null; throw err; });
+  }
+  return _cvMatchLoading;
+}
+function openCvMatch(where) {
+  if (where !== 'nav') trackEvent('cv_match_cta_click', { where, signed_in: !!_currentUser });
+  ensureCvMatch().then(() => CvMatch.open(where))
+    .catch(() => showActionToast('CV matching could not load. Please reload the page.'));
+}
+function _hasCvMatches() {
+  try { return !!localStorage.getItem('hkaj_match'); } catch (e) { return false; }
 }
 
 // Debounced search tracking — fires 1s after user stops typing
@@ -1924,6 +2004,13 @@ function initUI() {
   filterJobs();
   updateBkUI();
 
+  // CV matching: load it now if this browser has matches (their labels show in the
+  // listing) or a ?view=matches link was opened
+  const wantMatches = urlParams.get('view') === 'matches';
+  if (CV_MATCH_ON && (wantMatches || _hasCvMatches())) {
+    ensureCvMatch().then(() => CvMatch.init({ showView: wantMatches })).catch(() => {});
+  }
+
   // Deep-link: auto-open panel if ?job=ID is in the URL
   const jobParam = urlParams.get('job');
   if (jobParam) {
@@ -2013,20 +2100,27 @@ function toggleDeptGroup(group) {
 }
 
 // ── Filtering
-function switchTab(tab) {
-  currentView = tab;
-  currentPage = 1;
+// Views: 'all' (the listing), 'saved', and 'matches' (jobs that fit the user's CV, cv-match.js)
+function _showView(tab) {
   document.getElementById('savedNavBtn').classList.toggle('active', tab === 'saved');
   document.body.classList.toggle('saved-view', tab === 'saved');
-  document.getElementById('sortBar').style.display = tab === 'saved' ? 'none' : 'flex';
-  // Reflect saved view in URL so back button and prevSearch work correctly
-  if (tab === 'saved') {
-    history.pushState({ view: 'saved' }, '', '?view=saved');
-  } else if (location.search === '?view=saved') {
-    history.pushState({}, '', location.pathname);
+  document.body.classList.toggle('matches-view', tab === 'matches');
+  document.getElementById('sortBar').style.display = tab === 'all' ? 'flex' : 'none';
+}
+function switchTab(tab, opts) {
+  currentView = tab;
+  currentPage = 1;
+  _showView(tab);
+  // Reflect saved/matches view in URL so back button and prevSearch work correctly
+  const push = (opts && opts.replace ? history.replaceState : history.pushState).bind(history);
+  if (tab !== 'all') {
+    push({ view: tab }, '', '?view=' + tab);
+  } else if (/^\?view=(saved|matches)$/.test(location.search)) {
+    push({}, '', location.pathname);
   }
   filterJobs();
   renderSavedFiltersSection();
+  if (window.CvMatch) CvMatch.onViewChange();
 }
 
 
@@ -2035,6 +2129,8 @@ function filterJobs() {
   const area   = document.getElementById('areaFilter').value;
   if (currentView === 'saved') {
     filtered = ALL_JOBS.filter(j => bookmarks.has(j._id));
+  } else if (currentView === 'matches') {
+    filtered = window.CvMatch ? CvMatch.matchedJobs() : [];   // best fit first
   } else {
     filtered = ALL_JOBS.filter(j => {
       const ms = !search || (j.title||'').toLowerCase().includes(search) || (j.department||'').toLowerCase().includes(search) || (j.university||'').toLowerCase().includes(search) || (j.university_full||'').toLowerCase().includes(search) || (j.description||'').toLowerCase().includes(search);
@@ -2044,7 +2140,7 @@ function filterJobs() {
       return ms && roleOk && uniOk && (!area||j.area===area) && (!selectedDeptGroups.size||selectedDeptGroups.has(j.deptGroup)) && rankOk && passesPostedWindow(j);
     });
   }
-  applySortOrder();
+  if (currentView !== 'matches') applySortOrder();
   currentPage = 1;
   renderTable();
   renderPagination();
@@ -2053,7 +2149,7 @@ function filterJobs() {
   updateFilterToggleBtn();
   syncFiltersToURL();
   // Track search queries (debounced, only when user typed something)
-  if (currentView !== 'saved') {
+  if (currentView === 'all') {
     const q = document.getElementById('searchInput').value.trim();
     if (q) trackSearch(q, filtered.length);
   }
@@ -2077,8 +2173,8 @@ function clearAllFilters() {
 }
 
 function syncFiltersToURL() {
-  // Don't overwrite the URL while a job panel is open or in saved view
-  if (openJobId || currentView === 'saved') return;
+  // Don't overwrite the URL while a job panel is open or in the saved or matches view
+  if (openJobId || currentView !== 'all') return;
   const params = new URLSearchParams();
   const search = document.getElementById('searchInput').value;
   const area   = document.getElementById('areaFilter').value;
@@ -2097,7 +2193,7 @@ function updateBanner() {
   const n = filtered.length;
   const hasFilters = selectedUnis.size || selectedRanks.size || roleFilter ||
     document.getElementById('areaFilter')?.value || document.getElementById('searchInput')?.value || selectedDeptGroups.size;
-  if (currentView === 'saved' || n === 0 || !hasFilters) { banner.style.display = 'none'; return; }
+  if (currentView !== 'all' || n === 0 || !hasFilters) { banner.style.display = 'none'; return; }
   const suffix = ' found';
   document.getElementById('bannerText').innerHTML = `<strong>${n}</strong> position${n!==1?'s':''}${suffix}`;
   let resetBtn = document.getElementById('bannerResetBtn');
@@ -2233,6 +2329,9 @@ function buildEmptyState() {
     html += `<button class="apply-btn" style="background:var(--header);" onclick="promptAlertForSearch()">Get alerted for "${esc(search.length > 20 ? search.slice(0,20) + '…' : search)}"</button>`;
   }
   html += '</div>';
+  if (CV_MATCH_ON) {
+    html += '<p style="margin-top:18px;font-size:0.84rem;">Not sure what to search for? <button class="cvm-inline-link" onclick="openCvMatch(\'empty\')">✨ Find jobs that fit your CV</button></p>';
+  }
 
   el.innerHTML = html;
 
@@ -2266,13 +2365,16 @@ function renderTable() {
   }
   savedMpty.style.display = 'none';
   if (!filtered.length) {
-    if (currentView === 'saved') { savedMpty.style.display = 'block'; } else { buildEmptyState(); empty.style.display = 'block'; }
+    if (currentView === 'saved') { savedMpty.style.display = 'block'; }
+    else if (currentView === 'matches') { if (window.CvMatch) CvMatch.renderEmpty(empty); empty.style.display = 'block'; }
+    else { buildEmptyState(); empty.style.display = 'block'; }
     return;
   }
   empty.style.display = 'none';
 
   const start = (currentPage - 1) * PAGE_SIZE;
   const page  = filtered.slice(start, start + PAGE_SIZE);
+  const inMatches = currentView === 'matches';
 
   page.forEach(j => {
     const d    = daysLeft(j.deadline);
@@ -2281,6 +2383,9 @@ function renderTable() {
     const isBk = bookmarks.has(j._id);
     const newB = j.is_new ? `<span class="new-badge">New</span>` : '';
     const subL = postedSublineHTML(j);
+    // CV matching: a fit label on jobs that fit the user's CV, and why in the matches view
+    const fitB = window.CvMatch ? CvMatch.pillHtml(j._id) : '';
+    const why  = window.CvMatch ? CvMatch.rowHtml(j._id, inMatches) : '';
     const row  = document.createElement('tr');
     if (j.is_new) row.classList.add('highlighted');
     if (openJobId === j._id) row.classList.add('row-selected');
@@ -2290,8 +2395,8 @@ function renderTable() {
         <button class="bk-btn${isBk?' saved':''}" title="${isBk?'Remove from saved':'Save'}">${isBk?'<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>':'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>'}</button>
       </td>
       <td>
-        <div class="job-title">${newB}${esc(j.title)}</div>
-        ${subL}
+        <div class="job-title">${newB}${fitB}${esc(j.title)}</div>
+        ${subL}${why}
       </td>
       <td><div class="uni-badge">${uniLogoHtml(j.university,'uni-logo')}${esc(uniDisplay(j.university)||'')}</div></td>
       <td><span class="dept-tag">${esc(j.department||'N/A')}</span></td>
@@ -2308,7 +2413,7 @@ function renderTable() {
         </a>
       </td>`;
     row.querySelector('.bk-btn').onclick = e => toggleBookmark(j._id, e);
-    row.querySelector('.apply-btn').onclick = () => trackEvent('apply_click', { job_id: j.id, university: j.university, rank: j.rank || '', source: 'table_row' });
+    row.querySelector('.apply-btn').onclick = () => trackEvent('apply_click', { job_id: j.id, university: j.university, rank: j.rank || '', source: inMatches ? 'cv_match' : 'table_row' });
     tbody.appendChild(row);
   });
 }
@@ -2457,6 +2562,7 @@ function openPanel(id) {
         ${cell('Salary / Grade', j.salary, 'font-size:0.78rem')}
       </div>
     </div>
+    ${window.CvMatch ? CvMatch.panelHtml(id) : ''}
     <div class="psection">
       <div class="psection-title">About the Role <span class="ai-badge">Summarised by Claude Haiku 4.5</span></div>
       <div id="panelDesc">${descriptionHtml(j)}</div>
@@ -2464,7 +2570,8 @@ function openPanel(id) {
 
   const applyLink = document.getElementById('panelApplyLink');
   applyLink.href = safeUrl(j.apply_url);
-  applyLink.onclick = () => trackEvent('apply_click', { job_id: id, university: j.university, rank: j.rank, source: 'detail_panel' });
+  const applySource = currentView === 'matches' ? 'cv_match' : 'detail_panel';
+  applyLink.onclick = () => trackEvent('apply_click', { job_id: id, university: j.university, rank: j.rank, source: applySource });
   document.getElementById('panelApplyText').textContent = `Apply on ${uniDisplay(j.university)}`;
   updatePanelSaveBtn(id);
   document.getElementById('panelOverlay').classList.add('open');
@@ -2473,6 +2580,8 @@ function openPanel(id) {
 }
 
 function closePanel() {
+  // Escape also calls this; with no panel open there's nothing to close (and no history to add)
+  if (!document.getElementById('detailPanel').classList.contains('open')) return;
   openJobId = null;
   document.getElementById('panelOverlay').classList.remove('open');
   document.getElementById('detailPanel').classList.remove('open');
@@ -2508,22 +2617,27 @@ window.addEventListener('popstate', e => {
       document.body.style.overflow = '';
       renderTable();
     }
-    // Reflect saved/all view from URL
-    const isSaved = e.state?.view === 'saved' || new URLSearchParams(location.search).get('view') === 'saved';
-    if (isSaved !== (currentView === 'saved') && ALL_JOBS.length) {
-      currentView = isSaved ? 'saved' : 'all';
+    // Reflect saved/matches/all view from URL
+    const view = e.state?.view || new URLSearchParams(location.search).get('view');
+    const target = view === 'saved' ? 'saved'
+      : view === 'matches' && window.CvMatch && CvMatch.hasResults() ? 'matches' : 'all';
+    if (target !== currentView && ALL_JOBS.length) {
+      currentView = target;
       currentPage = 1;
-      document.getElementById('savedNavBtn').classList.toggle('active', isSaved);
-      document.body.classList.toggle('saved-view', isSaved);
+      _showView(target);
       filterJobs();
       renderSavedFiltersSection();
+      if (window.CvMatch) CvMatch.onViewChange();
     }
   }
 });
 
-function openAbout() {
+function openAbout(section) {
   document.getElementById('aboutOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
+  if (section === 'privacy') {
+    setTimeout(() => document.getElementById('aboutPrivacy').scrollIntoView({ block: 'start' }), 30);
+  }
 }
 function closeAbout() {
   document.getElementById('aboutOverlay').classList.remove('open');
@@ -2773,6 +2887,25 @@ updateBkUI();
 loadData();
 
 // ── Auth / Account (Supabase)
+// Opened from a magic link? The sign-in tokens are in the URL until supabase-js reads them.
+const _landedFromMagicLink = /[#&]access_token=|[?&]code=/.test(location.hash + '&' + location.search);
+let _signInHandled = false;
+// After arriving from a magic link: count the sign-up or sign-in, and carry on with what
+// the user signed in for (only CV matching, for now)
+function _afterMagicLink(user) {
+  let intent = '';
+  try {
+    const saved = JSON.parse(localStorage.getItem('hkaj_intent') || 'null');
+    localStorage.removeItem('hkaj_intent');
+    if (saved && Date.now() - saved.at < 3 * 3600 * 1000) intent = saved.what;
+  } catch (e) {}
+  // A first sign-in confirms the email, so both times match
+  const confirmed = Date.parse(user.email_confirmed_at || user.confirmed_at || '');
+  const lastIn = Date.parse(user.last_sign_in_at || '');
+  const isNew = confirmed > 0 && lastIn > 0 && Math.abs(lastIn - confirmed) < 120000;
+  trackEvent(isNew ? 'sign_up' : 'login', { method: 'magic_link', source: intent || 'site' });
+  if (intent === 'cv_match' && CV_MATCH_ON) setTimeout(() => openCvMatch('resume'), 0);
+}
 const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
     // Bypass Web Locks API — causes AbortError storms on static sites with no service workers
@@ -2818,8 +2951,10 @@ async function confirmUnsubscribe() {
   document.getElementById('unsubTitle').textContent =
     ok ? "You're unsubscribed" : failed ? 'Something went wrong' : 'No active alert found';
   document.getElementById('unsubText').textContent = ok
-    ? "You won't receive these alert emails any more. You can switch alerts back on from your saved filters at any time."
-    : "If you're still getting alert emails, sign in and switch off the 🔔 on your saved filter, or tell us via “Feedback & errors” at the bottom of the page.";
+    ? "You won't receive these alert emails any more. You can switch alerts back on after signing in, at any time."
+    : "If you're still getting alert emails, sign in and switch off the 🔔 on your saved filter" +
+      (CV_MATCH_ON ? " or the alerts under “My CV profile”" : "") +
+      ", or tell us via “Feedback & errors” at the bottom of the page.";
   btn.disabled = false;
   btn.textContent = 'Done';
   btn.onclick = closeUnsubModal;
@@ -2864,7 +2999,26 @@ function toggleAccountMenu() {
   }
 }
 
-function openAuthModal() {
+// Why the sign-in box was opened: '' (the account button, saving, alerts) or 'cv_match'
+let _authContext = '';
+const _AUTH_COPY = {
+  '': ['Sign in to HKAcadJobs', CV_MATCH_ON
+    ? 'Sign in to save positions, filters & job alerts, and to find jobs that fit your CV. No password needed.'
+    : 'Sign in to save positions, filters & job alerts across devices. No password needed.'],
+  cv_match: ['Create your free account',
+    "Enter your email and we'll send you a one-click sign-in link, with no password. It's the same link whether you're new or already have an account."],
+  cv_match_signin: ['Sign in to match your CV',
+    "Enter your email and we'll send you a one-click sign-in link. No password needed."],
+};
+// variant 'signin': the CV intro's "Already have an account?" link
+function openAuthModal(context, variant) {
+  _authContext = context === 'cv_match' ? 'cv_match' : '';
+  const [title, sub] = _AUTH_COPY[_authContext && variant === 'signin' ? 'cv_match_signin' : _authContext];
+  document.getElementById('authTitle').textContent = title;
+  document.getElementById('authSub').textContent = sub;
+  document.getElementById('authSentNote').textContent = _authContext === 'cv_match'
+    ? 'The link will open in a new tab, where you can add your CV.'
+    : 'The link will open in a new tab. You can close this one.';
   document.getElementById('authFormWrap').style.display = '';
   document.getElementById('authSentWrap').style.display = 'none';
   document.getElementById('authEmail').value = '';
@@ -2887,12 +3041,18 @@ async function sendMagicLink(e) {
   if (!email) return;
   btn.disabled = true;
   btn.textContent = 'Sending…';
+  // Signing in to match a CV: the tab the link opens goes straight on to adding the CV
+  try {
+    if (_authContext) localStorage.setItem('hkaj_intent', JSON.stringify({ what: _authContext, at: Date.now() }));
+    else localStorage.removeItem('hkaj_intent');
+  } catch (e) {}
   try {
     const { error } = await _sb.auth.signInWithOtp({
       email,
       options: { emailRedirectTo: location.href.split('?')[0].split('#')[0] },
     });
     if (error) throw error;
+    trackEvent('magic_link_sent', { source: _authContext || 'site' });
     document.getElementById('authSentEmail').textContent = email;
     document.getElementById('authFormWrap').style.display = 'none';
     document.getElementById('authSentWrap').style.display = '';
@@ -2909,11 +3069,14 @@ function signOut() {
   savedFilters = [];
   localStorage.removeItem('hkacad_bk');
   localStorage.removeItem('hkaj_sf');
+  // CV matching: the latest profile and matches, a pending sign-in and the consent tick
+  ['hkaj_match', 'hkaj_intent', 'hkaj_cvm_consent'].forEach(k => localStorage.removeItem(k));
   // Reset UI immediately — don't wait for network
   _currentUser = null;
   _setDropdownOpen(false);
   _updateNavForUser(null);
-  if (currentView === 'saved') switchTab('all');
+  if (window.CvMatch) CvMatch.reset();
+  if (currentView === 'saved' || currentView === 'matches') switchTab('all');
   updateBkUI();
   renderSavedFiltersSection();
   renderTable();
@@ -3112,7 +3275,12 @@ _sb.auth.onAuthStateChange((event, session) => {
   const user = session?.user ?? null;
   _currentUser = user;
   _updateNavForUser(user);
+  if (window.CvMatch) CvMatch.onAuthChange(user);
   if (!user) return;
+  if (_landedFromMagicLink && !_signInHandled && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
+    _signInHandled = true;
+    _afterMagicLink(user);
+  }
   // Only do a full data reload on actual sign-in events.
   // TOKEN_REFRESHED fires after every DB call and would re-add recently
   // deleted items before the delete propagates to the DB.
