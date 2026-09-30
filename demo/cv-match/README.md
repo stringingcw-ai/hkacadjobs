@@ -35,9 +35,7 @@ fade=t=in:st=0:d=0.3,fade=t=out:st=27.1:d=0.5,format=yuv420p" -an -c:v libx264 -
 -movflags +faststart demo/cv-match/cv-matching-demo-short.mp4
 ```
 
-For the full video:
-
-the script prints the timings `cutFrom` and `cutTo` around the reload after the sign-in link. The page is
+For the full video, the script prints the timings `cutFrom` and `cutTo` around the reload after the sign-in link. The page is
 still loading between those times. Cut that part out and encode, adjusting the trim times to the frames of the
 new recording:
 
