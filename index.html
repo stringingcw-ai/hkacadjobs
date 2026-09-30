@@ -150,7 +150,6 @@
   .cvm-nav-btn:hover { background: rgba(124,58,237,0.5); }
   .cvm-nav-count { background: var(--cvm-light); color: #1e1b4b; }
   .cvm-cta-count { background: rgba(255,255,255,0.22); border-radius: 10px; padding: 1px 7px; font-size: 0.75rem; }
-  .cvm-cta-note { font-size: 0.72rem; color: #9aa3b2; margin-top: 6px; }
   .cvm-inline-link { background: none; border: none; padding: 0; font: inherit; font-weight: 600; color: var(--accent); text-decoration: underline; cursor: pointer; }
   @media (max-width: 768px) { .cvm-cta { margin-left: 0; width: 100%; } .cvm-cta-btn { width: 100%; justify-content: center; } }
 
@@ -701,7 +700,6 @@
     <div class="stat-item"><div class="stat-num" id="statNew">—</div><div class="stat-label">New Today</div></div>
     <div class="cvm-cta cvm-only">
       <button type="button" class="cvm-cta-btn" id="cvmCtaBtn" onclick="openCvMatch('hero')">✨ Find jobs that fit your CV</button>
-      <div class="cvm-cta-note" id="cvmCtaNote">Free with an account · your CV is never stored</div>
     </div>
   </div>
 
@@ -1257,7 +1255,7 @@ function trackEvent(name, params) {
 // then only visitors who came with ?beta=match see it (remembered in that browser, ?beta=off
 // forgets it).
 const CV_MATCH_PUBLIC  = true;
-const CV_MATCH_VERSION = '1';   // bump whenever cv-match.js or cv-match.css change
+const CV_MATCH_VERSION = '2';   // bump whenever cv-match.js or cv-match.css change
 const CV_MATCH_ON = (() => {
   try {
     const beta = new URLSearchParams(location.search).get('beta');

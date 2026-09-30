@@ -1150,11 +1150,6 @@
     }
     const cta = document.getElementById('cvmCtaBtn');
     if (cta) cta.innerHTML = results ? `✨ See the jobs that fit you <span class="cvm-cta-count">${n}</span>` : '✨ Find jobs that fit your CV';
-    const note = document.getElementById('cvmCtaNote');
-    if (note) {
-      note.textContent = results ? `Matched ${fmtDate(results.at)} from your CV`
-        : _currentUser ? 'Free · your CV is never stored' : 'Free with an account · your CV is never stored';
-    }
   }
 
   // ── Hooks used by index.html ─────────────────────────────────────────────────────
