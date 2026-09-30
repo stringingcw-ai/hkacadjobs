@@ -84,6 +84,9 @@
     --white: #ffffff;
     --tag-bg: #e8e4dc;
     --bookmark: #e6a817;
+    --cvm: #7c3aed;       /* Violet: CV matching's buttons, to mark it as new */
+    --cvm-hover: #6d28d9;
+    --cvm-light: #a78bfa;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; overflow-x: hidden; }
@@ -141,8 +144,11 @@
   body:not(.cvm-on) .cvm-only { display: none !important; }
   .cvm-cta { margin-left: auto; align-self: center; text-align: center; animation: cvm-cta-in 0.5s ease 0.3s both; }
   @keyframes cvm-cta-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-  .cvm-cta-btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 20px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.92rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 14px rgba(181,69,27,0.35); transition: background 0.15s, transform 0.1s; }
-  .cvm-cta-btn:hover { background: #c9541f; transform: translateY(-1px); }
+  .cvm-cta-btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 20px; background: var(--cvm); color: #fff; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.92rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 14px rgba(124,58,237,0.45); transition: background 0.15s, transform 0.1s; }
+  .cvm-cta-btn:hover { background: var(--cvm-hover); transform: translateY(-1px); }
+  .cvm-nav-btn { background: rgba(124,58,237,0.32); border-color: rgba(167,139,250,0.6); }
+  .cvm-nav-btn:hover { background: rgba(124,58,237,0.5); }
+  .cvm-nav-count { background: var(--cvm-light); color: #1e1b4b; }
   .cvm-cta-count { background: rgba(255,255,255,0.22); border-radius: 10px; padding: 1px 7px; font-size: 0.75rem; }
   .cvm-cta-note { font-size: 0.72rem; color: #9aa3b2; margin-top: 6px; }
   .cvm-inline-link { background: none; border: none; padding: 0; font: inherit; font-weight: 600; color: var(--accent); text-decoration: underline; cursor: pointer; }

@@ -94,7 +94,7 @@
 .cvm-footer-links { margin-top: 18px; font-size: 0.8rem; text-align: center; color: var(--muted); }
 
 /* ── Entry points (hero, nav) ──────────────────────────────────────────── */
-.cvm-nav-btn.active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.cvm-nav-btn.active { border-color: var(--cvm-light); box-shadow: 0 0 0 2px var(--cvm-light); }
 
 /* ── "Jobs that fit you" view ─────────────────────────────────────────── */
 .cvm-results-head { background: var(--white); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 10px; padding: 16px 20px; margin-bottom: 16px; display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
@@ -134,7 +134,6 @@
   .cvm-why-line { font-size: 0.76rem; }
 }
 .cvm-spin { width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
-.cvm-nav-count { background: var(--accent); color: #fff; }
 /* Phones: with "For you" in the nav, the account button shows just its icon so the nav fits */
 @media (max-width: 520px) {
   .cvm-nav-label { display: none; }
