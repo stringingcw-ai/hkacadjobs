@@ -61,11 +61,14 @@ create table if not exists public.match_profiles (
   user_id        uuid primary key references auth.users (id) on delete cascade,
   email          text not null,
   profile        jsonb not null,
+  prefs          jsonb not null default '{}'::jsonb,  -- {"unis": [...]}: institutions the user chose
   alerts_enabled boolean not null default true,
   token          text not null unique check (length(token) >= 16),  -- for the unsubscribe link
   created_at     timestamptz not null default now(),
   updated_at     timestamptz not null default now()
 );
+-- prefs was added after the first run of this file
+alter table public.match_profiles add column if not exists prefs jsonb not null default '{}'::jsonb;
 alter table public.match_profiles enable row level security;
 
 -- (select auth.…()) is evaluated once per query rather than once per row
@@ -136,5 +139,5 @@ grant execute on function public.unsubscribe_alert(text) to anon, authenticated;
 --  group by 1, 2
 --  order by 1 desc, 2;
 
--- OPTIONAL — Keep 90 days of usage rows:
--- delete from match_usage where created_at < now() - interval '90 days';
+-- Usage rows are kept for 90 days, as the site's privacy notice says: the daily
+-- alert run (scraper/match_alerts.py, purge_usage_log) deletes older ones.

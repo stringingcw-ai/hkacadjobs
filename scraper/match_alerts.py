@@ -7,7 +7,8 @@ for every saved profile with alerts on, this asks the match-jobs Edge Function
 which of the day's new jobs fit, and emails the fits with a line on why.
 
 Run by notify.py after the saved-filter alerts. It shares their sent log
-(scraper/alert_log.json), so nobody is emailed the same job twice.
+(scraper/alert_log.json), so nobody is emailed the same job twice. It also deletes
+usage records older than 90 days (purge_usage_log), as the site's privacy notice says.
 """
 
 import json
@@ -15,7 +16,7 @@ import time
 import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from html import escape
 
 import notify
@@ -24,6 +25,7 @@ FUNCTION_PATH = "/functions/v1/match-jobs"
 MAX_PER_EMAIL = 5     # best fits per email
 MIN_SCORE = 65        # Claude's 0-100 fit score; 70+ is a good fit
 WORKERS = 4           # profiles matched at once
+USAGE_KEEP_DAYS = 90  # match_usage rows (sizes and costs, never CV text) are kept this long
 
 
 class BudgetReached(Exception):
@@ -33,13 +35,15 @@ class BudgetReached(Exception):
 def get_match_profiles():
     """Saved CV profiles whose owners want these emails."""
     return notify._get_all(
-        "match_profiles?select=user_id,email,profile,token&alerts_enabled=eq.true&order=user_id")
+        "match_profiles?select=user_id,email,profile,prefs,token&alerts_enabled=eq.true&order=user_id")
 
 
-def fetch_matches(profile, job_ids, timeout=90):
-    """Ask match-jobs, as the service role, which of `job_ids` fit `profile`."""
+def fetch_matches(profile, job_ids, prefs=None, timeout=90):
+    """Ask match-jobs, as the service role, which of `job_ids` fit `profile`
+    (only at the institutions in prefs["unis"], if the user chose any)."""
     body = json.dumps({
         "action": "match", "profile": profile, "only_ids": job_ids,
+        "prefs": {"unis": list((prefs or {}).get("unis") or [])},
         "limit": MAX_PER_EMAIL, "min_score": MIN_SCORE,
     }).encode()
     req = urllib.request.Request(
@@ -59,6 +63,28 @@ def fetch_matches(profile, job_ids, timeout=90):
             raise BudgetReached(detail)
         raise RuntimeError(f"match-jobs HTTP {e.code}: {detail}")
     return data.get("matches") or []
+
+
+def purge_usage_log(days=USAGE_KEEP_DAYS, dry_run=False):
+    """Delete CV-matching usage records older than `days`. Returns True if done."""
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    if dry_run:
+        print(f"DRY RUN — would delete CV-matching usage records from before {cutoff[:10]}")
+        return True
+    key = notify.SUPABASE_SERVICE_KEY
+    req = urllib.request.Request(
+        f"{notify.SUPABASE_URL}/rest/v1/match_usage?created_at=lt.{cutoff}", method="DELETE",
+        headers={"apikey": key, "Authorization": f"Bearer {key}", "Prefer": "return=minimal"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=30, context=notify._SSL_CONTEXT):
+            pass
+    except (urllib.error.URLError, OSError) as e:
+        # Not a failed run: tomorrow's run tries again, and the warning shows in the Actions summary
+        print(f"::warning::Could not delete CV-matching usage records older than {days} days: {e}")
+        return False
+    print(f"Deleted CV-matching usage records from before {cutoff[:10]}")
+    return True
 
 
 def masked(email):
@@ -190,7 +216,8 @@ def run(new_jobs, alert_log, dry_run=False):
         if not fresh:
             return row, [], None
         try:
-            fits = [f for f in fetch_matches(row.get("profile") or {}, fresh) if f.get("job_id") in fresh]
+            fits = [f for f in fetch_matches(row.get("profile") or {}, fresh, row.get("prefs"))
+                    if f.get("job_id") in fresh]
             return row, fits[:MAX_PER_EMAIL], None
         except Exception as e:   # reported below, per profile
             return row, [], e

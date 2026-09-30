@@ -4,6 +4,7 @@ once, and failures are reported."""
 import io
 import json
 import urllib.error
+from datetime import datetime, timezone
 
 import pytest
 
@@ -30,8 +31,9 @@ def world(monkeypatch):
 
     monkeypatch.setattr(notify, "_get_all", lambda path: state["profiles"])
 
-    def fetch(profile, job_ids, timeout=90):
+    def fetch(profile, job_ids, prefs=None, timeout=90):
         state["calls"].append(job_ids)
+        state["prefs"] = prefs
         if "error" in state["fits"]:
             raise state["fits"]["error"]
         return [f for f in state["fits"].get("list", []) if f["job_id"] in job_ids]
@@ -149,11 +151,14 @@ def test_request_to_match_jobs(monkeypatch):
     monkeypatch.setattr(notify, "SUPABASE_URL", "https://p.supabase.co")
     monkeypatch.setattr(notify, "SUPABASE_SERVICE_KEY", "service-key")
     monkeypatch.setattr(match_alerts.urllib.request, "urlopen", urlopen)
-    assert match_alerts.fetch_matches({"headline": "x"}, ["HKU-1"]) == [fit(1)]
+    assert match_alerts.fetch_matches({"headline": "x"}, ["HKU-1"], {"unis": ["HKU", "CUHK"]}) == [fit(1)]
     assert seen["url"] == "https://p.supabase.co/functions/v1/match-jobs"
     assert seen["headers"]["Authorization"] == "Bearer service-key"
     assert seen["body"] == {"action": "match", "profile": {"headline": "x"}, "only_ids": ["HKU-1"],
-                            "limit": 5, "min_score": 65}
+                            "prefs": {"unis": ["HKU", "CUHK"]}, "limit": 5, "min_score": 65}
+    # No saved institutions: all of them
+    match_alerts.fetch_matches({"headline": "x"}, ["HKU-1"], None)
+    assert seen["body"]["prefs"] == {"unis": []}
 
     def budget(req, timeout=None, context=None):
         raise urllib.error.HTTPError(req.full_url, 503, "busy", {},
@@ -170,9 +175,51 @@ def test_notify_runs_match_alerts_even_without_filter_subscribers(monkeypatch, t
     monkeypatch.setattr(notify, "load_new_jobs", lambda: [job(1)])
     monkeypatch.setattr(notify, "get_subscriptions", lambda: [])
     monkeypatch.setattr(match_alerts, "run", lambda jobs, log, dry_run=False: ran.update(jobs=jobs) or 1)
+    monkeypatch.setattr(match_alerts, "purge_usage_log", lambda dry_run=False: ran.update(purged=True))
     monkeypatch.setattr("sys.argv", ["notify.py"])
     with pytest.raises(SystemExit) as exit_:
         notify.main()
     assert exit_.value.code == 1          # a match-alert failure fails the run
     assert ran["jobs"] == [job(1)]
+    assert ran["purged"]
     assert (tmp_path / "log.json").exists()
+
+
+def test_saved_institutions_are_passed_on(world):
+    world["profiles"] = [dict(ROW, prefs={"unis": ["HKU"]})]
+    world["fits"]["list"] = [fit(1)]
+    match_alerts.run([job(1)], {})
+    assert world["prefs"] == {"unis": ["HKU"]}
+
+
+def test_usage_records_older_than_90_days_are_deleted(monkeypatch, capsys):
+    seen = {}
+
+    class Resp(io.BytesIO):
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+    def urlopen(req, timeout=None, context=None):
+        seen.update(url=req.full_url, method=req.get_method(), headers=dict(req.header_items()))
+        return Resp(b"")
+
+    monkeypatch.setattr(notify, "SUPABASE_URL", "https://p.supabase.co")
+    monkeypatch.setattr(notify, "SUPABASE_SERVICE_KEY", "service-key")
+    monkeypatch.setattr(match_alerts.urllib.request, "urlopen", urlopen)
+    assert match_alerts.purge_usage_log() is True
+    assert seen["method"] == "DELETE"
+    assert seen["url"].startswith("https://p.supabase.co/rest/v1/match_usage?created_at=lt.")
+    cutoff = seen["url"].split("lt.", 1)[1]
+    age = datetime.now(timezone.utc) - datetime.strptime(cutoff, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+    assert 89.9 < age.total_seconds() / 86400 < 90.1
+    assert seen["headers"]["Authorization"] == "Bearer service-key"
+
+    def down(req, timeout=None, context=None):
+        raise urllib.error.URLError("unreachable")
+    monkeypatch.setattr(match_alerts.urllib.request, "urlopen", down)
+    assert match_alerts.purge_usage_log() is False      # a warning, not a failed run
+    assert "::warning::" in capsys.readouterr().out
+    assert match_alerts.purge_usage_log(dry_run=True) is True

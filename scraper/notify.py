@@ -606,6 +606,7 @@ def main():
     import match_alerts
     print("\n── CV match alerts ─────────────────────────────────────")
     failed += match_alerts.run(new_jobs, alert_log, dry_run=args.dry_run)
+    match_alerts.purge_usage_log(dry_run=args.dry_run)
 
     if not args.dry_run:
         save_alert_log(alert_log)
