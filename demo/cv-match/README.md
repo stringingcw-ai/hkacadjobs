@@ -4,6 +4,9 @@
 site: the intro, signing up by email, uploading a PDF CV (with the contact details removed), checking and
 editing the profile, the "Jobs that fit you" list, and "Why this may suit you" in a job's panel.
 
+`cv-matching-demo-short.mp4` (28 s, no captions, for social media such as Threads) starts signed in and shows
+only the main steps: the button, uploading the CV, the profile, the matches and a job's "Why this may suit you".
+
 **What is real and what is scripted.** The page, the listings and cv-match.js are the site's own, and the PDF is
 read in the browser as usual. Sign-in, the database and the `match-jobs` function are stand-ins, so no email
 is sent and Claude isn't called:
@@ -21,9 +24,20 @@ python3 -m http.server 8000          # in the repository, in another terminal
 npm install --no-save playwright     # if it isn't installed
 node demo/cv-match/record.js         # writes demo/cv-match/out/raw.webm
 node demo/cv-match/record.js --shots # or: screenshots of each step in out/shots, no video
+node demo/cv-match/record.js --short # the short cut: writes demo/cv-match/out/raw-short.webm
 ```
 
-The script prints the timings `cutFrom` and `cutTo` around the reload after the sign-in link. The page is
+The short cut skips the page's opening animation and plays at 1.12× speed:
+
+```sh
+ffmpeg -i demo/cv-match/out/raw-short.webm -vf "trim=start=3.9:end=34.9,setpts=(PTS-STARTPTS)/1.12,fps=30,\
+fade=t=in:st=0:d=0.3,fade=t=out:st=27.1:d=0.5,format=yuv420p" -an -c:v libx264 -preset slow -crf 18 \
+-movflags +faststart demo/cv-match/cv-matching-demo-short.mp4
+```
+
+For the full video:
+
+the script prints the timings `cutFrom` and `cutTo` around the reload after the sign-in link. The page is
 still loading between those times. Cut that part out and encode, adjusting the trim times to the frames of the
 new recording:
 

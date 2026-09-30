@@ -1,5 +1,6 @@
 // Records the CV matching demo video. See README.md in this folder.
-//   node demo/cv-match/record.js [--shots]
+//   node demo/cv-match/record.js [--short] [--shots]
+// --short: a 25-second cut of the main steps, without captions, for social media
 const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
@@ -11,6 +12,7 @@ const OUT = path.join(DIR, 'out');
 const SITE = 'http://localhost:8000/';
 const W = 1280, H = 720;
 const SHOTS = process.argv.includes('--shots');
+const SHORT = process.argv.includes('--short');
 
 // Captions, a visible cursor and title cards, added to every page
 const OVERLAY = `
@@ -122,10 +124,10 @@ const OVERLAY = `
   await context.route(/\/functions\/v1\/match-jobs/, async route => {
     const req = JSON.parse(route.request().postData() || '{}');
     if (req.action === 'profile') {
-      await pause(4200);
+      await pause(SHORT ? 2000 : 4200);
       return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(api.profile) });
     }
-    await pause(5200);
+    await pause(SHORT ? 2400 : 5200);
     const n = await page.evaluate(() => ALL_JOBS.length);
     return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ...api.match, open_jobs: n }) });
   });
@@ -161,6 +163,82 @@ const OVERLAY = `
     await pause(ms);
   }
 
+  if (SHORT) await shortFlow();
+  else await fullFlow();
+
+  mark('end');
+  fs.writeFileSync(path.join(OUT, 'marks.json'), JSON.stringify(marks, null, 1));
+  console.log(marks);
+
+  const video = page.video();
+  await context.close();
+  if (video) {
+    const p = await video.path();
+    const out = path.join(OUT, SHORT ? 'raw-short.webm' : 'raw.webm');
+    fs.renameSync(p, out);
+    console.log('video:', out);
+  }
+  await browser.close();
+
+  // The main steps only: signed in already, no captions
+  async function shortFlow() {
+    await page.goto(SITE + '?demo=1');
+    await page.evaluate(() => {
+      ['hkaj_match', 'hkaj_cvm_consent'].forEach(k => localStorage.removeItem(k));
+      localStorage.setItem('demo_signed_in', '1');
+    });
+    await page.reload();
+    await page.waitForFunction(() => typeof ALL_JOBS !== 'undefined' && ALL_JOBS.length > 1000, null, { timeout: 30000 });
+    await page.mouse.move(W * 0.55, H * 0.45);
+    await pause(700);
+    mark('start');
+    await pause(500);
+    await moveTo('#cvmCtaBtn', { steps: 22 });
+    await pause(400);
+    await snap('home');
+    await click('#cvmCtaBtn', { after: 700 });
+    await moveTo('.cvm-drop', { steps: 16 });
+    await pause(300);
+    await page.locator('#cvmFile').setInputFiles(path.join(OUT, 'Alex_Wong_CV.pdf'));
+    await page.waitForSelector('.cvm-file:not(.reading)', { timeout: 20000 });
+    await pause(1000);
+    await snap('add-cv');
+    await click('#cvmConsent', { steps: 14, after: 300 });
+    await click('#cvmAnalyse', { steps: 12, after: 200 });
+    await snap('analysing');
+    await page.waitForSelector('.cvm-headline', { timeout: 20000 });
+    await moveTo('.cvm-headline', { steps: 16 });
+    await pause(1500);
+    await snap('profile');
+    await scrollBy('.cvm-modal', 260, 1000);
+    await scrollBy('.cvm-modal', 600, 700);
+    await click('[data-act="match"]', { steps: 18, after: 200 });
+    await snap('matching');
+    await page.waitForSelector('#cvmHead', { timeout: 20000 });
+    await page.evaluate(() => window.scrollTo({ top: Math.max(0, document.getElementById('cvmHead').getBoundingClientRect().top + scrollY - 70) }));
+    await pause(400);
+    await moveTo('#cvmHead .cvm-results-headline', { steps: 16 });
+    await pause(1000);
+    await snap('results');
+    await page.evaluate(() => {
+      const t = document.querySelector('tr .cvm-why-line').closest('tr').getBoundingClientRect().top;
+      window.scrollBy({ top: t - 200, behavior: 'smooth' });
+    });
+    await pause(900);
+    await moveTo(page.locator('.cvm-why-line').nth(0), { steps: 16, fx: 0.3 });
+    await pause(1200);
+    await click(page.locator('tr:has(.cvm-why-line) .job-title').first(), { steps: 12, fx: 0.4, after: 900 });
+    await page.waitForSelector('#cvmWhy', { timeout: 10000 });
+    await moveTo('#cvmWhy', { steps: 18, fy: 0.4 });
+    await pause(2600);
+    await snap('panel');
+    await card(`<div class="k">HKAcadJobs</div><h1>✨ Find jobs that fit your CV</h1>
+      <p>Free with an account · Your CV is never stored</p>
+      <p class="s">www.hkacadjobs.org &nbsp;·&nbsp; Demo with a sample CV</p>`, 3200);
+    await snap('end');
+  }
+
+  async function fullFlow() {
   // ── 1. Title card ──
   await page.goto(SITE + '?demo=1');
   await page.evaluate(() => { localStorage.removeItem('demo_signed_in'); localStorage.removeItem('hkaj_match'); localStorage.removeItem('hkaj_cvm_consent'); });
@@ -275,16 +353,5 @@ const OVERLAY = `
     <p>Free with an account · Your CV is never stored · Contact details are removed before AI analysis</p>
     <p class="s">www.hkacadjobs.org &nbsp;·&nbsp; Demo with a sample CV</p>`, 4200);
   await snap('end');
-  mark('end');
-  fs.writeFileSync(path.join(OUT, 'marks.json'), JSON.stringify(marks, null, 1));
-  console.log(marks);
-
-  const video = page.video();
-  await context.close();
-  if (video) {
-    const p = await video.path();
-    fs.renameSync(p, path.join(OUT, 'raw.webm'));
-    console.log('video:', path.join(OUT, 'raw.webm'));
   }
-  await browser.close();
 })().catch(e => { console.error(e); process.exit(1); });
