@@ -22,7 +22,7 @@ Requiring sign-in turns the feature into the main reason to sign up. It gives us
 - Model: **Claude Sonnet 5.5** (`claude-sonnet-5-5`, $2 / $10 per million tokens). It is set by one secret (`MATCH_MODEL`), so it can be changed later.
 - **The CV is never stored.** Users can opt in to save the extracted profile (never the file) and get match alerts.
 
-**Cost estimate (Sonnet 5.5):** about US$0.08 per match, or about US$0.10 from a website link (≈18k input and 5k output tokens over two calls). Match alerts cost about US$0.02 per saved profile, and only on days when new jobs are candidates.
+**Cost estimate (Sonnet 5.5):** about US$0.08 per match, or about US$0.10 from a website link (measured on 30 Sep: about US$0.05 for a CV's profile and matches, US$0.42 for the eight test CVs) (≈18k input and 5k output tokens over two calls). Match alerts cost about US$0.02 per saved profile, and only on days when new jobs are candidates.
 
 ## Architecture
 

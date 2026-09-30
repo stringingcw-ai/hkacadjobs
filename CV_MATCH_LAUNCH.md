@@ -39,7 +39,7 @@ Things to try:
 - [ ] **Web page tab:** try a university staff page. Also try a LinkedIn link, which should be turned away with a tip.
 - [ ] **Signing out:** your matches should disappear from that browser.
 
-Each full run costs about US$0.08, or US$0.10 from a web page link. Screenshots of every step, on a desktop and a phone, were shared in the Claude session on 30 Sep. They use placeholder match reasons, not Claude's.
+Each full run costs about US$0.05, a little more from a web page link. Screenshots of every step, on a desktop and a phone, were shared in the Claude session on 30 Sep. They use placeholder match reasons, not Claude's.
 
 A phone can't reach `localhost`. To test on your phone, open the live site with `?beta=match` after the branch is merged. The feature stays hidden from everyone else until step 3.5 below.
 
@@ -65,7 +65,7 @@ A phone can't reach `localhost`. To test on your phone, open the live site with 
 
 ## 4. Optional
 
-- **Quality check with Claude.** This runs the eight test CVs through the real pipeline, costs about US$0.70, and shows the matches for us to judge.
+- **Quality check with Claude.** This runs the eight test CVs through the real pipeline, costs about US$0.45, and shows the matches for us to judge.
   - Run it from GitHub → Actions → *CV match quality check* → Run workflow. It uses the repository's `ANTHROPIC_API_KEY` secret, the key the daily summaries use.
   - "Run workflow" appears once the branch is merged. Until then it runs whenever the workflow file changes on the branch.
 - **Hide subscribers' email addresses in the Actions logs.**

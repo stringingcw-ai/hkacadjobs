@@ -1,6 +1,6 @@
 // Quality check with the real Claude API: each test persona's CV (testdata/personas.json) goes
 // through the same steps as the site — profile, shortlist over the live jobs.csv, ranking — and the
-// results are printed for a person to judge. About US$0.08 per persona on Claude Sonnet 5.5.
+// results are printed for a person to judge. About US$0.05 per persona on Claude Sonnet 5.5.
 //
 //   ANTHROPIC_API_KEY=... deno task eval                   # all personas
 //   ANTHROPIC_API_KEY=... deno task eval nurse_educator    # just one

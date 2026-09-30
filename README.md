@@ -138,7 +138,7 @@ Jobs with a known deadline are retained for up to **14 days after expiry**, then
     ├── check-links.yml # Weekly Apply-link check
     ├── tests.yml       # Lint + tests on every change to the scraper, site or functions
     ├── deploy-functions.yml  # Deploys supabase/functions when they change on main
-    └── cv-match-eval.yml     # Manual: runs the test CVs through CV matching (Claude, ~US$0.70)
+    └── cv-match-eval.yml     # Manual: runs the test CVs through CV matching (Claude, ~US$0.45)
 ```
 
 ---
@@ -263,13 +263,13 @@ Open it as `localhost`: the function turns away network addresses such as `192.1
 | `MATCH_MODEL` | `claude-sonnet-5-5` | The Claude model |
 | `MATCH_ENABLED` | `true` | `false` pauses matching |
 
-**Cost:** about US$0.08 per match on Claude Sonnet 5.5, or about US$0.10 from a web page link, and about US$0.02 a
+**Cost:** about US$0.05 for a CV's profile and matches on Claude Sonnet 5.5 (measured 30 Sep), a little more from a web page link, and about US$0.02 a
 day per saved profile for match alerts, only on days when new jobs could fit it. The query at the end of the SQL file
 shows use and spend per day.
 
 **Tests:** `cd supabase/functions/match-jobs && deno task check` formats, lints, type-checks and runs the tests, which
 use a fake Claude. `ANTHROPIC_API_KEY=… deno task eval` runs the eight test CVs in `testdata/personas.json` through the
-real pipeline (about US$0.70) and prints the matches for review. The *CV match quality check* workflow (Actions
+real pipeline (about US$0.45) and prints the matches for review. The *CV match quality check* workflow (Actions
 tab → Run workflow) does the same on GitHub with the repository's `ANTHROPIC_API_KEY` secret and shows the matches
 on the run page. The match-alert emails are covered by `scraper/tests/test_match_alerts.py`.
 
