@@ -1053,7 +1053,7 @@
     const meta = [
       `Matched ${fmtDate(r.at)}`,
       r.open_jobs ? `${r.open_jobs.toLocaleString('en')} open positions compared` : '',
-      closed > 0 ? `${closed} since closed` : '',
+      closed > 0 ? `${closed} no longer listed` : '',
     ].filter(Boolean).join(' · ');
     el.innerHTML = `<div class="cvm-results-main">
         <div class="cvm-results-title">Jobs that fit you <span class="ai-badge">AI suggestions</span></div>
