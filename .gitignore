@@ -15,3 +15,6 @@ scraper/.env.local
 supabase/.temp/
 supabase/.branches/
 supabase/.env.local
+
+# Demo recordings (demo/*/record.js)
+demo/*/out/
