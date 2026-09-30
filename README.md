@@ -137,7 +137,8 @@ Jobs with a known deadline are retained for up to **14 days after expiry**, then
     ├── scrape.yml      # Daily: scrape → pages → publish → wait for deploy → alerts → health check
     ├── check-links.yml # Weekly Apply-link check
     ├── tests.yml       # Lint + tests on every change to the scraper, site or functions
-    └── deploy-functions.yml  # Deploys supabase/functions when they change on main
+    ├── deploy-functions.yml  # Deploys supabase/functions when they change on main
+    └── cv-match-eval.yml     # Manual: runs the test CVs through CV matching (Claude, ~US$0.70)
 ```
 
 ---
@@ -268,8 +269,9 @@ shows use and spend per day.
 
 **Tests:** `cd supabase/functions/match-jobs && deno task check` formats, lints, type-checks and runs the tests, which
 use a fake Claude. `ANTHROPIC_API_KEY=… deno task eval` runs the eight test CVs in `testdata/personas.json` through the
-real pipeline (about US$0.70) and prints the matches for review. The match-alert emails are covered by
-`scraper/tests/test_match_alerts.py`.
+real pipeline (about US$0.70) and prints the matches for review. The *CV match quality check* workflow (Actions
+tab → Run workflow) does the same on GitHub with the repository's `ANTHROPIC_API_KEY` secret and shows the matches
+on the run page. The match-alert emails are covered by `scraper/tests/test_match_alerts.py`.
 
 ---
 

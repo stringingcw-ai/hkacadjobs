@@ -65,9 +65,9 @@ A phone can't reach `localhost`. To test on your phone, open the live site with 
 
 ## 4. Optional
 
-- **Quality check with Claude.** This runs the eight test CVs through the real pipeline, costs about US$0.70, and prints the matches for us to judge.
-  - It needs an Anthropic key in the environment that runs it. Either add `ANTHROPIC_API_KEY` to the Claude Code environment's settings, which applies to new sessions, and ask Claude to run it, or run it yourself:
-    `cd supabase/functions/match-jobs && ANTHROPIC_API_KEY=… deno task eval`
+- **Quality check with Claude.** This runs the eight test CVs through the real pipeline, costs about US$0.70, and shows the matches for us to judge.
+  - Run it from GitHub → Actions → *CV match quality check* → Run workflow. It uses the repository's `ANTHROPIC_API_KEY` secret, the key the daily summaries use.
+  - "Run workflow" appears once the branch is merged. Until then it runs whenever the workflow file changes on the branch.
 - **Hide subscribers' email addresses in the Actions logs.**
   - The existing filter alerts print each subscriber's full email address in the public GitHub Actions log ("✅ Sent to …").
   - The new match alerts print a masked form (`n***@example.com`). The same for the old lines would be a two-line change.
