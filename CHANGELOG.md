@@ -4,6 +4,26 @@ All notable changes to HKAcadJobs are recorded here, grouped by date.
 
 ---
 
+## 2026-09-30
+
+CV matching ("Find jobs that fit your CV"), in beta. Until launch it shows only after visiting with `?beta=match` (see `CV_MATCH_LAUNCH.md`).
+
+### CV matching
+- Signed-in users add a CV: a PDF, Word or text file, pasted text, or a link to a web page about their work. Claude Sonnet 5.5 builds a profile they can check and change, then picks the open positions that fit them best, with a reason and anything worth checking for each
+- Files are read in the browser, and email addresses, phone numbers, ID numbers and details such as date of birth are removed before any text is sent. The CV is never stored
+- A "Jobs that fit you" view with the reasons, fit labels next to matching jobs in the listing, and "Why this may suit you" in the job panel
+- Signed-out visitors see a short intro and a free sign-up. After the magic link, the flow picks up at "Add your CV"
+- Users can choose to save their profile and get a daily email when new jobs fit it. "My CV profile" in the account menu switches the emails off, re-runs the match or deletes the profile
+- The matching runs in a Supabase Edge Function (`supabase/functions/match-jobs`), with daily limits per account, a site-wide daily budget and a kill switch
+
+### Site
+- A Privacy section in About, linked from the footer
+- GA4 `sign_up` and `login` events for magic-link sign-ins
+- Phones: the sort buttons wrap instead of making the page wider than the screen, which had pushed pop-ups off-centre
+- Pressing Escape with no job open no longer adds a browser-history entry
+
+---
+
 ## 2026-09-27
 
 Fixes from the September health check (`HEALTH_CHECK_2026-09.md`).

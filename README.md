@@ -99,6 +99,9 @@ Jobs with a known deadline are retained for up to **14 days after expiry**, then
 
 ```
 ├── index.html          # Single-page frontend (HTML + CSS + JS, no build step)
+├── cv-match.js         # "Find jobs that fit your CV": the site's side of CV matching, loaded on first use
+├── cv-match.css        # …and its styles
+├── vendor/             # pdf.js and mammoth, which read PDF and Word CVs in the browser (see vendor/README.md)
 ├── jobs.csv            # Job data — regenerated daily by the scraper (gitignored; force-added by workflow)
 ├── jobs-lite.csv       # jobs.csv without descriptions, for a fast first paint
 ├── jobs/               # One static page per job (/jobs/<slug>-<id>/), for search engines and alert links
@@ -107,6 +110,8 @@ Jobs with a known deadline are retained for up to **14 days after expiry**, then
 ├── favicon.svg
 ├── CNAME               # Custom domain configuration (www.hkacadjobs.org)
 ├── CHANGELOG.md        # Full update history by date
+├── CV_MATCH_PLAN.md    # How CV matching was planned and built
+├── CV_MATCH_LAUNCH.md  # CV matching: local review, and the owner's steps before launch
 ├── scraper/
 │   ├── scraper.py      # Entry point: runs every institution, then NEW flags, deadlines, summaries → jobs.csv
 │   ├── core.py         # Shared helpers: text cleanup, ranks, dates and deadlines, page fetching
@@ -114,6 +119,7 @@ Jobs with a known deadline are retained for up to **14 days after expiry**, then
 │   ├── sites/          # One module per institution (hku.py, cuhk.py, …)
 │   ├── generate_job_pages.py  # Job pages, closed-job pages, sitemap, jobs-lite.csv, homepage links
 │   ├── notify.py       # Job alert emails (Supabase subscriptions → Resend)
+│   ├── match_alerts.py # "Jobs that fit you" emails for saved CV profiles (run by notify.py)
 │   ├── health.py       # Fails the daily run when a scraper under-delivers or alerts fail
 │   ├── check_links.py  # Weekly check that every Apply link still opens
 │   ├── wait_for_deploy.py     # Holds alert emails until GitHub Pages serves the new job pages
@@ -126,7 +132,7 @@ Jobs with a known deadline are retained for up to **14 days after expiry**, then
 │   ├── requirements.txt    # Pinned Python dependencies
 │   └── tests/          # pytest suite (python -m pytest scraper/tests)
 ├── supabase/           # One-off SQL to run in the Supabase SQL editor, and the Edge Functions
-│   └── functions/match-jobs/  # CV matching service (Deno/TypeScript; see "CV matching service" below)
+│   └── functions/match-jobs/  # CV matching service (Deno/TypeScript; see "CV matching" below)
 └── .github/workflows/
     ├── scrape.yml      # Daily: scrape → pages → publish → wait for deploy → alerts → health check
     ├── check-links.yml # Weekly Apply-link check
@@ -206,16 +212,29 @@ The GitHub Actions workflow (`.github/workflows/scrape.yml`) runs the scraper da
 
 ---
 
-## CV matching service
+## CV matching
 
-`supabase/functions/match-jobs` is a Supabase Edge Function for signed-in users. It reads a CV, or a personal or
-academic web page, with Claude Sonnet 5.5 and builds a profile: field, specialisms, level, qualifications and
-languages. It then shortlists the 40 open jobs in `jobs.csv` whose wording best fits that profile, and asks Claude to
-rank them, with a short "why this fits you" and any gaps for each. The site calls it in two steps:
-`{"action": "profile", "text" | "url"}` returns the profile, which the user can check and edit, and
-`{"action": "match", "profile", "prefs"}` returns up to 12 matches. The CV is never stored, and emails, phone numbers
-and ID numbers are removed before anything is sent to Claude. The plan, including the website changes and the match
-alerts still to come, is in `CV_MATCH_PLAN.md`.
+"Find jobs that fit your CV" is for signed-in users, and is the site's main reason to create an account. A user adds
+a CV (PDF, Word or text, pasted text, or a link to a personal or academic web page), checks the profile Claude makes
+of it, and sees the open positions that fit them best, each with a short reason. They can save the profile to get an
+email when a new job fits. `CV_MATCH_PLAN.md` has the design; `CV_MATCH_LAUNCH.md` has the steps before launch.
+
+- **On the site:** `cv-match.js` and `cv-match.css`, loaded the first time someone uses the feature (or when their
+  browser already holds matches). Files are read in the browser with `vendor/`, and email addresses, phone numbers,
+  ID numbers and details such as date of birth are removed before any text is sent. The latest profile and matches
+  stay in the browser (`hkaj_match`) until sign-out. Bump `CV_MATCH_VERSION` in `index.html` whenever either file
+  changes, so browsers fetch the new copy.
+- **Before launch** it's hidden: it appears only after visiting with `?beta=match` (remembered in that browser;
+  `?beta=off` forgets it). Setting `CV_MATCH_PUBLIC = true` in `index.html` shows it to everyone.
+- **The service:** `supabase/functions/match-jobs`, a Supabase Edge Function that accepts only signed-in users. It
+  reads the CV or web page with Claude Sonnet 5.5 and builds a profile: field, specialisms, level, qualifications and
+  languages. It then shortlists the 40 open jobs in `jobs.csv` whose wording best fits that profile, and asks Claude
+  to rank them, with a reason and any gaps for each. `{"action": "profile", "text" | "url"}` returns the profile,
+  and `{"action": "match", "profile", "prefs"}` returns up to 12 matches. The CV is never stored.
+- **Match alerts:** after the filter alerts, `notify.py` runs `scraper/match_alerts.py`. It asks the function which
+  of the day's new jobs fit each saved profile (`match_profiles`, only the institutions the user chose), and emails up
+  to five, sharing the filter alerts' sent log and unsubscribe link. It also deletes usage records older than 90 days,
+  as the privacy notice says.
 
 **Setup (once):**
 1. Run `supabase/2026-10-cv-match.sql` in Supabase → SQL Editor.
@@ -224,6 +243,13 @@ alerts still to come, is in `CV_MATCH_PLAN.md`.
    `SUPABASE_PROJECT_REF` (`xdlarqwycodfoahmkvha`), then run *Deploy functions* in the Actions tab. After that it
    deploys by itself whenever the function changes on `main`.
 4. Set a monthly spend limit in the Anthropic Console as a hard stop.
+5. Because the feature brings sign-ups, send Supabase's sign-in emails through your own SMTP server (Supabase →
+   Authentication → Emails → SMTP settings; Resend works) and raise the email rate limit.
+
+**Trying it locally:** run `python3 -m http.server 8000` in the repository and open
+`http://localhost:8000/?beta=match`. It uses the live Supabase project, so the sign-in link must be allowed to come
+back to your computer: add `http://localhost:8000/**` in Supabase → Authentication → URL Configuration → Redirect URLs.
+Open it as `localhost`: the function turns away network addresses such as `192.168.…`.
 
 **Limits and settings** (optional Edge Function secrets; days follow Hong Kong time):
 
@@ -236,12 +262,14 @@ alerts still to come, is in `CV_MATCH_PLAN.md`.
 | `MATCH_MODEL` | `claude-sonnet-5-5` | The Claude model |
 | `MATCH_ENABLED` | `true` | `false` pauses matching |
 
-**Cost:** about US$0.08 per match on Claude Sonnet 5.5, or about US$0.10 from a web page link. The query at the end of
-the SQL file shows use and spend per day.
+**Cost:** about US$0.08 per match on Claude Sonnet 5.5, or about US$0.10 from a web page link, and about US$0.02 a
+day per saved profile for match alerts, only on days when new jobs could fit it. The query at the end of the SQL file
+shows use and spend per day.
 
 **Tests:** `cd supabase/functions/match-jobs && deno task check` formats, lints, type-checks and runs the tests, which
 use a fake Claude. `ANTHROPIC_API_KEY=… deno task eval` runs the eight test CVs in `testdata/personas.json` through the
-real pipeline (about US$0.70) and prints the matches for review.
+real pipeline (about US$0.70) and prints the matches for review. The match-alert emails are covered by
+`scraper/tests/test_match_alerts.py`.
 
 ---
 

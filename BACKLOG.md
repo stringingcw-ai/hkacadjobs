@@ -217,10 +217,8 @@ tracked in the report, not here. New operations items are in §9.
 **Symptom:** Events are fired but no GA4 funnel is defined for `search → filter_active → job_detail_viewed → apply_click → alert_subscribed`. The drop-off we're analyzing in this doc is based on code reading, not production data.
 **Fix:** Define the funnel in GA4 Explore once `apply_click` and `search_no_results` ship. Track weekly drop-off rate at each step. Not a code change — operations task for the repo owner. *(Health check §8.3)* Also mark `apply_click` and `alert_subscribed` as key events, set event data retention to 14 months, register `university`, `rank`, `source` and `filter_type` as custom dimensions, and link Search Console (step-by-step guide given 2026-09-27). Apply clicks on static job pages arrive with `source: static_page`.
 
-### [P1] Sign-in isn't tracked — S
-**Symptom:** No event fires when someone completes the email (magic-link) sign-in, so sign-ups can't be a GA4 key event or a funnel step.
-**Fix:** Send GA4's recommended `login` event (`method: 'magic_link'`) from the Supabase `onAuthStateChange` `SIGNED_IN` handler, and `sign_up` when the account is new (e.g. `created_at` within the last minute).
-**Evidence:** index.html `_sb.auth.onAuthStateChange`, `sendMagicLink`.
+### [P1] ~~Sign-in isn't tracked — S~~ ✅ DONE 2026-09-30 (with CV matching)
+The tab a magic link opens sends GA4's `login` or `sign_up` event (`method: 'magic_link'`, `source: 'cv_match'` or `'site'`). It's `sign_up` when the email was confirmed at that sign-in. `created_at` isn't used, because the account is created when the link is requested. `magic_link_sent` counts the links requested.
 
 ### [P1] Weekly owner report email — M *(Health check §8.3)*
 **Symptom:** The owner has to open GA4, Supabase and GitHub separately to see how the site is doing.
@@ -292,6 +290,13 @@ tracked in the report, not here. New operations items are in §9.
 **Symptom:** Generated HTML under `/jobs/` is committed daily. Pages are now rewritten only when a job changes, so repository growth has slowed a lot, but it still grows.
 **Fix:** Build the pages in the workflow and deploy with `actions/deploy-pages` instead of committing them.
 
+### CV matching follow-ups *(see CV_MATCH_PLAN.md)*
+- **Better recall with embeddings — M:** if the quality check shows good jobs missing from the 40-job keyword shortlist, add embeddings (e.g. Voyage), stored per job by the daily run.
+- **Topic tags per job — S:** add tags to the summary schema in `scraper/summaries.py`, so the shortlist and the site's filters can use them.
+- **One email instead of two — S:** someone with both saved-filter alerts and match alerts gets two emails a day. Merge them into one.
+- **Chinese interface for CV matching — M:** part of the Traditional and Simplified Chinese work in §1. CVs in Chinese already work.
+- **Automated browser test in CI — M:** the local review walkthrough of 30 Sep was run by hand. A Playwright job in `tests.yml` would catch regressions.
+
 ---
 
 ## Priority summary (quick-pick for next sprint)
@@ -311,7 +316,7 @@ scraping, data accuracy and job-page SEO, so the retention loop now works and it
 **Owner tasks (no code):** GA4 key events, funnel and custom dimensions (§6); Search Console follow-up (§6);
 `HEALTH_ALERT_EMAIL` secret (§9); partnership outreach (§1).
 
-**P1 backlog:** Homepage ItemList schema, fonts preload, saved-filter prompt, related jobs in the panel, apply return-hook, social proof, last-scrape pill, ARIA pass, sign-in tracking, weekly owner report.
+**P1 backlog:** Homepage ItemList schema, fonts preload, saved-filter prompt, related jobs in the panel, apply return-hook, social proof, last-scrape pill, ARIA pass, weekly owner report, CV matching follow-ups (§9).
 
 **P2 backlog:** Job view counts, skeleton rows, service worker / PWA / web push, per-job share, recent searches, keyboard-navigable multiselects, emoji aria, skip link, source attribution, re-engagement email, A/B harness, "extended / re-advertised" badges, summary refresh, `date_posted` and logos, scraper speed-ups, deploy pages without committing.
 

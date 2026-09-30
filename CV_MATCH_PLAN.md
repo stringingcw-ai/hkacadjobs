@@ -1,6 +1,12 @@
 # CV matching: implementation plan
 
-**Status:** Phase 1 (the matching service) was built on 29 Sep 2026 and deployed on 30 Sep through the Supabase connector: the SQL was applied as the migrations `cv_match_2026_10` and `cv_match_2026_10_policy_select_auth`, and `match-jobs` version 1 is active. The one-off setup is in README.md, "CV matching service". Phases 2 and 3 are being built on the `claude/gallant-mendel-d4hyab` branch; nothing is on the live site yet. Where the build differs from the plan, the Phase 1 section below says what was built. Decisions made with the owner: sign-in required, no LinkedIn, Claude Sonnet 5.5, and nothing stored unless the user opts in to a saved profile with match alerts.
+**Status (30 Sep 2026):** All three phases are built on the `claude/gallant-mendel-d4hyab` branch. Nothing on the live site has changed.
+- **Live Supabase project:** has the database side, applied as the migrations `cv_match_2026_10`, `cv_match_2026_10_policy_select_auth` and `cv_match_2026_10_profile_prefs`. `match-jobs` version 1 is deployed.
+- **Before it can match anything:** the function needs the `ANTHROPIC_API_KEY` secret.
+- **Owner's steps:** reviewing locally and launching are covered in `CV_MATCH_LAUNCH.md`; the setup is in README.md, "CV matching".
+- **Where the build differs from this plan:** each phase ends with an "As built" note.
+
+Decisions made with the owner: sign-in required, no LinkedIn, Claude Sonnet 5.5, and nothing stored unless the user opts in to a saved profile with match alerts.
 
 ## Context
 
@@ -168,6 +174,36 @@ Why this shape:
   - A short **Privacy** section, linked from the footer and written as a collection notice under Hong Kong's privacy law (PDPO): CV text is analysed by Anthropic's Claude API and never stored; opt-in saved profiles; per-account usage logs kept 90 days; processors are Supabase, Anthropic, Resend and Google Analytics; how to delete your profile or account data.
 - Launch: after verification, set `CV_MATCH_PUBLIC = true`. Until then the entry points need `?beta=match`. Bump `BANNER_VERSION` with a sign-up-focused announcement.
 
+**As built (30 Sep 2026)**
+
+*Calling the function and sign-in*
+- **Calls** use plain `fetch` with the session's access token and the anon key, not `functions.invoke`, so the site gets the function's own error codes. The time limit is 150 s.
+- **Sign-up vs sign-in:** a `sign_up` event is sent when the email was confirmed at this sign-in (`email_confirmed_at` equals `last_sign_in_at`). `created_at` can't be used, because the account is created when the link is *requested*.
+- **Resuming after the magic link:** only the tab the link opens (with the sign-in tokens in its address) counts the sign-in and reopens the flow, so an older tab doesn't do it too. The intent expires after 3 hours.
+- **Extra events:** `cv_match_intro`, `magic_link_sent`, `cv_match_alert_off`, `cv_match_profile_deleted`, and `where` on the funnel events.
+
+*Screens*
+- **Fit labels** (Strong fit / Good fit / Worth a look) also show next to matching jobs in the full listing. The reason line shows only in the "Jobs that fit you" view.
+- **"For you" nav button:** appears only once there are matches. On phones it's just ✨ and the count, and the account button shows only its icon, so the nav fits.
+- **Results header:** has "← All jobs". Back and Forward move between that view and the listing.
+- **Reading CVs:**
+  - PDFs are read up to 30 pages, and text is cut at 39,000 characters with a notice.
+  - "Check the text we'll send" shows exactly what leaves the browser, after contact details are removed.
+  - The drop zone folds away once a file is read.
+- **Privacy:** a short notice in the modal ("How we handle your CV"), and the full notice in About → Privacy, which the footer links to.
+- **Consent tick:** remembered in the browser until sign-out.
+
+*Loading and switching on*
+- `cv-match.js` and `cv-match.css` load together, with `?v=CV_MATCH_VERSION` so a new release isn't mixed with a cached copy. They load at startup only when the browser already holds matches.
+- **Beta flag:** `?beta=match` is remembered in the browser (`hkaj_beta`); `?beta=off` forgets it.
+
+*Also fixed along the way*
+- **Phones:** the sort bar made pages 32 px wider than a 390 px screen, which pushed every pop-up to the right. It now wraps.
+- **Escape key:** pressing it with no job open no longer adds a browser history entry.
+- **Unsubscribe page:** the wording now covers both kinds of alert.
+
+*Not done yet:* the launch banner (`BANNER_VERSION`), which goes with the launch.
+
 ## Phase 3: Opt-in saved profile and "jobs that fit you" alerts
 
 **SQL (same file as Phase 1)**
@@ -187,6 +223,11 @@ Why this shape:
 - `--dry-run` and `--test-email` also cover match alerts.
 - No workflow change is needed: `scrape.yml` already passes `SUPABASE_URL` and `SUPABASE_SERVICE_KEY`.
 
+**As built (30 Sep 2026)**
+- **Institution choices:** `match_profiles` also has a `prefs` column (`{"unis": [...]}`), added by the migration `cv_match_2026_10_profile_prefs`. The alert run passes it to the function, so the emails respect those choices.
+- **Saving a profile:** a new row gets a new unsubscribe token; saving again updates the row and keeps the token, so links in earlier emails still work.
+- **Usage records:** the alert run deletes rows older than 90 days, as the privacy notice promises. It does this with a PostgREST `DELETE` as the service role. A failure only warns, and the next day's run tries again.
+
 **New: `scraper/tests/test_match_alerts.py`** (monkeypatched HTTP and `send_email`)
 - No call when there are no new jobs.
 - Jobs already sent are excluded.
@@ -203,6 +244,8 @@ Why this shape:
   - follow-ups: embeddings (e.g. Voyage) for better recall if the eval shows gaps, per-job topic tags added to `_SUMMARY_SCHEMA`, merging match and filter alerts into one email, and a Chinese UI.
 
 ## Owner setup (one-off, no code)
+
+*The up-to-date checklist, with what's already done, is `CV_MATCH_LAUNCH.md`.*
 
 1. Run `supabase/2026-10-cv-match.sql` in Supabase → SQL Editor.
 2. In Supabase → Edge Functions → Secrets, add `ANTHROPIC_API_KEY`, ideally its own key to track spend. Optional: `MATCH_MODEL`, the limits and `MATCH_ENABLED`.
@@ -226,6 +269,15 @@ Why this shape:
   - Signed out: CTA → intro → auth modal with the feature's copy; the intent flag is set.
   - Signed in (a fake session placed in localStorage): the modal resumes at upload → synthetic PDF → review with opt-in → "For you" view → panel reasons → reload keeps matches.
   - Also check: sign-out clears the matches; the LinkedIn hint; the 401/429/503 messages; mobile width.
+  - *As run on 30 Sep:* 60 checks passed, on a desktop, a 390 px phone, and with the feature switched off. Sign-in, the database and the function were stubbed, and the match reasons were placeholders. The real Claude output and a real magic-link email are still to be checked; see `CV_MATCH_LAUNCH.md`.
+    - **Switched off:** nothing new shows and `cv-match.js` isn't downloaded.
+    - **Signing up and in:** the magic link resumes at "Add your CV", and a `sign_up` event is sent.
+    - **Reading CVs:** a PDF, including its Chinese text, and a Word file are read in the browser. A scanned PDF gets an explanation.
+    - **What gets sent:** only the redacted text, with the user's token.
+    - **Results:** the review, the results and the "Why this may suit you" panel all show. A reload keeps the matches, and Back/Forward move between views.
+    - **My CV profile:** saving a profile and switching alerts on and off work.
+    - **Messages:** the daily-limit and LinkedIn messages show.
+    - **Sign-out:** clears the matches, the pending sign-in intent and the consent tick.
 - **Quality check (≈ US$1):** run the 8 personas through the live pipeline once. Read the top matches and the why/gaps text, then adjust the weights, `effort` and prompts. Record the results in the PR.
 - **Live smoke test after deploy:**
   - On `https://www.hkacadjobs.org/?beta=match`, sign up with a new email and confirm the modal resumes after the magic link. Run one match.
