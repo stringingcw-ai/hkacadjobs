@@ -268,6 +268,22 @@ The tab a magic link opens sends GA4's `login` or `sign_up` event (`method: 'mag
 
 ## 9. Operations & monitoring
 
+### [P0] Switch to Supabase's new API keys before the end of 2026 — M
+**Symptom:** The project uses Supabase's legacy `anon` and `service_role` keys, which stop working at the end of 2026 (Supabase's migration guide, checked 30 Sep 2026). Without the switch, sign-in, saved jobs and filters, alert emails and CV matching all stop working.
+**Fix:** Follow Supabase's guide. Both kinds of key work side by side, so each part can move on its own, and the old keys are switched off last (that step can be undone).
+- Create the new keys in Supabase → Settings → API Keys.
+- Site: replace `SUPABASE_ANON_KEY` in index.html with the publishable key (`sb_publishable_…`). `cv-match.js` uses the same constant.
+- Daily run: put the publishable key and the secret key (`sb_secret_…`) in the GitHub secrets `SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_KEY`. The new keys may only be sent in the `apikey` header, so `_supabase_request` in `scraper/notify.py` and the calls in `scraper/match_alerts.py` must stop also sending them as `Authorization: Bearer`.
+- `match-jobs` function:
+  - Read the keys from `SUPABASE_PUBLISHABLE_KEYS` and `SUPABASE_SECRET_KEYS`. These hold JSON, and the key is under `default`.
+  - Recognise the alert run by its `apikey` header, not the Bearer token (`handler.ts`).
+  - Send the secret key only as `apikey` when writing usage rows (`usage.ts`).
+  - Set `verify_jwt = false`, because the platform's check doesn't understand the new keys. The function already checks users itself.
+- Check that nothing still uses the old keys, then deactivate them.
+- Optional and separate: move Supabase Auth to JWT signing keys.
+
+**Evidence:** https://supabase.com/docs/guides/getting-started/migrating-to-new-api-keys; index.html (`SUPABASE_ANON_KEY`), cv-match.js (`callApi`), scraper/notify.py, scraper/match_alerts.py, .github/workflows/scrape.yml, supabase/functions/match-jobs (`config.ts`, `index.ts`, `handler.ts`, `usage.ts`), supabase/config.toml.
+
 ### [P2] Email scrape-health alerts with details (`HEALTH_ALERT_EMAIL` secret) — S
 **Symptom:** When the daily run finds a problem (an institution crashed, came back empty or far below its usual count, alert emails failed, or `jobs.csv` has malformed rows), the *Check scrape health* step fails the run and GitHub sends its generic "run failed" email. The details (which institution, how many jobs, how many were kept from the previous run) are only on the run page.
 **Fix:** Add a repository secret `HEALTH_ALERT_EMAIL` (GitHub → Settings → Secrets and variables → Actions → New repository secret) with the address to notify. No code change is needed: `scraper/health.py` and `scraper/check_links.py` already send a Resend email with the per-institution table and the run link whenever it is set.
@@ -301,8 +317,11 @@ The tab a magic link opens sends GA4's `login` or `sign_up` event (`method: 'mag
 
 ## Priority summary (quick-pick for next sprint)
 
-*Updated 2026-09-28.* Most of the April P0s have shipped (✅ above). The September health check fixed alerts,
+*Updated 2026-09-30.* Most of the April P0s have shipped (✅ above). The September health check fixed alerts,
 scraping, data accuracy and job-page SEO, so the retention loop now works and it's worth growing.
+
+**Deadline:** switch to Supabase's new API keys before the end of 2026 (§9). The old keys stop working then, and
+sign-in, alerts and CV matching would stop with them.
 
 **Growth, in suggested order:**
 1. Hero "email me all new jobs" signup with double opt-in (§5): alerts are reliable now, so this is the main retention lever.
