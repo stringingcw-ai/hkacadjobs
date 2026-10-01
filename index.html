@@ -213,20 +213,6 @@
   #actionToast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
   @media (max-width: 768px) { #actionToast { bottom: 16px; } }
 
-  /* SITE BANNER */
-  #siteBanner {
-    display: none; background: #20262f; color: #fff; font-size: 0.82rem;
-    font-family: 'DM Sans', sans-serif; padding: 10px 16px;
-    text-align: center; position: relative; line-height: 1.5;
-  }
-  #siteBanner a { color: #f5a623; text-decoration: underline; }
-  #siteBanner .banner-close {
-    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-    background: none; border: none; color: #999; font-size: 1.1rem;
-    cursor: pointer; padding: 4px 8px; line-height: 1;
-  }
-  #siteBanner .banner-close:hover { color: #fff; }
-
   /* FEEDBACK POPUP */
   #feedbackPopup {
     position: fixed; bottom: 24px; right: 24px; z-index: 800;
@@ -637,12 +623,6 @@
   // Auth state — populated by Supabase onAuthStateChange
   let _currentUser = null;
 </script>
-
-<!-- SITE BANNER -->
-<div id="siteBanner">
-  🕒 New: filter and sort jobs by when they were posted — try the "Posted within" chips above the listings.
-  <button class="banner-close" onclick="dismissBanner()" aria-label="Dismiss">&times;</button>
-</div>
 
 <!-- NAV -->
 <nav>
@@ -2752,16 +2732,6 @@ async function submitAlert(e) {
   }
 }
 
-
-// Site banner (one-time, dismissible). Bumping BANNER_VERSION re-shows it to everyone.
-const BANNER_VERSION = 'posted_filter_v1';
-function dismissBanner() {
-  document.getElementById('siteBanner').style.display = 'none';
-  localStorage.setItem('hkaj_banner_dismissed', BANNER_VERSION);
-}
-if (localStorage.getItem('hkaj_banner_dismissed') !== BANNER_VERSION) {
-  document.getElementById('siteBanner').style.display = 'block';
-}
 
 // Action toast
 let _actionToastTimer = null;
