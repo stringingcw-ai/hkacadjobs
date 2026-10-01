@@ -271,14 +271,12 @@ The tab a magic link opens sends GA4's `login` or `sign_up` event (`method: 'mag
 ### [P0] Switch to Supabase's new API keys before the end of 2026 — M
 **Symptom:** The project uses Supabase's legacy `anon` and `service_role` keys, which stop working at the end of 2026 (Supabase's migration guide, checked 30 Sep 2026). Without the switch, sign-in, saved jobs and filters, alert emails and CV matching all stop working.
 **Fix:** Follow Supabase's guide. Both kinds of key work side by side, so each part can move on its own, and the old keys are switched off last (that step can be undone).
-- Create the new keys in Supabase → Settings → API Keys.
+- The new keys already exist (Supabase → Settings → API Keys): the `match-jobs` function has been running on the new secret key since launch.
 - Site: replace `SUPABASE_ANON_KEY` in index.html with the publishable key (`sb_publishable_…`). `cv-match.js` uses the same constant.
-- Daily run: put the publishable key and the secret key (`sb_secret_…`) in the GitHub secrets `SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_KEY`. The new keys may only be sent in the `apikey` header, so `_supabase_request` in `scraper/notify.py` and the calls in `scraper/match_alerts.py` must stop also sending them as `Authorization: Bearer`.
+- Daily run: put the publishable key and the secret key (`sb_secret_…`) in the GitHub secrets `SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_KEY`. Its database calls can keep sending the key as `Authorization: Bearer` too: the function's own database calls do this with the new secret key, and they work.
 - `match-jobs` function:
-  - Read the keys from `SUPABASE_PUBLISHABLE_KEYS` and `SUPABASE_SECRET_KEYS`. These hold JSON, and the key is under `default`.
-  - Recognise the alert run by its `apikey` header, not the Bearer token (`handler.ts`).
-  - Send the secret key only as `apikey` when writing usage rows (`usage.ts`).
-  - Set `verify_jwt = false`, because the platform's check doesn't understand the new keys. The function already checks users itself.
+  - Supabase gives it the new secret key under the old name `SUPABASE_SERVICE_ROLE_KEY` (found 2 Oct 2026), so its database calls need no change. It accepts the daily run's old service key once Supabase confirms it (`handler.ts`).
+  - When the daily run switches to the new secret key, set `verify_jwt = false` in `supabase/config.toml` first: the platform's check only understands the old keys and would turn the new one away. The function checks users and the alert run itself.
 - Check that nothing still uses the old keys, then deactivate them.
 - Optional and separate: move Supabase Auth to JWT signing keys.
 

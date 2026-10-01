@@ -6,13 +6,20 @@ const USER_TOKEN = "user-access-token";
 const ORIGIN = "https://www.hkacadjobs.org";
 
 async function setup(
-  opts: { script?: ConstructorParameters<typeof FakeClaude>[0]; env?: Record<string, string> } = {},
+  opts: {
+    script?: ConstructorParameters<typeof FakeClaude>[0];
+    env?: Record<string, string>;
+    /** Tokens Supabase accepts as service-role keys */
+    serviceKeys?: string[];
+    serviceKeyCheckDown?: boolean;
+  } = {},
 ) {
   const claude = new FakeClaude(opts.script ?? []);
   const usage = new MemoryUsage();
   const logs: Record<string, unknown>[] = [];
   const jobs = await fixtureJobs();
   const jobRequests: (string[] | undefined)[] = [];
+  const serviceKeyChecks: string[] = [];
   const deps: Deps = {
     config: testConfig(opts.env),
     claude: () => claude,
@@ -24,9 +31,21 @@ async function setup(
     },
     usage,
     verifyUser: (token) => Promise.resolve(token === USER_TOKEN ? { id: "user-1", email: "u@example.com" } : null),
+    verifyServiceKey: (token) => {
+      serviceKeyChecks.push(token);
+      if (opts.serviceKeyCheckDown) return Promise.reject(new Error("match_quota_status: HTTP 503"));
+      return Promise.resolve((opts.serviceKeys ?? []).includes(token));
+    },
     log: (entry) => logs.push(entry),
   };
-  return { handler: createHandler(deps), claude, usage, logs, jobs, jobRequests };
+  return { handler: createHandler(deps), claude, usage, logs, jobs, jobRequests, serviceKeyChecks };
+}
+
+/** A JWT with this payload. Its signature is never checked here: Supabase checks it. */
+function jwt(payload: Record<string, unknown>): string {
+  const part = (value: unknown) =>
+    btoa(JSON.stringify(value)).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/, "");
+  return `${part({ alg: "HS256", typ: "JWT" })}.${part(payload)}.signature`;
 }
 
 function post(body: unknown, token: string | null = USER_TOKEN, origin: string | null = ORIGIN): Request {
@@ -250,4 +269,38 @@ Deno.test("the alert run: service key, today's jobs only, high bar, own budget",
   usage.today = { alertCostUsd: 3 };
   const over = await handler(post({ action: "match", profile: english.profile, only_ids: onlyIds }, SERVICE_KEY, null));
   assertEquals(over.status, 503);
+});
+
+Deno.test("the alert run may send another form of the service key, if Supabase accepts it", async () => {
+  const english = (await personas()).find((p) => p.name === "english_lecturer")!;
+  const body = { action: "match", profile: english.profile, only_ids: ["HKU-537450"] };
+  // The legacy service_role JWT, while the function holds the new secret key. The odd claim makes
+  // the payload use base64url's "-" and "_".
+  const legacy = jwt({ iss: "supabase", role: "service_role", note: "~~~???>>>" });
+  assert(/[-_]/.test(legacy.split(".")[1]));
+  const ranking = { matches: [{ job_id: "HKU-537450", score: 88, why: "Your EAP teaching fits.", gaps: [] }] };
+  const { handler, usage, serviceKeyChecks } = await setup({
+    script: [reply({ json: { ...ranking, advice: "" } })],
+    serviceKeys: [legacy],
+  });
+  const res = await handler(post(body, legacy, null));
+  assertEquals(res.status, 200);
+  assertEquals((await res.json()).matches.length, 1);
+  assertEquals(usage.rows[0].action, "alert");
+
+  // A token that only claims the role gets nowhere
+  const forged = jwt({ iss: "supabase", role: "service_role", ref: "someone-else" });
+  const refused = await handler(post(body, forged, null));
+  assertEquals(refused.status, 401);
+  assertEquals((await refused.json()).error, "sign_in_required");
+
+  // Users' tokens are never sent for this check
+  const user = await handler(post({ action: "profile", text: CV_TEXT }, jwt({ role: "authenticated", sub: "u" })));
+  assertEquals(user.status, 401);
+  assertEquals(serviceKeyChecks, [legacy, forged]);
+
+  // If Supabase can't be asked, the run is told something went wrong
+  const down = await setup({ serviceKeyCheckDown: true });
+  assertEquals((await down.handler(post(body, legacy, null))).status, 500);
+  assertEquals(down.logs[0].event, "auth_failed");
 });

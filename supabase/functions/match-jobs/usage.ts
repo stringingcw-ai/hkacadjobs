@@ -66,6 +66,22 @@ export function supabaseUsageStore(baseUrl: string, serviceKey: string, fetchFn:
   };
 }
 
+/**
+ * Whether Supabase accepts `token` as a service-role key. Only that role may run
+ * match_quota_status, so the call fails for any other key or a forged one.
+ */
+export async function isServiceKey(baseUrl: string, token: string, fetchFn: typeof fetch = fetch): Promise<boolean> {
+  const res = await fetchFn(`${baseUrl}/rest/v1/rpc/match_quota_status`, {
+    method: "POST",
+    headers: { apikey: token, Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ p_user_id: null }),
+    signal: AbortSignal.timeout(8_000),
+  });
+  await res.body?.cancel();
+  if (res.status >= 500) throw new Error(`match_quota_status: HTTP ${res.status}`);
+  return res.ok;
+}
+
 export interface QuotaError {
   status: number;
   code: ErrorCode;

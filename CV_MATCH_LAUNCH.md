@@ -52,7 +52,7 @@ To try a change before it goes live, see README.md, "Trying it locally".
    - Check that it says what you're happy to promise. In particular, check the line about Anthropic not training on the data against the terms of your API account.
 5. **Launch: done 30 Sep.**
    - `CV_MATCH_PUBLIC = true`, with violet buttons to mark the feature as new. A launch banner (`BANNER_VERSION`) can still be added.
-   - Match alert emails start with the first daily run after the merge, for anyone who saved their profile.
+   - Match alert emails go to anyone who saved their profile with alerts on. The first two daily runs sent none because of a key mismatch, fixed on 3 Oct.
 
 ## 4. Optional
 
@@ -93,7 +93,9 @@ To try a change before it goes live, see README.md, "Trying it locally".
   - Run 1 offered two people posts well above their level as "possible" fits: a Chair Professor post to a new PhD graduate, and a Professor of Practice post to a nurse educator. The ranking prompt now leaves out posts two or more levels above the person, unless the ad also welcomes their level.
   - Run 2 confirmed the fix: both posts are gone, and the other results stayed much the same.
 
+- Real use by 3 Oct: 7 people analysed 8 CVs and ran 12 matches, all successful, for US$0.83 in total.
+
 **Not yet checked**
-- A real CV through the live function. The quality check runs the same code on GitHub, not on Supabase, so your review in step 2 is its first real use. Afterwards, a Claude session can check the function's logs and the usage table.
+- A match alert email reaching someone. The daily run's requests were turned away until the 3 Oct fix (Supabase gives the function and the run different forms of the service key), so the next run is the first real test.
 - A real sign-in email round trip on `localhost`.
 - Safari on an actual iPhone: the walkthrough used Chromium's phone mode.
