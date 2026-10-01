@@ -23,6 +23,7 @@ CV matching ("Find jobs that fit your CV"), live for everyone as a trial (see `C
 - GA4 `sign_up` and `login` events for magic-link sign-ins
 - Phones: the sort buttons wrap instead of making the page wider than the screen, which had pushed pop-ups off-centre
 - Pressing Escape with no job open no longer adds a browser-history entry
+- The "New: filter and sort jobs by when they were posted" banner above the header is gone
 
 ---
 
