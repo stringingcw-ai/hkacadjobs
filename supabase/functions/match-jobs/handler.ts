@@ -24,6 +24,8 @@ export interface Deps {
   usage: UsageStore;
   /** The signed-in (non-anonymous) user behind an access token, or null */
   verifyUser: (token: string) => Promise<User | null>;
+  /** Whether Supabase accepts a token as a service-role key */
+  verifyServiceKey: (token: string) => Promise<boolean>;
   log: (entry: Record<string, unknown>) => void;
 }
 
@@ -105,12 +107,29 @@ function sameSecret(a: string, b: string): boolean {
   return diff === 0;
 }
 
+/** The role a JWT says it has, unchecked; "" if the token isn't a JWT. */
+function claimedRole(token: string): string {
+  const payload = token.split(".")[1];
+  if (!payload) return "";
+  try {
+    const role = JSON.parse(atob(payload.replaceAll("-", "+").replaceAll("_", "/")))?.role;
+    return typeof role === "string" ? role : "";
+  } catch {
+    return "";
+  }
+}
+
 type Caller = { kind: "service" } | { kind: "user"; id: string };
 
 async function identify(req: Request, deps: Deps): Promise<Caller | null> {
   const token = req.headers.get("authorization")?.match(/^Bearer\s+(\S+)$/i)?.[1];
   if (!token) return null;
   if (sameSecret(token, deps.config.supabaseServiceKey)) return { kind: "service" };
+  // The alert run's key can be another form of the service key: Supabase gives functions the new
+  // secret key (sb_secret_…), while the run sends the legacy service_role JWT. Supabase decides.
+  if (claimedRole(token) === "service_role") {
+    return await deps.verifyServiceKey(token) ? { kind: "service" } : null;
+  }
   const user = await deps.verifyUser(token);
   return user ? { kind: "user", id: user.id } : null;
 }

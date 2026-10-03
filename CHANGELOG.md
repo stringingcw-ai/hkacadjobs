@@ -4,6 +4,13 @@ All notable changes to HKAcadJobs are recorded here, grouped by date.
 
 ---
 
+## 2026-10-03
+
+### CV matching
+- Match alert emails work. The first two daily runs after launch sent none: the matching service turned the run's requests away, because Supabase gives the service and the run two different forms of the service key. A key that claims the service role is now accepted once Supabase confirms it
+
+---
+
 ## 2026-09-30
 
 CV matching ("Find jobs that fit your CV"), live for everyone as a trial (see `CV_MATCH_LAUNCH.md`).

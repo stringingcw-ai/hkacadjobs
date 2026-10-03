@@ -1,7 +1,7 @@
 import { assertEquals, assertRejects } from "@std/assert";
 import { costUsd } from "./models.ts";
 import { testConfig } from "./testing.ts";
-import { quotaError, supabaseUsageStore } from "./usage.ts";
+import { isServiceKey, quotaError, supabaseUsageStore } from "./usage.ts";
 
 const limits = testConfig().limits;
 const quiet = { userProfiles: 0, userMatches: 0, siteCostUsd: 0, alertCostUsd: 0 };
@@ -64,4 +64,22 @@ Deno.test("usage store talks to PostgREST with the service key", async () => {
     () => Promise.resolve(new Response("no", { status: 404 })),
   );
   await assertRejects(() => broken.status(null), Error, "HTTP 404");
+});
+
+Deno.test("a key counts as a service key only if Supabase lets it run match_quota_status", async () => {
+  const sent: { url: string; init: RequestInit }[] = [];
+  const answer = (status: number) => (url: string | URL | Request, init?: RequestInit) => {
+    sent.push({ url: String(url), init: init! });
+    return Promise.resolve(new Response(status === 200 ? "{}" : "no", { status }));
+  };
+  assertEquals(await isServiceKey("https://p.supabase.co", "legacy-jwt", answer(200)), true);
+  assertEquals(sent[0].url, "https://p.supabase.co/rest/v1/rpc/match_quota_status");
+  const headers = sent[0].init.headers as Record<string, string>;
+  assertEquals([headers.apikey, headers.Authorization], ["legacy-jwt", "Bearer legacy-jwt"]);
+  assertEquals(JSON.parse(sent[0].init.body as string), { p_user_id: null });
+
+  // Signed out (anon) and signed-in users may not run it
+  assertEquals(await isServiceKey("https://p.supabase.co", "anon-jwt", answer(401)), false);
+  assertEquals(await isServiceKey("https://p.supabase.co", "user-jwt", answer(403)), false);
+  await assertRejects(() => isServiceKey("https://p.supabase.co", "legacy-jwt", answer(503)), Error, "HTTP 503");
 });

@@ -6,7 +6,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { loadConfig } from "./config.ts";
 import { createHandler, type User } from "./handler.ts";
 import { JobsSource } from "./jobs.ts";
-import { supabaseUsageStore } from "./usage.ts";
+import { isServiceKey, supabaseUsageStore } from "./usage.ts";
 
 const config = loadConfig((name) => Deno.env.get(name));
 
@@ -34,5 +34,6 @@ Deno.serve(createHandler({
   jobs: new JobsSource({ url: config.jobsCsvUrl, fetch, log: (message) => log({ event: "jobs", message }) }),
   usage: supabaseUsageStore(config.supabaseUrl, config.supabaseServiceKey),
   verifyUser,
+  verifyServiceKey: (token) => isServiceKey(config.supabaseUrl, token),
   log,
 }));
