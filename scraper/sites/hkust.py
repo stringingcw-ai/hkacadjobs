@@ -8,6 +8,27 @@ from core import (
 )
 
 
+def _open_listing(page, url, attempts=3):
+    """Open a careers listing page once its job cards are in. The page sometimes
+    takes over 30s to finish loading, and waiting for that emptied all of HKUST
+    in the 6, 9 and 13 Oct 2026 runs, so wait only for the cards, and retry."""
+    for attempt in range(1, attempts + 1):
+        try:
+            page.goto(url, timeout=60000, wait_until="domcontentloaded")
+            page.wait_for_selector("text=Job ID", timeout=30000)
+            break
+        except Exception as e:
+            if attempt == attempts:
+                raise
+            print(f"  ⚠️  {url} didn't load (attempt {attempt}/{attempts}): {str(e).splitlines()[0]}")
+            page.wait_for_timeout(5000 * attempt)
+    try:
+        page.wait_for_load_state("networkidle", timeout=20000)
+    except Exception:
+        pass   # the cards are in; a slow image or tracker doesn't matter
+    page.wait_for_timeout(3000)
+
+
 def scrape_hkust():
     """
     HKUST — hkustcareers.hkust.edu.hk
@@ -30,9 +51,7 @@ def scrape_hkust():
             for url, pos_type in URLS:
                 page = browser.new_page()
                 page.set_extra_http_headers(HEADERS)
-                page.goto(url, timeout=30000)
-                page.wait_for_load_state("networkidle", timeout=20000)
-                page.wait_for_timeout(3000)
+                _open_listing(page, url)
 
                 # Check how many Job IDs are in the page
                 full_text = page.inner_text("body")

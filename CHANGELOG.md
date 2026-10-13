@@ -4,6 +4,13 @@ All notable changes to HKAcadJobs are recorded here, grouped by date.
 
 ---
 
+## 2026-10-13
+
+### Scraping and data
+- HKUST stops dropping out of the daily scrape. Its careers page sometimes took over 30 seconds to finish loading, so HKUST returned no jobs and failed the 6, 9 and 13 Oct runs. The scraper now waits only for the job cards (up to a minute) and retries each listing page up to three times
+
+---
+
 ## 2026-10-03
 
 ### CV matching
