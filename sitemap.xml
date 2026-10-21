@@ -4,7 +4,7 @@
     <loc>https://www.hkacadjobs.org/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
-    <lastmod>2026-10-21</lastmod>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/2027-all-fields-in-economics-assistant-associate-full-profes-hkust-189152/</loc>
@@ -48,7 +48,7 @@
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/accounting-executive-hku-537668/</loc>
-    <lastmod>2026-10-21</lastmod>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/accounting-manager-budgeting-hkbu-26270242/</loc>
@@ -129,10 +129,6 @@
   <url>
     <loc>https://www.hkacadjobs.org/jobs/assistant-academic-services-manager-senior-academic-services-hkbu-26270195/</loc>
     <lastmod>2026-10-06</lastmod>
-  </url>
-  <url>
-    <loc>https://www.hkacadjobs.org/jobs/assistant-academic-support-officer-s-t-hkmu-2600276/</loc>
-    <lastmod>2026-10-08</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/assistant-accounting-manager-fa-financial-reporting-hkbu-26270245/</loc>
@@ -231,12 +227,8 @@
     <lastmod>2026-10-06</lastmod>
   </url>
   <url>
-    <loc>https://www.hkacadjobs.org/jobs/assistant-executive-officer-hkbu-26270234/</loc>
-    <lastmod>2026-10-08</lastmod>
-  </url>
-  <url>
     <loc>https://www.hkacadjobs.org/jobs/assistant-global-engagement-manager-role-global-engagement-m-hkbu-26270149/</loc>
-    <lastmod>2026-10-10</lastmod>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/assistant-human-resources-manager-hku-537590/</loc>
@@ -863,6 +855,10 @@
     <lastmod>2026-02-23</lastmod>
   </url>
   <url>
+    <loc>https://www.hkacadjobs.org/jobs/chair-professor-professor-associate-professor-assistant-prof-polyu-261021014/</loc>
+    <lastmod>2026-10-22</lastmod>
+  </url>
+  <url>
     <loc>https://www.hkacadjobs.org/jobs/chair-professor-professor-associate-professor-cityu-uac-r29425/</loc>
     <lastmod>2026-02-22</lastmod>
   </url>
@@ -960,7 +956,7 @@
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/clinical-practitioner-holding-the-title-of-clinical-lecturer-hku-537489/</loc>
-    <lastmod>2026-10-21</lastmod>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/clinical-professional-consultant-cuhk-014ce03715/</loc>
@@ -1039,6 +1035,10 @@
     <lastmod>2026-09-30</lastmod>
   </url>
   <url>
+    <loc>https://www.hkacadjobs.org/jobs/customer-service-assistant-supervisor-hkbu-26270260/</loc>
+    <lastmod>2026-10-22</lastmod>
+  </url>
+  <url>
     <loc>https://www.hkacadjobs.org/jobs/data-analyst-assistant-at-the-rank-of-research-assistant-i-i-hku-537124/</loc>
     <lastmod>2026-08-13</lastmod>
   </url>
@@ -1047,12 +1047,12 @@
     <lastmod>2026-07-22</lastmod>
   </url>
   <url>
-    <loc>https://www.hkacadjobs.org/jobs/data-scientist-data-coordinator-at-the-rank-of-senior-techni-hku-536804/</loc>
-    <lastmod>2026-07-22</lastmod>
-  </url>
-  <url>
     <loc>https://www.hkacadjobs.org/jobs/dean-faculty-of-business-hkchc-2c4356813c/</loc>
     <lastmod>2026-05-09</lastmod>
+  </url>
+  <url>
+    <loc>https://www.hkacadjobs.org/jobs/dean-of-business-and-economics-hku-537688/</loc>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/dean-of-the-faculty-of-humanities-eduhk-63494a701d/</loc>
@@ -1136,7 +1136,7 @@
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/executive-assistant-at-the-rank-of-clerk-ii-hku-537628/</loc>
-    <lastmod>2026-10-21</lastmod>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/executive-assistant-at-the-rank-of-clerk-ii-in-the-general-o-hku-537284/</loc>
@@ -1189,6 +1189,10 @@
   <url>
     <loc>https://www.hkacadjobs.org/jobs/executive-officer-clerk-i-holding-the-functional-title-of-se-hku-537533/</loc>
     <lastmod>2026-10-03</lastmod>
+  </url>
+  <url>
+    <loc>https://www.hkacadjobs.org/jobs/executive-officer-clerk-ii-holding-the-functional-title-of-p-hku-537712/</loc>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/executive-officer-creative-hub-hkbu-26270118/</loc>
@@ -1356,11 +1360,15 @@
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/finance-officer-accounting-and-budgeting-section-hkbu-26270126/</loc>
-    <lastmod>2026-08-22</lastmod>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/founding-head-of-the-division-of-arts-and-machine-creativity-hkust-10407/</loc>
     <lastmod>2026-02-23</lastmod>
+  </url>
+  <url>
+    <loc>https://www.hkacadjobs.org/jobs/fractional-clerk-ii-holding-the-functional-title-of-executiv-hku-537636/</loc>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/fractional-senior-clinical-practitioner-in-periodontology-hku-537586/</loc>
@@ -1385,10 +1393,6 @@
   <url>
     <loc>https://www.hkacadjobs.org/jobs/full-time-part-time-junior-research-assistant-s-cuhk-c647395b8a/</loc>
     <lastmod>2026-10-02</lastmod>
-  </url>
-  <url>
-    <loc>https://www.hkacadjobs.org/jobs/full-time-part-time-postdoctoral-fellow-research-associate-c-cuhk-b763a4918d/</loc>
-    <lastmod>2026-10-17</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/full-time-part-time-research-assistant-hkust-11126/</loc>
@@ -1663,6 +1667,10 @@
     <lastmod>2026-06-27</lastmod>
   </url>
   <url>
+    <loc>https://www.hkacadjobs.org/jobs/impact-measurement-lead-hkbu-26270274/</loc>
+    <lastmod>2026-10-22</lastmod>
+  </url>
+  <url>
     <loc>https://www.hkacadjobs.org/jobs/information-manager-lu-3057/</loc>
     <lastmod>2026-08-01</lastmod>
   </url>
@@ -1673,10 +1681,6 @@
   <url>
     <loc>https://www.hkacadjobs.org/jobs/information-technology-manager-cybersecurity-and-network-hkbu-26270193/</loc>
     <lastmod>2026-10-16</lastmod>
-  </url>
-  <url>
-    <loc>https://www.hkacadjobs.org/jobs/information-technology-manager-digital-enablement-and-soluti-hkbu-26270222/</loc>
-    <lastmod>2026-10-01</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/information-technology-manager-digital-services-support-hkbu-25260821/</loc>
@@ -1799,10 +1803,6 @@
     <lastmod>2026-09-08</lastmod>
   </url>
   <url>
-    <loc>https://www.hkacadjobs.org/jobs/lecturer-assistant-lecturer-teaching-assistant-creative-adve-hkmu-260026s/</loc>
-    <lastmod>2026-10-08</lastmod>
-  </url>
-  <url>
     <loc>https://www.hkacadjobs.org/jobs/lecturer-cuhk-200c4d3dfb/</loc>
     <lastmod>2026-02-24</lastmod>
   </url>
@@ -1832,7 +1832,7 @@
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/lecturer-in-bioinformatics-in-the-school-of-biomedical-scien-hku-537614/</loc>
-    <lastmod>2026-10-21</lastmod>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/lecturer-in-electrical-engineering-cpce-2163/</loc>
@@ -1959,12 +1959,16 @@
     <lastmod>2026-10-09</lastmod>
   </url>
   <url>
-    <loc>https://www.hkacadjobs.org/jobs/nurse-holding-the-functional-title-of-research-nurse-several-hku-537398/</loc>
-    <lastmod>2026-09-23</lastmod>
-  </url>
-  <url>
     <loc>https://www.hkacadjobs.org/jobs/o-hw-lc-ptd-l-cpc-10-26-vtc-0ef409170e/</loc>
     <lastmod>2026-10-21</lastmod>
+  </url>
+  <url>
+    <loc>https://www.hkacadjobs.org/jobs/o-hw-lc-pte-l-cpc-10-26-vtc-64414612f1/</loc>
+    <lastmod>2026-10-22</lastmod>
+  </url>
+  <url>
+    <loc>https://www.hkacadjobs.org/jobs/o-hw-lc-term-temp-al-cpc-10-26-vtc-e6d1acb6ef/</loc>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/o-ivdc-lck-term-i-des-10-26-vtc-2438b7e838/</loc>
@@ -1980,11 +1984,7 @@
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/office-attendant-hku-537662/</loc>
-    <lastmod>2026-10-21</lastmod>
-  </url>
-  <url>
-    <loc>https://www.hkacadjobs.org/jobs/officer-at-the-rank-of-executive-assistant-i-thei-ac47605eae/</loc>
-    <lastmod>2026-09-29</lastmod>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/officer-editorial-and-publications-a-ss-hkmu-26002d1/</loc>
@@ -2023,8 +2023,12 @@
     <lastmod>2026-07-15</lastmod>
   </url>
   <url>
-    <loc>https://www.hkacadjobs.org/jobs/part-time-daytime-lecturer-building-services-engineering-o-s-vtc-9455b16877/</loc>
-    <lastmod>2026-10-17</lastmod>
+    <loc>https://www.hkacadjobs.org/jobs/part-time-daytime-lecturer-english-and-communication-o-hw-lc-vtc-9455b16877/</loc>
+    <lastmod>2026-10-22</lastmod>
+  </url>
+  <url>
+    <loc>https://www.hkacadjobs.org/jobs/part-time-evening-lecturer-english-and-communication-o-hw-lc-vtc-9dbaae40b2/</loc>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/part-time-executive-assistant-ii-vtc-symphony-orchestra-and--vtc-08fff52c77/</loc>
@@ -2195,10 +2199,6 @@
     <lastmod>2026-08-06</lastmod>
   </url>
   <url>
-    <loc>https://www.hkacadjobs.org/jobs/part-time-project-assistant-polyu-261014006/</loc>
-    <lastmod>2026-10-16</lastmod>
-  </url>
-  <url>
     <loc>https://www.hkacadjobs.org/jobs/part-time-project-co-ordinator-ii-cuhk-a8d8c83ba2/</loc>
     <lastmod>2026-10-17</lastmod>
   </url>
@@ -2259,12 +2259,12 @@
     <lastmod>2026-10-01</lastmod>
   </url>
   <url>
-    <loc>https://www.hkacadjobs.org/jobs/part-time-research-assistant-i-ii-in-the-division-of-haemato-hku-537459/</loc>
-    <lastmod>2026-09-30</lastmod>
+    <loc>https://www.hkacadjobs.org/jobs/part-time-research-assistant-i-ii-hku-537708/</loc>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
-    <loc>https://www.hkacadjobs.org/jobs/part-time-research-assistant-i-ii-n-hs-hkmu-260026m/</loc>
-    <lastmod>2026-10-08</lastmod>
+    <loc>https://www.hkacadjobs.org/jobs/part-time-research-assistant-i-ii-in-the-division-of-haemato-hku-537459/</loc>
+    <lastmod>2026-09-30</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/part-time-research-assistant-i-ii-thei-d131ede0f8/</loc>
@@ -2303,16 +2303,8 @@
     <lastmod>2026-10-08</lastmod>
   </url>
   <url>
-    <loc>https://www.hkacadjobs.org/jobs/part-time-research-assistant-polyu-261014013/</loc>
-    <lastmod>2026-10-16</lastmod>
-  </url>
-  <url>
-    <loc>https://www.hkacadjobs.org/jobs/part-time-research-assistant-polyu-261016017/</loc>
-    <lastmod>2026-10-18</lastmod>
-  </url>
-  <url>
     <loc>https://www.hkacadjobs.org/jobs/part-time-research-assistant-polyu-261020013/</loc>
-    <lastmod>2026-10-21</lastmod>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/part-time-research-assistant-project-no-r6761-e-l-hkmu-26002bs/</loc>
@@ -2372,7 +2364,7 @@
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/part-time-research-fellow-part-time-postdoctoral-fellow-polyu-261020006/</loc>
-    <lastmod>2026-10-21</lastmod>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/part-time-research-fellow-polyu-260508012/</loc>
@@ -2397,10 +2389,6 @@
   <url>
     <loc>https://www.hkacadjobs.org/jobs/part-time-research-nurse-i-at-the-rank-of-manager-n-hs-hkmu-2600278/</loc>
     <lastmod>2026-10-10</lastmod>
-  </url>
-  <url>
-    <loc>https://www.hkacadjobs.org/jobs/part-time-research-technical-assistant-polyu-260826007/</loc>
-    <lastmod>2026-08-27</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/part-time-sports-facilities-assistant-hkbu-26270161/</loc>
@@ -2428,15 +2416,11 @@
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/part-time-teaching-assistant-hku-537651/</loc>
-    <lastmod>2026-10-21</lastmod>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/part-time-teaching-assistant-hku-537652/</loc>
-    <lastmod>2026-10-21</lastmod>
-  </url>
-  <url>
-    <loc>https://www.hkacadjobs.org/jobs/part-time-teaching-assistant-s-construction-and-quality-mana-hkmu-260027c/</loc>
-    <lastmod>2026-10-14</lastmod>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/part-time-teaching-associate-computer-studies-vtc-9e1776837c/</loc>
@@ -2473,6 +2457,10 @@
   <url>
     <loc>https://www.hkacadjobs.org/jobs/part-time-technical-assistants-e-l-hkmu-2600273/</loc>
     <lastmod>2026-10-09</lastmod>
+  </url>
+  <url>
+    <loc>https://www.hkacadjobs.org/jobs/part-time-technician-o-shape-cw-pt-tech-10-26-vtc-20a8858c9b/</loc>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/parttime-audio-visual-av-technician-hksyu-csc_it_pt_2026-10-06/</loc>
@@ -2605,6 +2593,10 @@
   <url>
     <loc>https://www.hkacadjobs.org/jobs/post-doctoral-fellow-hku-537645/</loc>
     <lastmod>2026-10-16</lastmod>
+  </url>
+  <url>
+    <loc>https://www.hkacadjobs.org/jobs/post-doctoral-fellow-hku-537698/</loc>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/post-doctoral-fellow-hku-stone-centre-on-socio-economic-ineq-hku-537659/</loc>
@@ -2903,6 +2895,10 @@
     <lastmod>2026-10-04</lastmod>
   </url>
   <url>
+    <loc>https://www.hkacadjobs.org/jobs/postdoctoral-fellow-in-transport-urban-environment-and-spati-hku-537709/</loc>
+    <lastmod>2026-10-22</lastmod>
+  </url>
+  <url>
     <loc>https://www.hkacadjobs.org/jobs/postdoctoral-fellow-lu-2452/</loc>
     <lastmod>2026-02-23</lastmod>
   </url>
@@ -2933,14 +2929,6 @@
   <url>
     <loc>https://www.hkacadjobs.org/jobs/postdoctoral-fellow-part-time-project-technical-assistant-polyu-260522008/</loc>
     <lastmod>2026-05-23</lastmod>
-  </url>
-  <url>
-    <loc>https://www.hkacadjobs.org/jobs/postdoctoral-fellow-part-time-research-assistant-polyu-261014004/</loc>
-    <lastmod>2026-10-16</lastmod>
-  </url>
-  <url>
-    <loc>https://www.hkacadjobs.org/jobs/postdoctoral-fellow-part-time-research-assistant-polyu-261014005/</loc>
-    <lastmod>2026-10-16</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/postdoctoral-fellow-philosophy-of-contemporary-future-scienc-lu-2635/</loc>
@@ -2993,6 +2981,22 @@
   <url>
     <loc>https://www.hkacadjobs.org/jobs/postdoctoral-fellow-polyu-261016016/</loc>
     <lastmod>2026-10-17</lastmod>
+  </url>
+  <url>
+    <loc>https://www.hkacadjobs.org/jobs/postdoctoral-fellow-polyu-261021005/</loc>
+    <lastmod>2026-10-22</lastmod>
+  </url>
+  <url>
+    <loc>https://www.hkacadjobs.org/jobs/postdoctoral-fellow-polyu-261021006/</loc>
+    <lastmod>2026-10-22</lastmod>
+  </url>
+  <url>
+    <loc>https://www.hkacadjobs.org/jobs/postdoctoral-fellow-polyu-261021010/</loc>
+    <lastmod>2026-10-22</lastmod>
+  </url>
+  <url>
+    <loc>https://www.hkacadjobs.org/jobs/postdoctoral-fellow-polyu-261021011/</loc>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/postdoctoral-fellow-project-associate-project-assistant-full-polyu-260520006/</loc>
@@ -3331,6 +3335,10 @@
     <lastmod>2026-07-04</lastmod>
   </url>
   <url>
+    <loc>https://www.hkacadjobs.org/jobs/professor-associate-professor-assistant-professor-in-intelli-polyu-261021009/</loc>
+    <lastmod>2026-10-22</lastmod>
+  </url>
+  <url>
     <loc>https://www.hkacadjobs.org/jobs/professor-associate-professor-assistant-professor-in-landsca-hku-537336/</loc>
     <lastmod>2026-09-15</lastmod>
   </url>
@@ -3607,12 +3615,16 @@
     <lastmod>2026-09-25</lastmod>
   </url>
   <url>
+    <loc>https://www.hkacadjobs.org/jobs/programme-manager-fractional-50-appointment-in-chinese-medic-hkuspace-aa381e8b96/</loc>
+    <lastmod>2026-10-22</lastmod>
+  </url>
+  <url>
     <loc>https://www.hkacadjobs.org/jobs/programme-manager-hku-537671/</loc>
     <lastmod>2026-10-18</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/programme-manager-hku-537675/</loc>
-    <lastmod>2026-10-21</lastmod>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/programme-officer-hkbu-26270191/</loc>
@@ -3716,7 +3728,7 @@
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/project-assistant-polyu-261020004/</loc>
-    <lastmod>2026-10-21</lastmod>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/project-associate-full-time-part-time-polyu-261016003/</loc>
@@ -3995,24 +4007,20 @@
     <lastmod>2026-09-29</lastmod>
   </url>
   <url>
-    <loc>https://www.hkacadjobs.org/jobs/research-assistant-full-time-part-time-polyu-260826002/</loc>
-    <lastmod>2026-08-27</lastmod>
-  </url>
-  <url>
     <loc>https://www.hkacadjobs.org/jobs/research-assistant-full-time-part-time-polyu-260925023/</loc>
     <lastmod>2026-09-26</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/research-assistant-full-time-part-time-polyu-261020005/</loc>
-    <lastmod>2026-10-21</lastmod>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/research-assistant-full-time-part-time-polyu-261020008/</loc>
-    <lastmod>2026-10-21</lastmod>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/research-assistant-full-time-part-time-polyu-261020009/</loc>
-    <lastmod>2026-10-21</lastmod>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/research-assistant-full-time-research-assistant-part-time-cityu-ur-t16226/</loc>
@@ -4191,6 +4199,14 @@
     <lastmod>2026-10-17</lastmod>
   </url>
   <url>
+    <loc>https://www.hkacadjobs.org/jobs/research-assistant-i-hku-537693/</loc>
+    <lastmod>2026-10-22</lastmod>
+  </url>
+  <url>
+    <loc>https://www.hkacadjobs.org/jobs/research-assistant-i-ii-hardware-hku-537707/</loc>
+    <lastmod>2026-10-22</lastmod>
+  </url>
+  <url>
     <loc>https://www.hkacadjobs.org/jobs/research-assistant-i-ii-hku-535025/</loc>
     <lastmod>2026-04-17</lastmod>
   </url>
@@ -4319,6 +4335,10 @@
     <lastmod>2026-09-12</lastmod>
   </url>
   <url>
+    <loc>https://www.hkacadjobs.org/jobs/research-assistant-i-ii-software-hku-537703/</loc>
+    <lastmod>2026-10-22</lastmod>
+  </url>
+  <url>
     <loc>https://www.hkacadjobs.org/jobs/research-assistant-i-ii-sol-hkmu-26002cv/</loc>
     <lastmod>2026-10-17</lastmod>
   </url>
@@ -4336,10 +4356,6 @@
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/research-assistant-ii-eduhk-2600885/</loc>
-    <lastmod>2026-10-17</lastmod>
-  </url>
-  <url>
-    <loc>https://www.hkacadjobs.org/jobs/research-assistant-ii-eduhk-2600889/</loc>
     <lastmod>2026-10-17</lastmod>
   </url>
   <url>
@@ -4372,7 +4388,7 @@
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/research-assistant-junior-research-assistant-cuhk-51378c74f0/</loc>
-    <lastmod>2026-10-01</lastmod>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/research-assistant-junior-research-assistant-cuhk-5ef7d465e5/</loc>
@@ -4407,12 +4423,8 @@
     <lastmod>2026-10-10</lastmod>
   </url>
   <url>
-    <loc>https://www.hkacadjobs.org/jobs/research-assistant-part-time-research-assistant-polyu-261014009/</loc>
-    <lastmod>2026-10-16</lastmod>
-  </url>
-  <url>
     <loc>https://www.hkacadjobs.org/jobs/research-assistant-part-time-research-associate-part-time-re-polyu-261020012/</loc>
-    <lastmod>2026-10-21</lastmod>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/research-assistant-polyu-260713003/</loc>
@@ -4468,7 +4480,7 @@
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/research-assistant-polyu-261020003/</loc>
-    <lastmod>2026-10-21</lastmod>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/research-assistant-post-doctoral-fellow-hkust-10327/</loc>
@@ -4596,7 +4608,7 @@
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/research-assistant-professor-in-intelligent-wearable-technol-polyu-261020010/</loc>
-    <lastmod>2026-10-21</lastmod>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/research-assistant-professor-in-space-edge-computing-polyu-260918010/</loc>
@@ -4879,10 +4891,6 @@
     <lastmod>2026-10-16</lastmod>
   </url>
   <url>
-    <loc>https://www.hkacadjobs.org/jobs/research-associate-research-assistant-polyu-261014014/</loc>
-    <lastmod>2026-10-16</lastmod>
-  </url>
-  <url>
     <loc>https://www.hkacadjobs.org/jobs/research-associate-sfu-57548c8245/</loc>
     <lastmod>2026-03-18</lastmod>
   </url>
@@ -5068,7 +5076,7 @@
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/senior-analyst-programmer-student-information-systems-hkbu-26270050/</loc>
-    <lastmod>2026-07-21</lastmod>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/senior-clerk-clerk-i-holding-the-functional-title-of-senior--hku-537287/</loc>
@@ -5081,10 +5089,6 @@
   <url>
     <loc>https://www.hkacadjobs.org/jobs/senior-digital-experience-specialist-hkbu-26270060/</loc>
     <lastmod>2026-09-29</lastmod>
-  </url>
-  <url>
-    <loc>https://www.hkacadjobs.org/jobs/senior-digital-learning-solution-engineer-in-the-grade-of-co-hkuspace-148b5de7ab/</loc>
-    <lastmod>2026-10-09</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/senior-executive-assistant-at-the-rank-of-clerk-i-hku-537562/</loc>
@@ -5204,7 +5208,7 @@
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/senior-it-assistant-hku-537570/</loc>
-    <lastmod>2026-10-21</lastmod>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/senior-it-manager-student-information-system-modernization-a-hkbu-26270012/</loc>
@@ -5271,10 +5275,6 @@
     <lastmod>2026-08-01</lastmod>
   </url>
   <url>
-    <loc>https://www.hkacadjobs.org/jobs/senior-lecturer-lecturer-surveying-thei-dce7ac0830/</loc>
-    <lastmod>2026-09-29</lastmod>
-  </url>
-  <url>
     <loc>https://www.hkacadjobs.org/jobs/senior-lecturer-master-of-science-in-digital-gaming-design-a-thei-960edc1427/</loc>
     <lastmod>2026-10-10</lastmod>
   </url>
@@ -5296,7 +5296,7 @@
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/senior-manager-external-grants-hkbu-26270165/</loc>
-    <lastmod>2026-09-05</lastmod>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/senior-manager-governance-and-compliance-hsu-3905/</loc>
@@ -5407,6 +5407,10 @@
     <lastmod>2026-09-24</lastmod>
   </url>
   <url>
+    <loc>https://www.hkacadjobs.org/jobs/senior-research-assistant-hku-537702/</loc>
+    <lastmod>2026-10-22</lastmod>
+  </url>
+  <url>
     <loc>https://www.hkacadjobs.org/jobs/senior-research-assistant-holding-the-functional-title-of-pr-hku-536645/</loc>
     <lastmod>2026-10-15</lastmod>
   </url>
@@ -5453,10 +5457,6 @@
   <url>
     <loc>https://www.hkacadjobs.org/jobs/senior-research-assistant-research-assistant-hkbu-26270241/</loc>
     <lastmod>2026-10-10</lastmod>
-  </url>
-  <url>
-    <loc>https://www.hkacadjobs.org/jobs/senior-research-assistant-research-assistant-i-eduhk-2600891/</loc>
-    <lastmod>2026-10-17</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/senior-research-assistant-research-assistant-i-hku-537641/</loc>
@@ -5819,16 +5819,8 @@
     <lastmod>2026-10-03</lastmod>
   </url>
   <url>
-    <loc>https://www.hkacadjobs.org/jobs/technical-officer-thei-9483ccf31d/</loc>
-    <lastmod>2026-09-29</lastmod>
-  </url>
-  <url>
     <loc>https://www.hkacadjobs.org/jobs/technician-cuhk-356463879c/</loc>
     <lastmod>2026-09-25</lastmod>
-  </url>
-  <url>
-    <loc>https://www.hkacadjobs.org/jobs/technician-thei-4e40830200/</loc>
-    <lastmod>2026-09-29</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/technician-vtc-16d5df0199/</loc>
@@ -5865,6 +5857,10 @@
   <url>
     <loc>https://www.hkacadjobs.org/jobs/temporary-research-assistant-ii-n-hs-project-no-r6a13-r6905-hkmu-2600274/</loc>
     <lastmod>2026-10-10</lastmod>
+  </url>
+  <url>
+    <loc>https://www.hkacadjobs.org/jobs/temporary-research-assistant-ii-qef-project-in-oriental-stud-hkuspace-9a73f15c3c/</loc>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/temporary-research-assistant-ii-r7505-s-t-hkmu-26002b9/</loc>
@@ -5928,7 +5924,7 @@
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/tenure-track-clinical-assistant-professor-hku-537484/</loc>
-    <lastmod>2026-10-21</lastmod>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/tenure-track-clinical-associate-professor-clinical-assistant-hku-536793/</loc>
@@ -6100,7 +6096,7 @@
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/term-lecturer-airport-operations-management-o-ty-ba-term-l-a-vtc-3732669f15/</loc>
-    <lastmod>2026-10-15</lastmod>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/term-lecturer-digital-media-for-advertising-and-marketing-o--vtc-7554144d8e/</loc>
@@ -6115,12 +6111,24 @@
     <lastmod>2026-09-29</lastmod>
   </url>
   <url>
+    <loc>https://www.hkacadjobs.org/jobs/term-senior-apprenticeship-officer-vtc-d705fb60cc/</loc>
+    <lastmod>2026-10-22</lastmod>
+  </url>
+  <url>
     <loc>https://www.hkacadjobs.org/jobs/term-technician-o-ivdc-lck-term-tech-10-26-vtc-d627fc4999/</loc>
     <lastmod>2026-10-03</lastmod>
   </url>
   <url>
+    <loc>https://www.hkacadjobs.org/jobs/term-technician-vtc-593bff2b84/</loc>
+    <lastmod>2026-10-22</lastmod>
+  </url>
+  <url>
     <loc>https://www.hkacadjobs.org/jobs/term-temp-officer-alumni-services-o-hqip-iao-term-temp-off-a-vtc-49bcb0612d/</loc>
     <lastmod>2026-10-16</lastmod>
+  </url>
+  <url>
+    <loc>https://www.hkacadjobs.org/jobs/term-temporary-assistant-lecturer-english-and-communication--vtc-e226d6ec72/</loc>
+    <lastmod>2026-10-22</lastmod>
   </url>
   <url>
     <loc>https://www.hkacadjobs.org/jobs/town-planning-manager-assistant-town-planning-manager-at-the-hku-537492/</loc>
