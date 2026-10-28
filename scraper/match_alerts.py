@@ -38,9 +38,11 @@ def get_match_profiles():
         "match_profiles?select=user_id,email,profile,prefs,token&alerts_enabled=eq.true&order=user_id")
 
 
-def fetch_matches(profile, job_ids, prefs=None, timeout=90):
+def fetch_matches(profile, job_ids, prefs=None, timeout=90, boot_retries=2):
     """Ask match-jobs, as the service role, which of `job_ids` fit `profile`
-    (only at the institutions in prefs["unis"], if the user chose any)."""
+    (only at the institutions in prefs["unis"], if the user chose any).
+    Retried when a function worker fails to boot (Supabase's BOOT_ERROR): the
+    function never ran, so nothing was charged and a fresh worker usually starts."""
     body = json.dumps({
         "action": "match", "profile": profile, "only_ids": job_ids,
         "prefs": {"unis": list((prefs or {}).get("unis") or [])},
@@ -54,15 +56,18 @@ def fetch_matches(profile, job_ids, prefs=None, timeout=90):
             "Content-Type": "application/json",
         },
     )
-    try:
-        with urllib.request.urlopen(req, timeout=timeout, context=notify._SSL_CONTEXT) as resp:
-            data = json.loads(resp.read())
-    except urllib.error.HTTPError as e:
-        detail = e.read().decode(errors="replace")[:300]
-        if e.code == 503 and "budget_reached" in detail:
-            raise BudgetReached(detail)
-        raise RuntimeError(f"match-jobs HTTP {e.code}: {detail}")
-    return data.get("matches") or []
+    for attempt in range(boot_retries + 1):
+        try:
+            with urllib.request.urlopen(req, timeout=timeout, context=notify._SSL_CONTEXT) as resp:
+                data = json.loads(resp.read())
+            return data.get("matches") or []
+        except urllib.error.HTTPError as e:
+            detail = e.read().decode(errors="replace")[:300]
+            if e.code == 503 and "budget_reached" in detail:
+                raise BudgetReached(detail)
+            if "BOOT_ERROR" not in detail or attempt == boot_retries:
+                raise RuntimeError(f"match-jobs HTTP {e.code}: {detail}")
+            time.sleep(5 * (attempt + 1))
 
 
 def purge_usage_log(days=USAGE_KEEP_DAYS, dry_run=False):
