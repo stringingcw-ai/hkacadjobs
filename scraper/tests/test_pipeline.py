@@ -95,6 +95,19 @@ def test_partial_failure_keeps_previous_rows(run):
     assert len(rows) == 12 and not new_ids(rows)
 
 
+def test_closed_postings_coming_down_is_not_partial(run):
+    # 20 jobs for a week, 8 of them closing on day 7 (as HSU's did on 25 Oct 2026)
+    for day in range(1, 8):
+        run(day, {"hku": hku(*range(12)) + hku(*range(12, 20), deadline="2026-09-07")})
+    for day in (8, 9):    # the portal takes the closed ones down; the usual count is still ~20
+        rows, health, _ = run(day, {"hku": hku(*range(12))})
+        assert health["hku"]["status"] == "ok"
+        assert health["hku"]["kept_from_previous"] == 0 and len(rows) == 12
+    # Open jobs vanishing is still a partial scrape
+    rows, health, _ = run(10, {"hku": hku(0, 1, 2)})
+    assert health["hku"]["status"] == "partial" and len(rows) == 12
+
+
 def test_crash_keeps_previous_rows_and_recovery_is_not_new(run):
     run(1, {"hku": hku(*range(12))})
     rows, health, _ = run(2, {"hku": RuntimeError("portal down")})

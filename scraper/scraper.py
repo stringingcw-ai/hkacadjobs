@@ -226,11 +226,16 @@ def main():
                 print(f"  ❌ {name} crashed: {e}")
                 jobs, error = [], f"{type(e).__name__}: {e}"
 
+            these_ids = {j["id"] for j in jobs}
+            # Postings taken down after their deadline aren't a scraper problem:
+            # a short count is partial only if still-open jobs vanished too.
+            vanished = [r for r in previous if r["id"] not in these_ids and is_active(r.get("deadline", ""))]
             if error:
                 status = "crashed"
             elif not jobs:
                 status = "empty"
-            elif expected >= PARTIAL_MIN_BASELINE and len(jobs) < PARTIAL_RATIO * expected:
+            elif (expected >= PARTIAL_MIN_BASELINE and len(jobs) < PARTIAL_RATIO * expected
+                  and len(vanished) >= (1 - PARTIAL_RATIO) * expected):
                 status = "partial"
             else:
                 status = "ok"
@@ -242,7 +247,6 @@ def main():
             # portal that stays broken doesn't show stale jobs indefinitely.
             kept = []
             if status != "ok":
-                these_ids = {j["id"] for j in jobs}
                 candidates = [r for r in previous if r["id"] not in these_ids]
                 kept = [r for r in candidates
                         if days_since(registry.get(r["id"], [today_str, today_str])[1]) <= FALLBACK_MAX_DAYS]

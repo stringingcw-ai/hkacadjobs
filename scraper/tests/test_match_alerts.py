@@ -168,6 +168,50 @@ def test_request_to_match_jobs(monkeypatch):
         match_alerts.fetch_matches({}, ["HKU-1"])
 
 
+def test_worker_boot_errors_are_retried(monkeypatch):
+    calls = []
+
+    class Resp(io.BytesIO):
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+    def flaky(req, timeout=None, context=None):
+        calls.append(1)
+        if len(calls) == 1:
+            raise urllib.error.HTTPError(req.full_url, 503, "boot", {}, io.BytesIO(
+                b'{"code":"BOOT_ERROR","message":"Function failed to start (please check logs)"}'))
+        return Resp(json.dumps({"ok": True, "matches": [fit(1)]}).encode())
+
+    monkeypatch.setattr(notify, "SUPABASE_URL", "https://p.supabase.co")
+    monkeypatch.setattr(match_alerts.time, "sleep", lambda s: None)
+    monkeypatch.setattr(match_alerts.urllib.request, "urlopen", flaky)
+    assert match_alerts.fetch_matches({}, ["HKU-1"]) == [fit(1)]
+    assert len(calls) == 2
+
+    # Still failing to boot after the retries: reported as a failure
+    calls.clear()
+    def down(req, timeout=None, context=None):
+        calls.append(1)
+        raise urllib.error.HTTPError(req.full_url, 503, "boot", {}, io.BytesIO(b'{"code":"BOOT_ERROR"}'))
+    monkeypatch.setattr(match_alerts.urllib.request, "urlopen", down)
+    with pytest.raises(RuntimeError, match="BOOT_ERROR"):
+        match_alerts.fetch_matches({}, ["HKU-1"])
+    assert len(calls) == 3
+
+    # Any other error is not retried: the function may already have run (and charged)
+    calls.clear()
+    def broken(req, timeout=None, context=None):
+        calls.append(1)
+        raise urllib.error.HTTPError(req.full_url, 500, "err", {}, io.BytesIO(b'{"ok":false}'))
+    monkeypatch.setattr(match_alerts.urllib.request, "urlopen", broken)
+    with pytest.raises(RuntimeError, match="HTTP 500"):
+        match_alerts.fetch_matches({}, ["HKU-1"])
+    assert len(calls) == 1
+
+
 def test_notify_runs_match_alerts_even_without_filter_subscribers(monkeypatch, tmp_path):
     ran = {}
     monkeypatch.setattr(notify, "ALERT_LOG", tmp_path / "log.json")
