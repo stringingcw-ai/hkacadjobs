@@ -106,11 +106,14 @@ export interface JobsSourceOptions {
 /**
  * Loads jobs.csv and keeps it in memory for `ttlMs` (the function's instance is reused between
  * requests). Refetches, bypassing the CDN cache, when asked for job ids it doesn't know yet,
- * e.g. just after the daily data refresh.
+ * e.g. just after the daily data refresh. Requests that arrive together share one load: each
+ * parsing the file on a fresh instance used up its CPU time (WORKER_RESOURCE_LIMIT, 6 Nov 2026).
  */
 export class JobsSource {
   #cache: JobSet | null = null;
   #lastRefetch = 0;
+  /** Loads in progress, keyed by whether they bypass the CDN cache */
+  #loading = new Map<boolean, Promise<JobSet>>();
 
   constructor(private readonly opts: JobsSourceOptions) {}
 
@@ -119,13 +122,25 @@ export class JobsSource {
     const ttl = this.opts.ttlMs ?? 30 * 60_000;
     let set = this.#cache;
     if (!set || now.getTime() - set.loadedAt > ttl || set.today !== hkDate(now)) {
-      set = await this.#load(false, now);
+      set = await this.#shared(false, now);
     }
-    if (needIds.some((id) => !set!.all.has(id)) && now.getTime() - this.#lastRefetch > 60_000) {
-      this.#lastRefetch = now.getTime();
-      set = await this.#load(true, now);
+    if (
+      needIds.some((id) => !set!.all.has(id)) &&
+      (this.#loading.has(true) || now.getTime() - this.#lastRefetch > 60_000)
+    ) {
+      if (!this.#loading.has(true)) this.#lastRefetch = now.getTime();
+      set = await this.#shared(true, now);
     }
     return set;
+  }
+
+  #shared(bustCache: boolean, now: Date): Promise<JobSet> {
+    let loading = this.#loading.get(bustCache);
+    if (!loading) {
+      loading = this.#load(bustCache, now).finally(() => this.#loading.delete(bustCache));
+      this.#loading.set(bustCache, loading);
+    }
+    return loading;
   }
 
   async #load(bustCache: boolean, now: Date): Promise<JobSet> {
