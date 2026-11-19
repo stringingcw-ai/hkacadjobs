@@ -26,6 +26,7 @@ MAX_PER_EMAIL = 5     # best fits per email
 MIN_SCORE = 65        # Claude's 0-100 fit score; 70+ is a good fit
 WORKERS = 4           # profiles matched at once
 USAGE_KEEP_DAYS = 90  # match_usage rows (sizes and costs, never CV text) are kept this long
+RETRY_CODES = ("BOOT_ERROR", "WORKER_RESOURCE_LIMIT")  # Supabase couldn't run match-jobs
 
 
 class BudgetReached(Exception):
@@ -38,11 +39,13 @@ def get_match_profiles():
         "match_profiles?select=user_id,email,profile,prefs,token&alerts_enabled=eq.true&order=user_id")
 
 
-def fetch_matches(profile, job_ids, prefs=None, timeout=90, boot_retries=2):
+def fetch_matches(profile, job_ids, prefs=None, timeout=90, retries=2):
     """Ask match-jobs, as the service role, which of `job_ids` fit `profile`
     (only at the institutions in prefs["unis"], if the user chose any).
-    Retried when a function worker fails to boot (Supabase's BOOT_ERROR): the
-    function never ran, so nothing was charged and a fresh worker usually starts."""
+    Retried when Supabase couldn't run the function: a worker that failed to boot
+    (BOOT_ERROR) or was stopped for using too much CPU or memory loading the jobs
+    (WORKER_RESOURCE_LIMIT). Neither got as far as Claude, so nothing was charged,
+    and a fresh worker usually succeeds."""
     body = json.dumps({
         "action": "match", "profile": profile, "only_ids": job_ids,
         "prefs": {"unis": list((prefs or {}).get("unis") or [])},
@@ -56,7 +59,7 @@ def fetch_matches(profile, job_ids, prefs=None, timeout=90, boot_retries=2):
             "Content-Type": "application/json",
         },
     )
-    for attempt in range(boot_retries + 1):
+    for attempt in range(retries + 1):
         try:
             with urllib.request.urlopen(req, timeout=timeout, context=notify._SSL_CONTEXT) as resp:
                 data = json.loads(resp.read())
@@ -65,7 +68,7 @@ def fetch_matches(profile, job_ids, prefs=None, timeout=90, boot_retries=2):
             detail = e.read().decode(errors="replace")[:300]
             if e.code == 503 and "budget_reached" in detail:
                 raise BudgetReached(detail)
-            if "BOOT_ERROR" not in detail or attempt == boot_retries:
+            if not any(code in detail for code in RETRY_CODES) or attempt == retries:
                 raise RuntimeError(f"match-jobs HTTP {e.code}: {detail}")
             time.sleep(5 * (attempt + 1))
 

@@ -191,6 +191,18 @@ def test_worker_boot_errors_are_retried(monkeypatch):
     assert match_alerts.fetch_matches({}, ["HKU-1"]) == [fit(1)]
     assert len(calls) == 2
 
+    # A worker stopped for using too much CPU (as on 6 Nov 2026) is retried the same way
+    calls.clear()
+    def overloaded(req, timeout=None, context=None):
+        calls.append(1)
+        if len(calls) == 1:
+            raise urllib.error.HTTPError(req.full_url, 546, "limit", {}, io.BytesIO(
+                b'{"code":"WORKER_RESOURCE_LIMIT","message":"Function failed due to not having enough compute resources"}'))
+        return Resp(json.dumps({"ok": True, "matches": [fit(1)]}).encode())
+    monkeypatch.setattr(match_alerts.urllib.request, "urlopen", overloaded)
+    assert match_alerts.fetch_matches({}, ["HKU-1"]) == [fit(1)]
+    assert len(calls) == 2
+
     # Still failing to boot after the retries: reported as a failure
     calls.clear()
     def down(req, timeout=None, context=None):

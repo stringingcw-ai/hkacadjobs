@@ -96,6 +96,23 @@ Deno.test("unknown job ids trigger one cache-busting reload a minute", async () 
   assertEquals(fetched.length, 2);
 });
 
+Deno.test("requests arriving together on a fresh instance share one load and one reload", async () => {
+  const csv = await fixtureCsv();
+  const clock = { now: new Date(`${TODAY}T04:00:00Z`) };
+  const fetched: string[] = [];
+  const jobs = source(() => csv, clock, fetched);
+  const sets = await Promise.all([1, 2, 3, 4].map(() => jobs.get()));
+  assertEquals(fetched.length, 1);
+  assert(sets.every((s) => s === sets[0]));
+
+  // Just after the daily refresh: all of them wait for the same cache-busting reload
+  clock.now = new Date(clock.now.getTime() + 31 * 60_000);
+  fetched.length = 0;
+  await Promise.all([1, 2, 3, 4].map(() => jobs.get(["NEW-1"])));
+  assertEquals(fetched.length, 2);
+  assert(/\?v=\d+$/.test(fetched[1]));
+});
+
 Deno.test("a failed reload keeps the cached jobs; with no cache it is an error", async () => {
   const csv = await fixtureCsv();
   const clock = { now: new Date(`${TODAY}T04:00:00Z`) };
