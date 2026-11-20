@@ -51,8 +51,8 @@ print(f"department differs: {sum(depts.values())}", depts.most_common(5))
 titles = sum(old[j["id"]]["title"] != j["title"] for j in jobs if j["id"] in old)
 print(f"title differs: {titles}")
 print("ranks:", collections.Counter(j["rank"] for j in jobs).most_common())
-for j in new[:3]:
-    print(f"\n--- {j['id']} {j['apply_url']}\n{j['description'][:1200]}")
+for j in new[:4]:
+    print(f"\n--- {j['id']} {j['apply_url']}\n{j['description'][:3000]}")
 
 # Where a job page keeps its text, to check description() picks the right part.
 html = pages[0] if pages else ""
@@ -66,4 +66,4 @@ print("\n'Ref.:' text sits in:", " < ".join(chain))
 print("main:", bool(soup.select_one("main")), "| header/nav/footer/form:",
       [len(soup.select(t)) for t in ("header", "nav", "footer", "form")])
 print("card-like classes:", collections.Counter(" ".join(c.get("class")) for c in soup.select("[class*=card]")).most_common(8))
-print(f"\ndescription() of the first job page read:\n{real_description(html)[:2500]}")
+print(f"\ndescription() of the first job page read:\n{real_description(html)[:3000]}")
