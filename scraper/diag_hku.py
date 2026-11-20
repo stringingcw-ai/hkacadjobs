@@ -1,33 +1,45 @@
-"""One-off: how HKU's job listing is marked up now (the 20 Nov 2026 run found no
-"/en/job/<id>" links in a full page). One plain request only, so AWS WAF doesn't step
-in. Read-only; removed after use."""
+"""One-off: HKU's new careers site (since 19/20 Nov 2026). How search results page, what
+a result card holds, and whether a job page still shows the old job number. A few plain
+requests, spaced out so AWS WAF doesn't step in. Read-only; removed after use."""
 
 import re
-from collections import Counter
+import time
 
 import requests
+from bs4 import BeautifulSoup
 
 from core import HEADERS
 
-URL = "https://jobs.hku.hk/en/listing/?page=1&page-items=1000"
 
-resp = requests.get(URL, headers=HEADERS, timeout=60)
-html = resp.text
-print(f"HTTP {resp.status_code}, {len(html)} chars, WAF {resp.headers.get('x-amzn-waf-action', '-')}")
-if resp.status_code != 200:
-    raise SystemExit("not a listing page; nothing to inspect")
+def get(url):
+    time.sleep(6)
+    resp = requests.get(url, headers=HEADERS, timeout=60)
+    print(f"\n=== {url}\nHTTP {resp.status_code}, {len(resp.text)} chars, WAF {resp.headers.get('x-amzn-waf-action', '-')}")
+    return resp.text if resp.status_code == 200 else ""
 
-print("counts:", {tag: len(re.findall(rf"<{tag}\b", html, re.I)) for tag in ("tr", "li", "article", "a", "table")})
-hrefs = re.findall(r"""href\s*=\s*["']([^"']*)["']""", html, re.I)
-jobish = [h for h in hrefs if re.search(r"job|vacanc|position|opening", h, re.I)]
-shapes = Counter(re.sub(r"\d{3,}", "<n>", re.sub(r"/[a-z0-9-]{25,}", "/<slug>", h)) for h in jobish)
-print(f"{len(hrefs)} links, {len(jobish)} job-like; most common shapes:")
-for shape, n in shapes.most_common(12):
-    print(f"  {n:4d}  {shape[:140]}")
-print("sample job-like links:", [h[:140] for h in jobish[:8]])
 
-for needle in ("/en/job/", "jobId", "job_id", "data-job", "__NEXT_DATA__", "application/json", "Closing", "Provost"):
-    i = html.find(needle)
-    print(f"\n--- first {needle!r} at {i}" + ("" if i < 0 else ":"))
+def squash(html, n):
+    return re.sub(r"\s+", " ", html)[:n]
+
+
+for url in ("https://jobs.hku.hk/jobs/search?page-items=1000&page=1",
+            "https://jobs.hku.hk/jobs/search?page=2"):
+    soup = BeautifulSoup(get(url), "html.parser")
+    results = soup.select(".block-job-search-results .job-search-results-card")
+    print(f"result cards: {len(results)}; featured cards: {len(soup.select('.featured-jobs .job-search-results-card'))}")
+    print("result text:", squash(soup.select_one(".block-job-search-results").get_text(" ") if soup.select_one(".block-job-search-results") else "", 300))
+    print("paging links:", sorted({a['href'] for a in soup.select("a[href*='page=']")})[:10])
+    if results and url.endswith("page=1"):
+        print("first card:", squash(str(results[0]), 3000))
+        print("li classes:", sorted({c for li in soup.select(".job-search-results-card li") for c in li.get("class", [])}))
+        first_job = results[0].select_one("a[href*='/jobs/']")["href"]
+
+page = BeautifulSoup(get(first_job), "html.parser")
+text = squash(page.get_text(" "), 100000)
+for needle in ("Job Number", "Job number", "Job No", "Reference", "Ref", "Requisition", "Closing", "Faculty", "Department"):
+    i = text.find(needle)
     if i >= 0:
-        print(re.sub(r"\s+", " ", html[max(0, i - 500):i + 900]))
+        print(f"detail {needle!r}: …{text[max(0, i - 80):i + 160]}…")
+print("detail /en/job/ links:", re.findall(r"/en/job/\d+[^\"' ]*", str(page))[:5])
+print("detail meta:", [(m.get("property") or m.get("name"), (m.get("content") or "")[:120]) for m in page.find_all("meta") if m.get("content")][:12])
+print("detail text start:", text[:1200])
