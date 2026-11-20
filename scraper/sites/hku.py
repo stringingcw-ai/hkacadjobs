@@ -159,16 +159,35 @@ def search_all(get):
     return jobs
 
 
+BLOCK_TAGS = ["p", "li", "div", "h1", "h2", "h3", "h4", "h5", "h6", "tr", "table", "ul", "ol", "section"]
+BREAK = ""  # marks where a line ends; newlines in the HTML source are just spaces
+
+
+def text_lines(el):
+    """The element's text, a line per paragraph, list item or heading; bold text and
+    links stay inside their sentence."""
+    for br in el.find_all("br"):
+        br.replace_with(BREAK)
+    for block in el.find_all(BLOCK_TAGS):
+        block.insert_before(BREAK)
+        block.append(BREAK)
+    return [line for line in (clean(t) for t in el.get_text().split(BREAK)) if line]
+
+
 def description(html):
-    """The job page's own text: without the site's header, navigation, footer and the
-    other jobs' cards it lists below. '' if too little is left to be a description."""
+    """The job page's description (div.job-description), or failing that its main
+    text without the site's header, navigation, footer and the other jobs it lists
+    below. '' if too little is left to be a description."""
     soup = BeautifulSoup(html, "html.parser")
-    for tag in soup.select("script, style, noscript, header, nav, footer, form, "
-                           ".job-search-results-card"):
-        tag.decompose()
-    body = soup.select_one("main") or soup.body or soup
-    lines = [clean(line) for line in body.get_text("\n").splitlines()]
-    text = "\n\n".join(line for line in lines if len(line) > 30)
+    parts = [d for d in soup.select(".job-description") if not d.find_parent(class_="job-description")]
+    if parts:
+        lines = [line for part in parts for line in text_lines(part)]
+    else:
+        for tag in soup.select("script, style, noscript, header, nav, footer, form, "
+                               ".job-search-results-card"):
+            tag.decompose()
+        lines = [line for line in text_lines(soup.select_one("main") or soup.body or soup) if len(line) > 30]
+    text = "\n\n".join(lines)
     if len(text) < 200 or any(m in text.lower() for m in BOT_MARKERS):
         return ""
     return text[:8000]

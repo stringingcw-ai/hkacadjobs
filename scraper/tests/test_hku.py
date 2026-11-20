@@ -153,22 +153,53 @@ def test_a_page_that_never_shows_up_raises():
         hku.open_page(Page(failures=3), "u", ".cards", sleep=lambda s: None)
 
 
+# As the site renders a job page (trimmed): the job's details, its description in
+# div.job-description, then other jobs listed below it (not as result cards).
 JOB_PAGE = """<html><body><header><nav>Visit Home My Profile Kiosk mode and other site links here</nav></header>
-<main><h1>Assistant Professor in Finance</h1>
-<ul><li class="job-component-requisition-identifier"><span>537976</span></li></ul>
-<p>Assistant Professor in Finance in the Faculty of Business and Economics (Ref.: 537976)</p>
-<p>Applicants should possess a PhD in Finance and a strong record of research publications in leading journals.</p>
-<p>The appointee will teach undergraduate and postgraduate courses and supervise research students.</p>
-<p>A highly competitive salary commensurate with qualifications and experience will be offered.</p>
-<section>%s</section></main>
-<footer>Copyright © 2026 Human Resources Office, The University of Hong Kong. All rights reserved.</footer></body></html>
-""" % card("537978", "Post-doctoral Fellow in the Department of Chemistry")
+<main class="page-body"><div class="page-rows"><div class="col-md-8">
+<h1>Post-doctoral Fellow (Ref.:537978)</h1>
+<ul><li class="job-component-requisition-identifier"><span>537978</span></li>
+<li class="job-component-department"><span>Department of Chemistry (25200)</span></li></ul>
+<div class="block-job-description"><div class="page-block"><div class="job-description" id="job_description_512d">
+<p>Applications are invited for appointment as<br><strong>Post-doctoral Fellow in the Department of Chemistry</strong>
+(Ref.:537978), to commence as soon as possible for one year.</p>
+<p>Applicants should possess a PhD degree in Chemistry, and a strong background in
+<em>Synthetic Metal-Organic Chemistry</em>. Enquiries should be sent to Dr. Chan (email:
+<a href="mailto:x@hku.hk">x@hku.hk</a>).</p>
+<h3>Remuneration</h3>
+<ul><li>A highly competitive salary commensurate with qualifications and experience.</li></ul>
+<p>The University only accepts online application for the above post. Applicants should apply
+<a href="https://jobs.hku.hk/apply">online</a>.</p>
+</div></div></div>
+<div class="related"><p>Clerk I (holding the functional title of Senior Executive Assistant)</p>
+<p>Li Ka Shing Faculty of Medicine (20000)</p></div>
+</div></div></main>
+<footer>Copyright © 2026 Human Resources Office, The University of Hong Kong. All rights reserved.</footer></body></html>"""
 
 
-def test_a_job_page_description_leaves_out_the_site_chrome_and_other_jobs():
+def test_a_job_page_description_is_its_job_description_block():
     text = hku.description(JOB_PAGE)
+    assert text.split("\n\n") == [
+        "Applications are invited for appointment as",
+        "Post-doctoral Fellow in the Department of Chemistry (Ref.:537978), to commence as soon as possible for one year.",
+        "Applicants should possess a PhD degree in Chemistry, and a strong background in Synthetic Metal-Organic "
+        "Chemistry. Enquiries should be sent to Dr. Chan (email: x@hku.hk).",
+        "Remuneration",
+        "A highly competitive salary commensurate with qualifications and experience.",
+        "The University only accepts online application for the above post. Applicants should apply online.",
+    ]
+
+
+def test_without_a_job_description_block_the_main_text_is_used_less_the_chrome():
+    page = """<html><body><header><nav>Visit Home My Profile Kiosk mode and other site links here</nav></header>
+    <main><p>Assistant Professor in Finance in the Faculty of Business and Economics (Ref.: 537976)</p>
+    <p>Applicants should possess a PhD in Finance and a strong record of research in leading journals.</p>
+    <p>A highly competitive salary commensurate with qualifications and experience will be offered.</p>
+    <section>%s</section></main>
+    <footer>Copyright © 2026 Human Resources Office, The University of Hong Kong.</footer></body></html>
+    """ % card("537977", "Post-doctoral Fellow in the Department of Chemistry")
+    text = hku.description(page)
     assert text.startswith("Assistant Professor in Finance in the Faculty of Business and Economics (Ref.: 537976)")
-    assert "Applicants should possess a PhD" in text
     assert "Kiosk mode" not in text and "Copyright" not in text and "Chemistry" not in text
 
 
@@ -188,7 +219,7 @@ def test_known_jobs_keep_their_summaries_and_new_ones_get_their_job_page(monkeyp
     jobs = {j["id"]: j for j in hku.collect(get)}
     assert set(jobs) == {"HKU-1001", "HKU-1002"}          # admin role skipped
     assert jobs["HKU-1001"]["description"] == summary
-    assert "Applicants should possess a PhD" in jobs["HKU-1002"]["description"]
+    assert "Applicants should possess a PhD degree in Chemistry" in jobs["HKU-1002"]["description"]
     assert asked == [hku.SEARCH.format(1), new_job]
 
 
