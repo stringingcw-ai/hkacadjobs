@@ -1,46 +1,33 @@
-"""One-off: what HKU's job listing returns to a GitHub runner, as a plain request and
-in a browser (the 20 Nov 2026 run got a page with no job links). Read-only; removed after use."""
+"""One-off: how HKU's job listing is marked up now (the 20 Nov 2026 run found no
+"/en/job/<id>" links in a full page). One plain request only, so AWS WAF doesn't step
+in. Read-only; removed after use."""
 
 import re
+from collections import Counter
 
 import requests
 
 from core import HEADERS
-from sites.hku import fetch_listing
 
 URL = "https://jobs.hku.hk/en/listing/?page=1&page-items=1000"
 
+resp = requests.get(URL, headers=HEADERS, timeout=60)
+html = resp.text
+print(f"HTTP {resp.status_code}, {len(html)} chars, WAF {resp.headers.get('x-amzn-waf-action', '-')}")
+if resp.status_code != 200:
+    raise SystemExit("not a listing page; nothing to inspect")
 
-def summary(html):
-    title = re.search(r"<title[^>]*>(.*?)</title>", html or "", re.S | re.I)
-    links = len(set(re.findall(r'href="/en/job/(\d+)', html or "")))
-    text = re.sub(r"<[^>]+>", " ", re.sub(r"<(script|style)\b.*?</\1>", " ", html or "", flags=re.S | re.I))
-    return f"{links} job links, title {title.group(1).strip()[:80] if title else '(none)'!r}, " \
-           f"text {' '.join(text.split())[:160]!r}"
+print("counts:", {tag: len(re.findall(rf"<{tag}\b", html, re.I)) for tag in ("tr", "li", "article", "a", "table")})
+hrefs = re.findall(r"""href\s*=\s*["']([^"']*)["']""", html, re.I)
+jobish = [h for h in hrefs if re.search(r"job|vacanc|position|opening", h, re.I)]
+shapes = Counter(re.sub(r"\d{3,}", "<n>", re.sub(r"/[a-z0-9-]{25,}", "/<slug>", h)) for h in jobish)
+print(f"{len(hrefs)} links, {len(jobish)} job-like; most common shapes:")
+for shape, n in shapes.most_common(12):
+    print(f"  {n:4d}  {shape[:140]}")
+print("sample job-like links:", [h[:140] for h in jobish[:8]])
 
-
-for attempt in (1, 2, 3):
-    try:
-        resp = requests.get(URL, headers=HEADERS, timeout=60)
-    except requests.RequestException as e:
-        print(f"plain request {attempt}: failed ({e})")
-        continue
-    kept = {k: v for k, v in resp.headers.items() if k.lower().startswith(("x-amz", "server", "content-type", "x-cache"))}
-    print(f"plain request {attempt}: HTTP {resp.status_code}, {len(resp.text)} chars, {summary(resp.text)}")
-    print(f"  headers: {kept}")
-
-print("fetch_listing():", "used the plain request" if fetch_listing(URL) else "fell back to the browser")
-
-from playwright.sync_api import sync_playwright  # noqa: E402
-
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
-    page = browser.new_page()
-    page.set_extra_http_headers(HEADERS)
-    resp = page.goto(URL, timeout=60000, wait_until="domcontentloaded")
-    try:
-        page.wait_for_selector("a[href*='/en/job/']", timeout=30000)
-    except Exception as e:
-        print(f"browser: job links didn't appear ({str(e).splitlines()[0]})")
-    print(f"browser: HTTP {resp.status if resp else '?'}, {summary(page.content())}")
-    browser.close()
+for needle in ("/en/job/", "jobId", "job_id", "data-job", "__NEXT_DATA__", "application/json", "Closing", "Provost"):
+    i = html.find(needle)
+    print(f"\n--- first {needle!r} at {i}" + ("" if i < 0 else ":"))
+    if i >= 0:
+        print(re.sub(r"\s+", " ", html[max(0, i - 500):i + 900]))
