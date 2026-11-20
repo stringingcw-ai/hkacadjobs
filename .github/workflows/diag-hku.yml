@@ -1,8 +1,8 @@
 name: HKU listing check (one-off)
 
-# What HKU's job listing returns to a GitHub runner, as a plain request and in a browser,
-# after the 20 Nov 2026 run got a page with no job links (scraper/diag_hku.py). Read-only,
-# no secrets. Runs on pushes to this branch only and is removed after use.
+# Dry run of the rewritten HKU scraper against HKU's new careers site, compared with
+# jobs.csv (scraper/diag_hku.py). Read-only, no secrets. Runs on pushes to this branch
+# only and is removed after use.
 on:
   push:
     branches: ["claude/quirky-mendel-ro41pv"]
@@ -30,9 +30,7 @@ jobs:
           cache-dependency-path: scraper/requirements.txt
 
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          playwright install --with-deps chromium
+        run: pip install -r requirements.txt
 
-      - name: Check the HKU listing
+      - name: Dry-run the HKU scraper
         run: python diag_hku.py

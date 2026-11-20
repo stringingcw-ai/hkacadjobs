@@ -1,192 +1,191 @@
 """University of Hong Kong: job scraper."""
 
+import random
 import re
+import time
 from datetime import datetime
+from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
 
 from core import (
-    BOT_MARKERS, clean, detect_rank, detect_type, HEADERS, is_active, is_within_retention,
+    BOT_MARKERS, clean, detect_rank, detect_type, HEADERS, is_within_retention,
     make_id, parse_date_text, PLACEHOLDER_MARKER, _existing_descriptions, _has_good_desc,
+    is_active,
 )
 
+BASE = "https://jobs.hku.hk"
+# HKU's careers site since 19/20 Nov 2026: 30 jobs per search page (page-items is
+# ignored), about 15 pages. Job pages moved from /en/job/<number> to /jobs/<slug>-<uuid>,
+# but every card still shows the job number (requisition identifier), so ids carry over.
+SEARCH = BASE + "/jobs/search?page={}"
+MAX_PAGES = 60      # safety stop, about 1,800 jobs
+MAX_DETAILS = 40    # job pages fetched per run; the rest are fetched on later runs
+PAUSE = (3, 6)      # seconds between requests: AWS WAF challenges quick repeated ones
+RETRY_WAIT = 30     # seconds to wait after a challenge before asking again
 
-def fetch_listing(url, get=requests.get):
-    """The listing page's HTML from a plain request, or None if it has no job links,
-    so the caller loads it in a browser instead. AWS WAF can answer with a challenge
-    page (HTTP 202, no listing) that only a browser gets past: on 20 Nov 2026 that
-    looked like an empty HKU and kept the previous day's jobs."""
-    try:
-        resp = get(url, headers=HEADERS, timeout=60)
-        resp.raise_for_status()
-    except Exception as e:
-        print(f"  ⚠️  Direct listing fetch failed ({e}); retrying in a browser")
-        return None
-    if "/en/job/" not in resp.text:
-        waf = resp.headers.get("x-amzn-waf-action", "")
-        print(f"  ⚠️  Direct listing fetch returned no jobs (HTTP {resp.status_code}"
-              f"{f', AWS WAF {waf}' if waf else ''}); retrying in a browser")
-        return None
-    return resp.text
+ADMIN_KEYWORDS = {
+    "administrative assistant", "clerical assistant",
+    "finance officer", "it officer", "facilities manager",
+    "procurement officer", "human resources officer",
+    "security officer", "safety officer", "receptionist",
+    "estate manager", "accounting officer", "payroll officer",
+}
+
+RANK_PRIORITY = {
+    "Tenure-Track": 0, "Professor": 1, "Associate Professor": 2,
+    "Assistant Professor": 3, "Senior Lecturer/Lecturer": 4, "Lecturer": 4,
+    "Postdoctoral": 5, "Research Assistant/Associate": 6,
+}
+
+
+def fetch(url, session, sleep=time.sleep, retries=2):
+    """A page's HTML from a plain request, after a short pause. AWS WAF answers quick
+    repeated requests with a challenge (HTTP 202, no content) that only a browser
+    solves, so wait and ask again; raise if the page never comes."""
+    problem = ""
+    for attempt in range(retries + 1):
+        sleep(random.uniform(*PAUSE) if attempt == 0 else RETRY_WAIT * attempt)
+        try:
+            resp = session.get(url, headers=HEADERS, timeout=60)
+        except requests.RequestException as e:
+            problem = str(e)
+        else:
+            if resp.status_code == 200:
+                return resp.text
+            waf = resp.headers.get("x-amzn-waf-action", "")
+            problem = f"HTTP {resp.status_code}" + (f", AWS WAF {waf}" if waf else "")
+        print(f"  ⚠️  {url}: {problem}" + ("; waiting to retry" if attempt < retries else ""))
+    raise RuntimeError(f"{url} didn't load ({problem})")
+
+
+def closing_date(text):
+    """'Closing on: Dec 10 2026' → '2026-12-10'; '' if there's no date."""
+    text = re.sub(r"^closing on:?\s*", "", clean(text), flags=re.I)
+    for fmt in ("%b %d %Y", "%B %d %Y"):
+        try:
+            return datetime.strptime(text, fmt).strftime("%Y-%m-%d")
+        except ValueError:
+            pass
+    parsed = parse_date_text(text)
+    return parsed if parsed != text else ""
+
+
+def parse_cards(html):
+    """The search results on one page (not the Featured Jobs above them), as job rows."""
+    soup = BeautifulSoup(html, "html.parser")
+    jobs = []
+    for card in soup.select(".block-job-search-results .job-search-results-card"):
+        link = card.select_one(".job-search-results-card-title a[href]")
+        if not link:
+            continue
+        title = clean(link.get_text())
+        if len(title) < 5:
+            continue
+
+        def field(name):
+            span = card.select_one(f"li.job-component-{name} span")
+            return clean(span.get_text()) if span else ""
+
+        ref = field("requisition-identifier")
+        dept = field("department") or field("dropdown-field-1") or "University of Hong Kong"
+        deadline = closing_date(field("closing-on"))
+        jobs.append({
+            "id":               make_id("HKU", ref or title[:25]),
+            "title":            title,
+            "rank":             detect_rank(title),
+            "university":       "HKU",
+            "university_full":  "University of Hong Kong",
+            "department":       dept,
+            "deadline":         deadline,
+            "is_new":           "TRUE" if is_active(deadline) else "FALSE",
+            "reference":        ref,
+            "position_type":    detect_type(title),
+            "salary":           "",
+            "start_date":       "",
+            "apply_url":        urljoin(BASE, link["href"]),
+            "description":      f"{title} — {dept}. {PLACEHOLDER_MARKER} for full details.",
+        })
+    return jobs
+
+
+def last_page(html):
+    """The highest page number the search's paging links on this page point to."""
+    soup = BeautifulSoup(html, "html.parser")
+    pages = [int(m.group(1)) for a in soup.select("a[href*='/jobs/search']")
+             if (m := re.search(r"[?&]page=(\d+)", a["href"]))]
+    return max(pages, default=1)
+
+
+def search_all(get):
+    """Every job in the search, walking its pages; raises if a page doesn't load or
+    comes back empty before the last one, so a half-read listing is never taken for
+    the whole one."""
+    jobs, seen, page, last = [], set(), 1, 1
+    while page <= min(last, MAX_PAGES):
+        html = get(SEARCH.format(page))
+        cards = parse_cards(html)
+        if not cards:
+            if page < last:
+                raise RuntimeError(f"HKU search page {page} of {last} has no jobs")
+            break
+        for job in cards:
+            if job["id"] not in seen:
+                seen.add(job["id"])
+                jobs.append(job)
+        last = max(last, last_page(html))
+        page += 1
+    if last > MAX_PAGES:
+        print(f"  ⚠️  Search has {last} pages; read the first {MAX_PAGES} — raise MAX_PAGES")
+    print(f"  ↳ {page - 1} search pages, {len(jobs)} jobs listed")
+    return jobs
+
+
+def description(html):
+    """The job page's own text: without the site's header, navigation, footer and the
+    other jobs' cards it lists below. '' if too little is left to be a description."""
+    soup = BeautifulSoup(html, "html.parser")
+    for tag in soup.select("script, style, noscript, header, nav, footer, form, "
+                           ".job-search-results-card"):
+        tag.decompose()
+    body = soup.select_one("main") or soup.body or soup
+    lines = [clean(line) for line in body.get_text("\n").splitlines()]
+    text = "\n\n".join(line for line in lines if len(line) > 30)
+    if len(text) < 200 or any(m in text.lower() for m in BOT_MARKERS):
+        return ""
+    return text[:8000]
 
 
 def scrape_hku():
-    """
-    HKU — jobs.hku.hk/en/listing/ (PageUp ATS)
-    Fetches every listing row in one request (?page=1&page-items=1000) instead of
-    clicking "More Jobs"; falls back to loading that URL in a browser.
-    """
+    """HKU — jobs.hku.hk/jobs/search: every search page, then the job pages of new jobs
+    for their descriptions (known jobs keep their summaries)."""
     print("📋 Scraping HKU...")
+    session = requests.Session()
+    get = lambda url: fetch(url, session)  # noqa: E731
 
-    ADMIN_KEYWORDS = {
-        "administrative assistant", "clerical assistant",
-        "finance officer", "it officer", "facilities manager",
-        "procurement officer", "human resources officer",
-        "security officer", "safety officer", "receptionist",
-        "estate manager", "accounting officer", "payroll officer",
-    }
+    listed = search_all(get)
+    jobs = [j for j in listed if not any(kw in j["title"].lower() for kw in ADMIN_KEYWORDS)]
+    print(f"  ↳ {len(jobs)} jobs after skipping admin roles")
 
-    def parse_jobs(html, seen):
-        result = []
-        soup = BeautifulSoup(html, "html.parser")
-        for row in soup.find_all("tr"):
-            link = row.find("a", href=True)
-            if not link:
-                continue
-            title = clean(link.get_text())
-            if not title or len(title) < 5:
-                continue
-            href = link.get("href", "")
-            apply_url = f"https://jobs.hku.hk{href}" if href.startswith("/") else href
-            cells = row.find_all("td")
-            ref = dept = deadline = ""
-            for cell in cells:
-                t = clean(cell.get_text())
-                if re.match(r"^\d{5,8}$", t):
-                    ref = t
-                elif re.search(r"Faculty|Department|School|Institute|Centre|Office|Library", t, re.I) and t != title:
-                    dept = t
-                else:
-                    parsed = parse_date_text(t)
-                    if parsed and parsed != t:
-                        deadline = parsed
-            dept = dept or "University of Hong Kong"
-            dedup_key = ref if ref else f"{title}|{dept}"
-            if dedup_key in seen:
-                continue
-            seen.add(dedup_key)
-            title_lower = title.lower()
-            if any(kw in title_lower for kw in ADMIN_KEYWORDS):
-                continue
-            result.append({
-                "id":               make_id("HKU", ref or title[:25]),
-                "title":            title,
-                "rank":             detect_rank(title),
-                "university":       "HKU",
-                "university_full":  "University of Hong Kong",
-                "department":       dept,
-                "deadline":         deadline,
-                "is_new":           "TRUE" if is_active(deadline) else "FALSE",
-                "reference":        ref,
-                "position_type":    detect_type(title),
-                "salary":           "",
-                "start_date":       "",
-                "apply_url":        apply_url,
-                "description":      f"{title} — {dept}. Please visit the application link for full details.",
-            })
-        return result
-
-    jobs = []
-
-    # The listing's "More Jobs" button only fetches the next 20 rows
-    # (page=N&page-items=20). Asking for every row in one page is a single
-    # request that can't stop half-way — the old click loop waited a fixed
-    # 1.5 s per batch and quit early whenever the site was slow.
-    LISTING_ALL = "https://jobs.hku.hk/en/listing/?page=1&page-items=1000"
-    listing_html = fetch_listing(LISTING_ALL)
-
-    try:
-        from playwright.sync_api import sync_playwright
-
-        with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True)
-            if listing_html is None:
-                page = browser.new_page()
-                page.set_extra_http_headers(HEADERS)
-                page.goto(LISTING_ALL, timeout=60000, wait_until="domcontentloaded")
-                page.wait_for_selector("a[href*='/en/job/']", timeout=30000)
-                listing_html = page.content()
-                page.close()
-
-            seen = set()
-            parsed = parse_jobs(listing_html, seen)
-            jobs.extend(parsed)
-            listed = len(set(re.findall(r'href="/en/job/(\d+)', listing_html)))
-            print(f"  ↳ Listing has {listed} job links; parsed {len(parsed)} jobs (admin roles skipped)")
-            more = BeautifulSoup(listing_html, "html.parser").select_one("a.more-link .count")
-            if more and clean(more.get_text()).isdigit() and int(clean(more.get_text())) > 0:
-                print(f"  ⚠️  Listing still reports {clean(more.get_text())} more jobs — raise page-items")
-
-            # Fetch detail pages for descriptions (skip known good summaries)
-            # Use fresh browser contexts in batches to avoid session-based rate limiting.
-            # HKU detail pages are AWS WAF protected — only the first ~35 requests succeed
-            # before being blocked. Prioritise tenure-track/lecturer roles so the most
-            # valuable jobs get descriptions first.
-            RANK_PRIORITY = {
-                "Tenure-Track": 0, "Professor": 1, "Associate Professor": 2,
-                "Assistant Professor": 3, "Senior Lecturer/Lecturer": 4, "Lecturer": 4,
-                "Postdoctoral": 5, "Research Assistant/Associate": 6,
-            }
-            active = [j for j in parsed if is_within_retention(j["deadline"]) and not _has_good_desc(j["id"])]
-            active.sort(key=lambda j: (
-                RANK_PRIORITY.get(j.get("rank", ""), 99),
-                -(datetime.strptime(j["date_added"], "%Y-%m-%d").toordinal() if j.get("date_added") else 0),
-            ))
-            if active:
-                import random
-                print(f"  ↳ Fetching {len(active)} detail pages for descriptions (priority: academic first)...")
-                found = 0
-                BATCH = 20  # fresh context every N requests
-                for batch_start in range(0, len(active), BATCH):
-                    batch = active[batch_start:batch_start + BATCH]
-                    ctx = browser.new_context()
-                    ctx.set_extra_http_headers(HEADERS)
-                    detail_page = ctx.new_page()
-                    for idx_in_batch, j in enumerate(batch):
-                        idx = batch_start + idx_in_batch + 1
-                        try:
-                            detail_page.goto(j["apply_url"], timeout=20000, wait_until="domcontentloaded")
-                            detail_page.wait_for_timeout(random.randint(2500, 4500))
-                            text = detail_page.inner_text("body")
-                            if any(m in text.lower() for m in BOT_MARKERS):
-                                if _has_good_desc(j["id"]):
-                                    j["description"] = _existing_descriptions[j["id"]]
-                                else:
-                                    j["description"] = PLACEHOLDER_MARKER
-                                continue
-                            lines = [l.strip() for l in text.splitlines() if len(l.strip()) > 30]
-                            # Guard against short/error pages slipping through WAF check
-                            if lines and len(" ".join(lines)) >= 200:
-                                j["description"] = "\n\n".join(lines[:60])[:8000]
-                                found += 1
-                            else:
-                                j["description"] = PLACEHOLDER_MARKER
-                        except Exception:
-                            j["description"] = PLACEHOLDER_MARKER
-                        if idx % 10 == 0 or idx == len(active):
-                            print(f"  ↳ {idx}/{len(active)} done")
-                    detail_page.close()
-                    ctx.close()
-                print(f"  ↳ Got descriptions for {found}/{len(active)} jobs")
-            # Restore cached summaries for skipped jobs
-            for j in parsed:
-                if _has_good_desc(j["id"]):
-                    j["description"] = _existing_descriptions[j["id"]]
-            browser.close()
-
-    except Exception as e:
-        print(f"  ⚠️  Playwright failed: {e}")
+    for j in jobs:
+        if _has_good_desc(j["id"]):
+            j["description"] = _existing_descriptions[j["id"]]
+    todo = [j for j in jobs if is_within_retention(j["deadline"]) and not _has_good_desc(j["id"])]
+    todo.sort(key=lambda j: RANK_PRIORITY.get(j["rank"], 99))
+    if todo:
+        print(f"  ↳ Fetching {min(len(todo), MAX_DETAILS)} of {len(todo)} job pages for descriptions")
+        found = 0
+        for j in todo[:MAX_DETAILS]:
+            try:
+                text = description(get(j["apply_url"]))
+            except RuntimeError as e:
+                print(f"  ⚠️  Stopped fetching job pages: {e}")
+                break
+            if text:
+                j["description"] = text
+                found += 1
+        print(f"  ↳ Got descriptions for {found}/{len(todo)} jobs")
 
     print(f"  ✅ HKU: {len(jobs)} jobs found")
     return jobs
