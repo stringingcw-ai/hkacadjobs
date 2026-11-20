@@ -4,6 +4,13 @@ All notable changes to HKAcadJobs are recorded here, grouped by date.
 
 ---
 
+## 2026-11-20
+
+### Scraping and data
+- HKU jobs are found again. HKU moved its careers site on 19/20 Nov, and the 20 Nov run found no HKU jobs (the site kept showing the previous day's). The scraper now reads the new site's search, all 16 pages, in a browser: the site turns plain requests away after about five. HKU jobs keep their ids, so jobs already listed aren't announced as new again, and their links now go to the new job pages. Some jobs also show their real department (e.g. University Libraries) instead of "University of Hong Kong"
+
+---
+
 ## 2026-10-13
 
 ### Scraping and data
