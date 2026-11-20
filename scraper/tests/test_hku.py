@@ -170,6 +170,7 @@ JOB_PAGE = """<html><body><header><nav>Visit Home My Profile Kiosk mode and othe
 <ul><li>A highly competitive salary commensurate with qualifications and experience.</li></ul>
 <p>The University only accepts online application for the above post. Applicants should apply
 <a href="https://jobs.hku.hk/apply">online</a>.</p>
+<p><a href="/jobs/search">Back to job search</a></p>
 </div></div></div>
 <div class="related"><p>Clerk I (holding the functional title of Senior Executive Assistant)</p>
 <p>Li Ka Shing Faculty of Medicine (20000)</p></div>

@@ -181,7 +181,8 @@ def description(html):
     soup = BeautifulSoup(html, "html.parser")
     parts = [d for d in soup.select(".job-description") if not d.find_parent(class_="job-description")]
     if parts:
-        lines = [line for part in parts for line in text_lines(part)]
+        lines = [line for part in parts for line in text_lines(part)
+                 if line.lower() != "back to job search"]
     else:
         for tag in soup.select("script, style, noscript, header, nav, footer, form, "
                                ".job-search-results-card"):
