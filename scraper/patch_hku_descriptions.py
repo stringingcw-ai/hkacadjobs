@@ -29,14 +29,6 @@ FIELDNAMES = [
     "position_type", "salary", "start_date", "apply_url", "description"
 ]
 
-HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/120.0.0.0 Safari/537.36"
-    ),
-    "Accept-Language": "en-US,en;q=0.9",
-}
 
 PLACEHOLDER_MARKER  = "please visit the application link"
 BOT_MARKERS         = ("security check", "not a bot", "verify that you are", "cloudflare", "complete the security")
@@ -131,11 +123,10 @@ def fetch_batch(batch: list, jobs: dict) -> tuple[int, int]:
     still_poor   = 0
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        ctx = browser.new_context(
-            user_agent=HEADERS["User-Agent"],
-            extra_http_headers={"Accept-Language": "en-US,en;q=0.9"},
-        )
+        # As sites/hku.py: full Chromium and its own user agent get the AWS WAF token
+        # HKU's job pages need; a borrowed desktop user agent was challenged (20 Nov 2026).
+        browser = p.chromium.launch(channel="chromium", headless=True)
+        ctx = browser.new_context(extra_http_headers={"Accept-Language": "en-US,en;q=0.9"})
         page = ctx.new_page()
 
         for idx, job in enumerate(batch, 1):

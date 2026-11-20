@@ -1,29 +1,30 @@
 """University of Hong Kong: job scraper."""
 
+import math
 import random
 import re
 import time
 from datetime import datetime
 from urllib.parse import urljoin
 
-import requests
 from bs4 import BeautifulSoup
 
 from core import (
-    BOT_MARKERS, clean, detect_rank, detect_type, HEADERS, is_within_retention,
+    BOT_MARKERS, clean, detect_rank, detect_type, is_active, is_within_retention,
     make_id, parse_date_text, PLACEHOLDER_MARKER, _existing_descriptions, _has_good_desc,
-    is_active,
 )
 
 BASE = "https://jobs.hku.hk"
 # HKU's careers site since 19/20 Nov 2026: 30 jobs per search page (page-items is
-# ignored), about 15 pages. Job pages moved from /en/job/<number> to /jobs/<slug>-<uuid>,
+# ignored), about 16 pages. Job pages moved from /en/job/<number> to /jobs/<slug>-<uuid>,
 # but every card still shows the job number (requisition identifier), so ids carry over.
 SEARCH = BASE + "/jobs/search?page={}"
+CARDS = ".block-job-search-results .job-search-results-card"
+JOB_PAGE_READY = "[class*='job-component']"
 MAX_PAGES = 60      # safety stop, about 1,800 jobs
-MAX_DETAILS = 40    # job pages fetched per run; the rest are fetched on later runs
-PAUSE = (3, 6)      # seconds between requests: AWS WAF challenges quick repeated ones
-RETRY_WAIT = 30     # seconds to wait after a challenge before asking again
+MAX_DETAILS = 40    # job pages read per run; the rest are read on later runs
+PAUSE = (2, 4)      # seconds between pages, to go easy on the site
+RETRY_WAIT = 30     # seconds before trying a page again
 
 ADMIN_KEYWORDS = {
     "administrative assistant", "clerical assistant",
@@ -40,22 +41,26 @@ RANK_PRIORITY = {
 }
 
 
-def fetch(url, session, sleep=time.sleep, retries=2):
-    """A page's HTML from a plain request, after a short pause. AWS WAF answers quick
-    repeated requests with a challenge (HTTP 202, no content) that only a browser
-    solves, so wait and ask again; raise if the page never comes."""
+def open_page(page, url, ready, sleep=time.sleep, retries=2):
+    """The HTML of `url` in the browser once `ready` (a CSS selector) is on it.
+
+    The site is behind AWS WAF, which challenges clients without a token: plain
+    requests get a challenge page after about five. Its pages load AWS's script that
+    gets a browser that token, so the scrape uses a browser, with its own user agent.
+    A page that doesn't show up is tried again after a wait; then this raises."""
     problem = ""
     for attempt in range(retries + 1):
         sleep(random.uniform(*PAUSE) if attempt == 0 else RETRY_WAIT * attempt)
         try:
-            resp = session.get(url, headers=HEADERS, timeout=60)
-        except requests.RequestException as e:
-            problem = str(e)
-        else:
-            if resp.status_code == 200:
-                return resp.text
-            waf = resp.headers.get("x-amzn-waf-action", "")
-            problem = f"HTTP {resp.status_code}" + (f", AWS WAF {waf}" if waf else "")
+            page.goto(url, timeout=60000, wait_until="domcontentloaded")
+            page.wait_for_selector(ready, timeout=30000)
+            return page.content()
+        except Exception as e:  # Playwright timeouts and network errors
+            problem = str(e).splitlines()[0][:120] if str(e) else type(e).__name__
+            try:
+                problem += f"; page title {page.title()!r}"
+            except Exception:
+                pass
         print(f"  ⚠️  {url}: {problem}" + ("; waiting to retry" if attempt < retries else ""))
     raise RuntimeError(f"{url} didn't load ({problem})")
 
@@ -76,7 +81,7 @@ def parse_cards(html):
     """The search results on one page (not the Featured Jobs above them), as job rows."""
     soup = BeautifulSoup(html, "html.parser")
     jobs = []
-    for card in soup.select(".block-job-search-results .job-search-results-card"):
+    for card in soup.select(CARDS):
         link = card.select_one(".job-search-results-card-title a[href]")
         if not link:
             continue
@@ -110,6 +115,13 @@ def parse_cards(html):
     return jobs
 
 
+def search_total(html):
+    """The search's job count ('Displaying 1 - 30 of 451 in total'), or None."""
+    counts = BeautifulSoup(html, "html.parser").select_one(".table-counts")
+    m = re.search(r"of\s+([\d,]+)\s+in total", clean(counts.get_text()) if counts else "")
+    return int(m.group(1).replace(",", "")) if m else None
+
+
 def last_page(html):
     """The highest page number the search's paging links on this page point to."""
     soup = BeautifulSoup(html, "html.parser")
@@ -119,26 +131,31 @@ def last_page(html):
 
 
 def search_all(get):
-    """Every job in the search, walking its pages; raises if a page doesn't load or
-    comes back empty before the last one, so a half-read listing is never taken for
-    the whole one."""
-    jobs, seen, page, last = [], set(), 1, 1
+    """Every job in the search, page by page; raises if a page doesn't load or has no
+    jobs before the last one, so a half-read listing is never taken for the whole one."""
+    jobs, seen, page, last, total = [], set(), 1, 1, None
     while page <= min(last, MAX_PAGES):
-        html = get(SEARCH.format(page))
+        html = get(SEARCH.format(page), CARDS)
         cards = parse_cards(html)
         if not cards:
             if page < last:
                 raise RuntimeError(f"HKU search page {page} of {last} has no jobs")
             break
+        if page == 1:
+            total = search_total(html)
+            if total:
+                last = math.ceil(total / len(cards))
+        last = max(last, last_page(html))
         for job in cards:
             if job["id"] not in seen:
                 seen.add(job["id"])
                 jobs.append(job)
-        last = max(last, last_page(html))
         page += 1
     if last > MAX_PAGES:
         print(f"  ⚠️  Search has {last} pages; read the first {MAX_PAGES} — raise MAX_PAGES")
-    print(f"  ↳ {page - 1} search pages, {len(jobs)} jobs listed")
+    print(f"  ↳ {page - 1} search pages, {len(jobs)} jobs listed (the site says {total})")
+    if total and len(jobs) < total:
+        print(f"  ⚠️  Read {len(jobs)} of the {total} jobs the site lists — did the search change while it was read?")
     return jobs
 
 
@@ -157,13 +174,9 @@ def description(html):
     return text[:8000]
 
 
-def scrape_hku():
-    """HKU — jobs.hku.hk/jobs/search: every search page, then the job pages of new jobs
-    for their descriptions (known jobs keep their summaries)."""
-    print("📋 Scraping HKU...")
-    session = requests.Session()
-    get = lambda url: fetch(url, session)  # noqa: E731
-
+def collect(get):
+    """All HKU jobs from the search, with descriptions: known jobs keep their summaries,
+    new ones (most senior first, up to MAX_DETAILS) get their job page's text."""
     listed = search_all(get)
     jobs = [j for j in listed if not any(kw in j["title"].lower() for kw in ADMIN_KEYWORDS)]
     print(f"  ↳ {len(jobs)} jobs after skipping admin roles")
@@ -174,18 +187,34 @@ def scrape_hku():
     todo = [j for j in jobs if is_within_retention(j["deadline"]) and not _has_good_desc(j["id"])]
     todo.sort(key=lambda j: RANK_PRIORITY.get(j["rank"], 99))
     if todo:
-        print(f"  ↳ Fetching {min(len(todo), MAX_DETAILS)} of {len(todo)} job pages for descriptions")
+        print(f"  ↳ Reading {min(len(todo), MAX_DETAILS)} of {len(todo)} job pages for descriptions")
         found = 0
         for j in todo[:MAX_DETAILS]:
             try:
-                text = description(get(j["apply_url"]))
+                text = description(get(j["apply_url"], JOB_PAGE_READY))
             except RuntimeError as e:
-                print(f"  ⚠️  Stopped fetching job pages: {e}")
+                print(f"  ⚠️  Stopped reading job pages: {e}")
                 break
             if text:
                 j["description"] = text
                 found += 1
         print(f"  ↳ Got descriptions for {found}/{len(todo)} jobs")
+    return jobs
 
+
+def scrape_hku():
+    """HKU — jobs.hku.hk/jobs/search, read in a headless browser (see open_page)."""
+    print("📋 Scraping HKU...")
+    from playwright.sync_api import sync_playwright
+
+    with sync_playwright() as p:
+        # Full Chromium in headless mode, not the headless shell: what was checked to
+        # get the AWS WAF token (20 Nov 2026). No user agent override either.
+        browser = p.chromium.launch(channel="chromium", headless=True)
+        try:
+            page = browser.new_page()
+            jobs = collect(lambda url, ready: open_page(page, url, ready))
+        finally:
+            browser.close()
     print(f"  ✅ HKU: {len(jobs)} jobs found")
     return jobs

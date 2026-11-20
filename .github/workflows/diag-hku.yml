@@ -1,8 +1,8 @@
 name: HKU listing check (one-off)
 
-# Whether a headless browser gets through AWS WAF's challenge on HKU's new careers
-# site, and what else its search page offers (scraper/diag_hku.py). Read-only, no
-# secrets. Runs on pushes to this branch only and is removed after use.
+# Dry run of the rewritten HKU scraper (in a browser) against HKU's new careers site,
+# compared with jobs.csv (scraper/diag_hku.py). Read-only, no secrets. Runs on pushes
+# to this branch only and is removed after use.
 on:
   push:
     branches: ["claude/quirky-mendel-ro41pv"]
@@ -34,5 +34,5 @@ jobs:
           pip install -r requirements.txt
           playwright install --with-deps chromium
 
-      - name: Check HKU in a browser
+      - name: Dry-run the HKU scraper
         run: python diag_hku.py

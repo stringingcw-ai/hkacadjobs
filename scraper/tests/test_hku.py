@@ -1,7 +1,6 @@
-"""HKU's careers site (since 19/20 Nov 2026): search result cards, paging, AWS WAF
-challenges, and job ids that stay the same as on the old site."""
+"""HKU's careers site (since 19/20 Nov 2026): search result cards, paging, pages that
+don't load (AWS WAF), and job ids that stay the same as on the old site."""
 import pytest
-import requests
 
 import core
 from sites import hku
@@ -30,11 +29,16 @@ def card(number, title, closing="Closing on: Dec 10 2026", dept="Faculty of Busi
     </div></article>"""
 
 
-def search_page(cards, pages=(1, 2)):
+def search_page(cards, pages=(1, 2), total=None):
+    """A search page: Featured Jobs, the results, and the count and paging below them."""
     featured = card("400001", "Featured Professoriate Posts")
-    paging = "".join(f'<a href="/jobs/search?page={p}">{p}</a>' for p in pages)
+    paging = "".join(f'<li class="page-item"><a class="page-link" href="/jobs/search?page={p}">{p}</a></li>'
+                     for p in pages)
+    counts = (f'<div aria-live="polite" class="table-counts" role="alert"><p> Displaying <b>1 - {len(cards)}</b>'
+              f' of <b>{total}</b> in total </p></div>') if total else ""
     return (f'<div class="featured-jobs">{featured}</div>'
-            f'<div class="block-job-search-results">{"".join(cards)}</div><nav>{paging}</nav>')
+            f'<div class="block-job-search-results">{"".join(cards)}</div>'
+            f'<div class="bottom-pagination">{counts}<nav class="pagination"><ul>{paging}</ul></nav></div>')
 
 
 def test_a_card_becomes_a_job_with_the_id_the_old_site_gave_it():
@@ -65,59 +69,93 @@ def test_closing_dates(text, date):
     assert hku.closing_date(text) == date
 
 
-def test_every_search_page_is_read_and_repeats_are_dropped():
-    pages = {
-        hku.SEARCH.format(1): search_page([card("1001", "Lecturer in Law"), card("1002", "Professor of Physics")], pages=(1, 2, 3)),
-        hku.SEARCH.format(2): search_page([card("1002", "Professor of Physics"), card("1003", "Research Assistant")], pages=(1, 2, 3)),
-        hku.SEARCH.format(3): search_page([card("1004", "Postdoctoral Fellow")], pages=(2, 3)),
-    }
+def site(pages):
+    """A get(url, ready) over canned pages, recording what was asked for."""
     asked = []
-    jobs = hku.search_all(lambda url: asked.append(url) or pages[url])
+
+    def get(url, ready):
+        asked.append(url)
+        return pages[url]
+    return get, asked
+
+
+def test_the_page_count_comes_from_the_total_and_repeats_are_dropped():
+    # Page 1 links only to pages 1-2 (the rest sit behind a gap); the total says 3.
+    get, asked = site({
+        hku.SEARCH.format(1): search_page([card("1001", "Lecturer in Law"), card("1002", "Professor of Physics")],
+                                          pages=(1, 2), total=5),
+        hku.SEARCH.format(2): search_page([card("1002", "Professor of Physics"), card("1003", "Research Assistant")]),
+        hku.SEARCH.format(3): search_page([card("1004", "Postdoctoral Fellow")], pages=(2, 3)),
+    })
+    jobs = hku.search_all(get)
     assert [j["id"] for j in jobs] == ["HKU-1001", "HKU-1002", "HKU-1003", "HKU-1004"]
     assert asked == [hku.SEARCH.format(n) for n in (1, 2, 3)]
 
 
+def test_without_a_total_the_paging_links_say_how_far_to_go(capsys):
+    get, asked = site({
+        hku.SEARCH.format(1): search_page([card("1001", "Lecturer in Law")], pages=(1, 2)),
+        hku.SEARCH.format(2): search_page([card("1002", "Professor of Physics")], pages=(1, 2, 3)),
+        hku.SEARCH.format(3): search_page([card("1003", "Research Assistant")], pages=(2, 3)),
+    })
+    assert [j["id"] for j in hku.search_all(get)] == ["HKU-1001", "HKU-1002", "HKU-1003"]
+    assert "3 search pages, 3 jobs listed" in capsys.readouterr().out
+
+
+def test_fewer_jobs_than_the_total_is_reported(capsys):
+    get, _ = site({hku.SEARCH.format(1): search_page([card("1001", "Lecturer in Law")], pages=(1,), total=1),
+                   hku.SEARCH.format(2): search_page([])})
+    get_short, _ = site({hku.SEARCH.format(1): search_page([card("1001", "Lecturer in Law"), card("1001", "Lecturer in Law")],
+                                                           pages=(1,), total=2)})
+    hku.search_all(get)
+    assert "Read 1 of" not in capsys.readouterr().out
+    hku.search_all(get_short)
+    assert "Read 1 of the 2 jobs the site lists" in capsys.readouterr().out
+
+
 def test_a_search_page_with_no_jobs_before_the_last_one_fails_the_scrape():
-    pages = {hku.SEARCH.format(1): search_page([card("1001", "Lecturer in Law")], pages=(1, 2, 3)),
-             hku.SEARCH.format(2): "<html>Something went wrong</html>"}
+    get, _ = site({hku.SEARCH.format(1): search_page([card("1001", "Lecturer in Law")], pages=(1, 2, 3)),
+                   hku.SEARCH.format(2): "<html>Something went wrong</html>"})
     with pytest.raises(RuntimeError, match="page 2 of 3 has no jobs"):
-        hku.search_all(pages.get)
+        hku.search_all(get)
 
 
-class Resp:
-    def __init__(self, status, text="", headers=None):
-        self.status_code, self.text, self.headers = status, text, headers or {}
+class Page:
+    """A Playwright page whose wait for `ready` fails for the first `failures` loads."""
+    def __init__(self, failures, title="Let's confirm you are human"):
+        self.failures, self._title, self.loads = failures, title, []
+
+    def goto(self, url, **kw):
+        self.loads.append(url)
+
+    def wait_for_selector(self, selector, **kw):
+        if len(self.loads) <= self.failures:
+            raise TimeoutError(f'Page.wait_for_selector: Timeout 30000ms exceeded.\nwaiting for "{selector}"')
+
+    def content(self):
+        return "<html>ok</html>"
+
+    def title(self):
+        return self._title
 
 
-class Session:
-    def __init__(self, *answers):
-        self.answers = list(answers)
-
-    def get(self, url, **kw):
-        answer = self.answers.pop(0)
-        if isinstance(answer, Exception):
-            raise answer
-        return answer
-
-
-def test_a_waf_challenge_is_waited_out(capsys):
-    waits = []
-    challenge = Resp(202, "", {"x-amzn-waf-action": "challenge"})
-    html = hku.fetch("u", Session(challenge, requests.ConnectionError("reset"), Resp(200, "<html>ok</html>")),
-                     sleep=waits.append)
-    assert html == "<html>ok</html>"
+def test_a_page_that_shows_up_on_a_retry_is_used(capsys):
+    waits, page = [], Page(failures=2)
+    assert hku.open_page(page, "u", ".cards", sleep=waits.append) == "<html>ok</html>"
+    assert page.loads == ["u", "u", "u"]
     assert waits[1:] == [hku.RETRY_WAIT, 2 * hku.RETRY_WAIT]
-    assert "u: HTTP 202, AWS WAF challenge; waiting to retry" in capsys.readouterr().out
+    assert ("u: Page.wait_for_selector: Timeout 30000ms exceeded.; page title \"Let's confirm you are human\"; "
+            "waiting to retry") in capsys.readouterr().out
 
 
-def test_a_page_that_never_loads_raises():
-    challenge = Resp(202, "", {"x-amzn-waf-action": "challenge"})
-    with pytest.raises(RuntimeError, match=r"u didn't load \(HTTP 202, AWS WAF challenge\)"):
-        hku.fetch("u", Session(challenge, challenge, challenge), sleep=lambda s: None)
+def test_a_page_that_never_shows_up_raises():
+    with pytest.raises(RuntimeError, match=r"u didn't load \(.*Timeout 30000ms.*confirm you are human"):
+        hku.open_page(Page(failures=3), "u", ".cards", sleep=lambda s: None)
 
 
 JOB_PAGE = """<html><body><header><nav>Visit Home My Profile Kiosk mode and other site links here</nav></header>
 <main><h1>Assistant Professor in Finance</h1>
+<ul><li class="job-component-requisition-identifier"><span>537976</span></li></ul>
 <p>Assistant Professor in Finance in the Faculty of Business and Economics (Ref.: 537976)</p>
 <p>Applicants should possess a PhD in Finance and a strong record of research publications in leading journals.</p>
 <p>The appointee will teach undergraduate and postgraduate courses and supervise research students.</p>
@@ -141,17 +179,24 @@ def test_a_job_page_with_too_little_text_has_no_description():
 def test_known_jobs_keep_their_summaries_and_new_ones_get_their_job_page(monkeypatch):
     summary = "**Role**\n• Teach finance\n• Research in finance, publishing regularly in leading international journals"
     monkeypatch.setitem(core._existing_descriptions, "HKU-1001", summary)
-    page = search_page([card("1001", "Lecturer in Law"), card("1002", "Professor of Physics"),
-                        card("1003", "Administrative Assistant")], pages=(1,))
-    asked = []
-
-    def fake_fetch(url, session):
-        asked.append(url)
-        return page if "/jobs/search" in url else JOB_PAGE
-    monkeypatch.setattr(hku, "fetch", fake_fetch)
-
-    jobs = {j["id"]: j for j in hku.scrape_hku()}
+    new_job = "https://jobs.hku.hk/jobs/professor-of-physics-2ca71215"
+    get, asked = site({
+        hku.SEARCH.format(1): search_page([card("1001", "Lecturer in Law"), card("1002", "Professor of Physics"),
+                                           card("1003", "Administrative Assistant")], pages=(1,), total=3),
+        new_job: JOB_PAGE,
+    })
+    jobs = {j["id"]: j for j in hku.collect(get)}
     assert set(jobs) == {"HKU-1001", "HKU-1002"}          # admin role skipped
     assert jobs["HKU-1001"]["description"] == summary
     assert "Applicants should possess a PhD" in jobs["HKU-1002"]["description"]
-    assert asked == [hku.SEARCH.format(1), "https://jobs.hku.hk/jobs/professor-of-physics-2ca71215"]
+    assert asked == [hku.SEARCH.format(1), new_job]
+
+
+def test_a_job_page_that_doesnt_load_leaves_the_placeholder_and_stops_reading(monkeypatch):
+    def get(url, ready):
+        if "/jobs/search" in url:
+            return search_page([card("1001", "Professor of Law"), card("1002", "Professor of Physics")],
+                               pages=(1,), total=2)
+        raise RuntimeError(f"{url} didn't load (timeout)")
+    jobs = hku.collect(get)
+    assert [core.PLACEHOLDER_MARKER in j["description"] for j in jobs] == [True, True]
