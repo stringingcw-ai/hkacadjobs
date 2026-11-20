@@ -12,6 +12,25 @@ from core import (
 )
 
 
+def fetch_listing(url, get=requests.get):
+    """The listing page's HTML from a plain request, or None if it has no job links,
+    so the caller loads it in a browser instead. AWS WAF can answer with a challenge
+    page (HTTP 202, no listing) that only a browser gets past: on 20 Nov 2026 that
+    looked like an empty HKU and kept the previous day's jobs."""
+    try:
+        resp = get(url, headers=HEADERS, timeout=60)
+        resp.raise_for_status()
+    except Exception as e:
+        print(f"  ⚠️  Direct listing fetch failed ({e}); retrying in a browser")
+        return None
+    if "/en/job/" not in resp.text:
+        waf = resp.headers.get("x-amzn-waf-action", "")
+        print(f"  ⚠️  Direct listing fetch returned no jobs (HTTP {resp.status_code}"
+              f"{f', AWS WAF {waf}' if waf else ''}); retrying in a browser")
+        return None
+    return resp.text
+
+
 def scrape_hku():
     """
     HKU — jobs.hku.hk/en/listing/ (PageUp ATS)
@@ -85,13 +104,7 @@ def scrape_hku():
     # request that can't stop half-way — the old click loop waited a fixed
     # 1.5 s per batch and quit early whenever the site was slow.
     LISTING_ALL = "https://jobs.hku.hk/en/listing/?page=1&page-items=1000"
-    listing_html = None
-    try:
-        resp = requests.get(LISTING_ALL, headers=HEADERS, timeout=60)
-        resp.raise_for_status()
-        listing_html = resp.text
-    except Exception as e:
-        print(f"  ⚠️  Direct listing fetch failed ({e}); retrying in a browser")
+    listing_html = fetch_listing(LISTING_ALL)
 
     try:
         from playwright.sync_api import sync_playwright
