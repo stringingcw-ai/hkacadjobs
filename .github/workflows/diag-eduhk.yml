@@ -1,0 +1,38 @@
+name: EdUHK openings check (one-off)
+
+# What EdUHK's current-openings pages show to a GitHub runner over the first 20 s,
+# after the 21 Nov 2026 run got no Academic jobs (scraper/diag_eduhk.py). Read-only,
+# no secrets. Runs on pushes to this branch only and is removed after use.
+on:
+  push:
+    branches: ["claude/quirky-mendel-ro41pv"]
+    paths:
+      - ".github/workflows/diag-eduhk.yml"
+      - "scraper/diag_eduhk.py"
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: scraper
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: scraper/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+
+      - name: Check EdUHK's openings pages
+        run: python diag_eduhk.py
