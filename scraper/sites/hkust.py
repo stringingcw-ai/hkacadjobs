@@ -39,7 +39,7 @@ def interfolio_links(html, base_url=""):
     """Each job's Interfolio link, from its own card: the smallest element around
     its "Job ID: N" that holds a link to Interfolio, as long as it holds no other
     job. Until 22 Nov 2026 each link went to the Job ID seen before it, but on these
-    pages a card's link comes before its Job ID, so every academic job had the next
+    pages a card's link comes before its Job ID, so every job with one had the next
     card's link, and its summary was made from that job's ad."""
     soup = BeautifulSoup(html, "html.parser")
     links = {}
@@ -142,7 +142,7 @@ def scrape_hkust():
                         "description":      f"{title}{' — ' + dept if dept else ''}. Please visit the application link for full details.",
                     })
 
-                # Each academic job's Interfolio link, from its own card (see
+                # Each job's Interfolio link, from its own card (see
                 # interfolio_links). A job whose link changed since the last run gets
                 # its summary made again, from the right page.
                 try:
