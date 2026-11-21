@@ -5,24 +5,30 @@ from sites.hkust import interfolio_links
 
 
 def card(ref, title, link=None, link_after=False):
-    a = f'<a href="https://apply.interfolio.com/{link}" target="_blank">Apply</a>' if link else ""
-    return (f'<div class="job-card"><h3><a href="#">{title}</a></h3>{"" if link_after else a}'
-            f'<div class="job-meta"><span>Job ID: {ref}</span></div>'
-            f'<p>Department of Chemistry</p><p>Apply by: 2026-12-31</p>{a if link_after else ""}</div>')
+    """A card as the listing renders it (trimmed): the title is the Interfolio link."""
+    href = f"https://apply.interfolio.com/{link}" if link and not link_after else "#"
+    after = f'<a href="https://apply.interfolio.com/{link}">Apply</a>' if link and link_after else ""
+    return (f'<div class="views-row"><div class="views-field views-field-nothing"><span class="field-content">'
+            f'<div class="job-card"><h3><a href="{href}" rel="noopener" target="_blank">{title}</a></h3>'
+            f'<p>Job ID: {ref}</p><div class="info-row"><p><img alt="Department"/> Division of Life Science </p>'
+            f'<p><img alt="Open Date"/> Open Date: <time>20 November 2026</time></p></div>{after}</div>'
+            f'</span></div></div>')
 
 
 def listing(*cards):
-    return f'<html><body><h2>School (3)</h2><div class="job-list">{"".join(cards)}</div></body></html>'
+    return f'<html><body><h2>School (3)</h2><div class="view-content">{"".join(cards)}</div></body></html>'
 
 
 def test_each_job_gets_the_link_in_its_own_card():
-    html = listing(card("195841", "Teaching-track Faculty Position", 196417),
-                   card("195054", "CHEM - Faculty Positions", 194909),
-                   card("193429", "Assistant, Associate, or Full Professor", 194207))
+    # As on the live page (21 Nov 2026); the old mapping gave 195841 the CHEM link
+    # (196417) and 195054 the next job's (194909).
+    html = listing(card("195841", "Teaching-track Faculty Position", 197127),
+                   card("195054", "CHEM - Faculty Positions", 196417),
+                   card("193429", "Assistant, Associate, or Full Professor", 194909))
     assert interfolio_links(html) == {
-        "195841": "https://apply.interfolio.com/196417",
-        "195054": "https://apply.interfolio.com/194909",
-        "193429": "https://apply.interfolio.com/194207",
+        "195841": "https://apply.interfolio.com/197127",
+        "195054": "https://apply.interfolio.com/196417",
+        "193429": "https://apply.interfolio.com/194909",
     }
 
 

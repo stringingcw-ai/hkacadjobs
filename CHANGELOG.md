@@ -4,6 +4,13 @@ All notable changes to HKAcadJobs are recorded here, grouped by date.
 
 ---
 
+## 2026-11-22
+
+### Scraping and data
+- HKUST jobs link to their own ad. Every HKUST job with an Interfolio link (56 today) linked to the job listed after it on HKUST's careers page, and its summary was made from that job's ad: "CHEM - Faculty Positions" read like a finance post. Each job now gets the link in its own card, and the summaries of jobs whose link changes are made again on the next run
+
+---
+
 ## 2026-11-21
 
 ### Scraping and data
