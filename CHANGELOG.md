@@ -4,6 +4,13 @@ All notable changes to HKAcadJobs are recorded here, grouped by date.
 
 ---
 
+## 2026-11-21
+
+### Scraping and data
+- EdUHK's academic jobs are read more reliably. On 21 Nov the scraper found no Academic / Teaching posts at EdUHK (usually about 20) and showed the previous day's instead. It now waits until each category page shows its jobs or EdUHK's "No results found.", tries a page again if it shows neither, and looks a second time before taking a category as empty
+
+---
+
 ## 2026-11-20
 
 ### Scraping and data
