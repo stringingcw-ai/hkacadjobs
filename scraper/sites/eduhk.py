@@ -19,7 +19,6 @@ def _open_category(page, url, attempts=3):
     a fixed 3 s wait and found no jobs (usually about 20), so wait for one or the
     other, retry a page that shows neither, and check an empty answer once more.
     Raises if the page never shows either."""
-    problem = ""
     for attempt in range(1, attempts + 1):
         try:
             page.goto(url, timeout=60000, wait_until="domcontentloaded")
@@ -29,7 +28,8 @@ def _open_category(page, url, attempts=3):
             if attempt > 1:
                 print(f"  ↳ EdUHK lists no jobs at {url} ('{NO_RESULTS}.')")
                 return False
-            problem = f"'{NO_RESULTS}.'"
+            page.wait_for_timeout(5000)   # usual for Senior Management; look once more
+            continue
         except Exception as e:
             problem = str(e).splitlines()[0][:120] if str(e) else type(e).__name__
             try:

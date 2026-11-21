@@ -44,8 +44,8 @@ def test_no_results_is_checked_once_more_then_believed(capsys):
     assert _open_category(page, "u") is False
     assert page.loads == 2
     out = capsys.readouterr().out
-    assert "u: 'No results found.' (attempt 1/3); trying again" in out
-    assert "EdUHK lists no jobs at u" in out
+    assert "⚠️" not in out        # an empty category is usual (Senior Management)
+    assert "EdUHK lists no jobs at u ('No results found.')" in out
 
 
 def test_a_momentary_no_results_gets_the_jobs_on_the_second_look():
