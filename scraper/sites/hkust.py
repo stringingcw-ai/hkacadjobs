@@ -1,6 +1,9 @@
 """Hong Kong University of Science and Technology: job scraper."""
 
 import re
+from urllib.parse import urljoin
+
+from bs4 import BeautifulSoup
 
 from core import (
     BOT_MARKERS, clean, detect_rank, detect_type, HEADERS, is_active, is_within_retention,
@@ -27,6 +30,30 @@ def _open_listing(page, url, attempts=3):
     except Exception:
         pass   # the cards are in; a slow image or tracker doesn't matter
     page.wait_for_timeout(3000)
+
+
+JOB_ID_TEXT = re.compile(r"^\s*Job ID:\s*(\d+)\s*$")
+
+
+def interfolio_links(html, base_url=""):
+    """Each job's Interfolio link, from its own card: the smallest element around
+    its "Job ID: N" that holds a link to Interfolio, as long as it holds no other
+    job. Until 22 Nov 2026 each link went to the Job ID seen before it, but on these
+    pages a card's link comes before its Job ID, so every academic job had the next
+    card's link, and its summary was made from that job's ad."""
+    soup = BeautifulSoup(html, "html.parser")
+    links = {}
+    for text in soup.find_all(string=JOB_ID_TEXT):
+        ref = JOB_ID_TEXT.match(text).group(1)
+        el = text.parent
+        while ref not in links and el is not None and el.name not in ("body", "html", "[document]"):
+            if len(re.findall(r"Job ID:\s*\d+", el.get_text())) > 1:
+                break                      # reached the list: this card has no Interfolio link
+            a = el.find("a", href=re.compile("interfolio", re.I))
+            if a:
+                links[ref] = urljoin(base_url, a["href"])
+            el = el.parent
+    return links
 
 
 def scrape_hkust():
@@ -59,6 +86,7 @@ def scrape_hkust():
                 print(f"  ↳ {pos_type}: {job_id_count} Job IDs in page text")
 
                 seen_ids = set()
+                first = len(jobs)   # this page's jobs are jobs[first:]
                 for m in re.finditer(r'Job ID: (\d+)', full_text):
                     ref = m.group(1)
                     if ref in seen_ids:
@@ -114,43 +142,21 @@ def scrape_hkust():
                         "description":      f"{title}{' — ' + dept if dept else ''}. Please visit the application link for full details.",
                     })
 
-                # Map Interfolio links to job IDs positionally:
-                # walk all text nodes in order, collect (jobId, linkHref) pairs where
-                # each link is assigned to the most recently seen Job ID before it.
+                # Each academic job's Interfolio link, from its own card (see
+                # interfolio_links). A job whose link changed since the last run gets
+                # its summary made again, from the right page.
                 try:
-                    il_map = page.evaluate("""
-                        () => {
-                            const result = {};
-                            const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ALL);
-                            let currentJobId = null;
-                            let node;
-                            while (node = walker.nextNode()) {
-                                if (node.nodeType === Node.TEXT_NODE) {
-                                    const m = node.textContent.trim().match(/^Job ID: (\\d+)$/);
-                                    if (m) currentJobId = m[1];
-                                } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'A') {
-                                    const href = node.href || '';
-                                    if (currentJobId && href.includes('interfolio') && !result[currentJobId]) {
-                                        result[currentJobId] = href;
-                                    }
-                                }
-                            }
-                            return result;
-                        }
-                    """)
-                    for j in jobs:
-                        if j["reference"] in il_map:
-                            new_url = il_map[j["reference"]]
-                            # Refresh the cached summary only if the link changed since
-                            # the last run. (This compared against the PeopleSoft URL
-                            # built above, so it always differed and ~50 HKUST jobs
-                            # were re-summarised every day.)
-                            prev_url = (_previous_rows.get(j["id"]) or {}).get("apply_url", "")
-                            if prev_url and prev_url != new_url:
-                                _existing_descriptions.pop(j["id"], None)
-                            j["apply_url"] = new_url
-                except Exception:
-                    pass
+                    il_map = interfolio_links(page.content(), url)
+                except Exception as e:
+                    il_map = None
+                    print(f"  ⚠️  Couldn't read the {pos_type} Interfolio links: {e}")
+                if il_map is not None:
+                    for j in jobs[first:]:
+                        new_url = il_map.get(j["reference"], j["apply_url"])
+                        prev_url = (_previous_rows.get(j["id"]) or {}).get("apply_url", "")
+                        if prev_url and prev_url != new_url:
+                            _existing_descriptions.pop(j["id"], None)
+                        j["apply_url"] = new_url
 
                 page.close()
 
