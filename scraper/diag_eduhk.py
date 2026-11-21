@@ -1,41 +1,25 @@
-"""One-off: the 21 Nov 2026 run got 0 jobs in EdUHK's Academic category (usually
-~22). Does the page fill in later than the scraper's fixed 3 s wait, or is it empty?
-What does an empty category show, and what data requests does the page make?
-Read-only; removed after use."""
+"""One-off: dry run of the EdUHK scraper with the new page wait (_open_category)
+against the live site, compared with jobs.csv (nothing is written). Removed after use."""
 
-import re
+import csv
 import time
+from pathlib import Path
 
-from playwright.sync_api import sync_playwright
+import core
+from sites.eduhk import scrape_eduhk
 
-BASE = "https://www.eduhk.hk/en/current-openings?category={}&department=&q="
-CATEGORIES = ["senior-management", "deanship-headship-appointments",
-              "academic-teaching-posts", "research-support-posts"]
+rows = {r["id"]: r for r in csv.DictReader(open(Path(__file__).parent.parent / "jobs.csv", encoding="utf-8"))}
+core._existing_descriptions.update({k: v.get("description", "") for k, v in rows.items()})
+old = {k for k, v in rows.items() if v["university"] == "EdUHK"}
 
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
-    for cat in CATEGORIES:
-        page = browser.new_page()
-        requests = []
-        page.on("response", lambda r: requests.append((r.request.resource_type, r.status, r.url[:140]))
-                if r.request.resource_type in ("xhr", "fetch") else None)
-        start = time.time()
-        resp = page.goto(BASE.format(cat), timeout=60000, wait_until="domcontentloaded")
-        print(f"\n=== {cat}: HTTP {resp.status if resp else '?'}")
-        for t in (1, 3, 6, 10, 20):
-            page.wait_for_timeout(max(0, (start + t - time.time()) * 1000))
-            body = page.inner_text("body")
-            pdfs = page.evaluate("document.querySelectorAll('a[href*=\"/cms/f/career\"]').length")
-            print(f"  after {t:>2}s: {body.count('Ad Date:')} 'Ad Date:', {pdfs} PDF links")
-        body = page.inner_text("body")
-        i = body.find("Ad Date:")
-        around = body[max(0, i - 300):i + 200] if i >= 0 else body[:100]
-        print("  text around the first job (or page start):", re.sub(r"\s+", " ", around)[:500])
-        if i < 0:
-            for needle in ("No ", "no result", "not found", "currently", "There is", "There are"):
-                j = body.find(needle)
-                if j >= 0:
-                    print(f"  empty-state text near {needle!r}:", re.sub(r"\s+", " ", body[max(0, j - 80):j + 160]))
-        print("  data requests:", requests[:12])
-        page.close()
-    browser.close()
+start = time.time()
+jobs = scrape_eduhk()
+ids = {j["id"] for j in jobs}
+print(f"\ntook {time.time() - start:.0f}s; scraped {len(jobs)}; stored EdUHK {len(old)}; "
+      f"carried over {len(ids & old)}; new {len(ids - old)}; stored not found {len(old - ids)}")
+for jid in sorted(old - ids):
+    r = rows[jid]
+    print("   not found:", jid, r["deadline"] or "-", r["title"][:70])
+for j in jobs:
+    if j["id"] not in old:
+        print("   new:", j["id"], j["deadline"] or "-", j["title"][:70])

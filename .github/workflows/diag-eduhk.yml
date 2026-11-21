@@ -1,7 +1,7 @@
 name: EdUHK openings check (one-off)
 
-# What EdUHK's current-openings pages show to a GitHub runner over the first 20 s,
-# after the 21 Nov 2026 run got no Academic jobs (scraper/diag_eduhk.py). Read-only,
+# Dry run of the EdUHK scraper with its new page wait, against the live site,
+# compared with jobs.csv (scraper/diag_eduhk.py). Read-only,
 # no secrets. Runs on pushes to this branch only and is removed after use.
 on:
   push:
@@ -34,5 +34,5 @@ jobs:
           pip install -r requirements.txt
           playwright install --with-deps chromium
 
-      - name: Check EdUHK's openings pages
+      - name: Dry-run the EdUHK scraper
         run: python diag_eduhk.py

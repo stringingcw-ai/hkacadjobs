@@ -8,6 +8,40 @@ from core import (
 )
 
 
+NO_RESULTS = "No results found"
+JOBS_OR_NO_RESULTS = ("() => !!document.body && (document.body.innerText.includes('Ad Date:')"
+                      f" || document.body.innerText.includes('{NO_RESULTS}'))")
+
+
+def _open_category(page, url, attempts=3):
+    """Open a category's first page once it shows its jobs or EdUHK's "No results
+    found."; True if it has jobs. The 21 Nov 2026 run read the Academic page after
+    a fixed 3 s wait and found no jobs (usually about 20), so wait for one or the
+    other, retry a page that shows neither, and check an empty answer once more.
+    Raises if the page never shows either."""
+    problem = ""
+    for attempt in range(1, attempts + 1):
+        try:
+            page.goto(url, timeout=60000, wait_until="domcontentloaded")
+            page.wait_for_function(JOBS_OR_NO_RESULTS, timeout=30000)
+            if "Ad Date:" in page.inner_text("body"):
+                return True
+            if attempt > 1:
+                print(f"  ↳ EdUHK lists no jobs at {url} ('{NO_RESULTS}.')")
+                return False
+            problem = f"'{NO_RESULTS}.'"
+        except Exception as e:
+            problem = str(e).splitlines()[0][:120] if str(e) else type(e).__name__
+            try:
+                problem += f"; the page says: {' '.join(page.inner_text('body').split())[:160]!r}"
+            except Exception:
+                pass
+            if attempt == attempts:
+                raise RuntimeError(f"{url} showed no jobs and no '{NO_RESULTS}' ({problem})")
+        print(f"  ⚠️  {url}: {problem} (attempt {attempt}/{attempts}); trying again")
+        page.wait_for_timeout(5000 * attempt)
+
+
 def scrape_eduhk():
     """
     EdUHK — eduhk.hk/en/current-openings
@@ -45,8 +79,7 @@ def scrape_eduhk():
                         if page_num == 1:
                             pw_page = browser.new_page()
                             pw_page.set_extra_http_headers(HEADERS)
-                            pw_page.goto(url, timeout=60000, wait_until="domcontentloaded")
-                            pw_page.wait_for_timeout(3000)
+                            _open_category(pw_page, url)
                         # else: pw_page already on next page from previous click
 
                         full_text = pw_page.inner_text("body")
@@ -55,7 +88,8 @@ def scrape_eduhk():
                             "Array.from(document.querySelectorAll('a[href*=\"/cms/f/career\"]')).map(a => a.href)"
                         )
                     except Exception as page_err:
-                        print(f"  ↳ {pos_type} p{page_num}: error ({page_err.__class__.__name__})")
+                        print(f"  ↳ {pos_type} p{page_num}: error ({page_err.__class__.__name__}: "
+                              f"{str(page_err).splitlines()[0][:300] if str(page_err) else ''})")
                         try: pw_page.close()
                         except: pass
                         break
