@@ -1,133 +1,6 @@
 {
  "runs": [
   {
-   "date": "2026-10-25",
-   "run_at": "2026-10-24T19:51:06+00:00",
-   "total_jobs": 1644,
-   "new_jobs": 0,
-   "results": {
-    "polyu": {
-     "university": "PolyU",
-     "status": "ok",
-     "scraped": 172,
-     "expected": 176,
-     "kept_from_previous": 0
-    },
-    "eduhk": {
-     "university": "EdUHK",
-     "status": "ok",
-     "scraped": 40,
-     "expected": 44,
-     "kept_from_previous": 0
-    },
-    "lingnan": {
-     "university": "LU",
-     "status": "ok",
-     "scraped": 95,
-     "expected": 97,
-     "kept_from_previous": 0
-    },
-    "hku": {
-     "university": "HKU",
-     "status": "ok",
-     "scraped": 376,
-     "expected": 361,
-     "kept_from_previous": 0
-    },
-    "hkust": {
-     "university": "HKUST",
-     "status": "ok",
-     "scraped": 153,
-     "expected": 153,
-     "kept_from_previous": 0
-    },
-    "cityu": {
-     "university": "CityU",
-     "status": "ok",
-     "scraped": 189,
-     "expected": 188,
-     "kept_from_previous": 0
-    },
-    "hkbu": {
-     "university": "HKBU",
-     "status": "ok",
-     "scraped": 171,
-     "expected": 167,
-     "kept_from_previous": 0
-    },
-    "cuhk": {
-     "university": "CUHK",
-     "status": "ok",
-     "scraped": 199,
-     "expected": 202,
-     "kept_from_previous": 0
-    },
-    "hkmu": {
-     "university": "HKMU",
-     "status": "ok",
-     "scraped": 39,
-     "expected": 45,
-     "kept_from_previous": 0
-    },
-    "hsu": {
-     "university": "HSU",
-     "status": "ok",
-     "scraped": 22,
-     "expected": 21,
-     "kept_from_previous": 0
-    },
-    "sfu": {
-     "university": "SFU",
-     "status": "ok",
-     "scraped": 30,
-     "expected": 30,
-     "kept_from_previous": 0
-    },
-    "hksyu": {
-     "university": "HKSYU",
-     "status": "ok",
-     "scraped": 43,
-     "expected": 43,
-     "kept_from_previous": 0
-    },
-    "vtc": {
-     "university": "VTC",
-     "status": "ok",
-     "scraped": 53,
-     "expected": 28,
-     "kept_from_previous": 0
-    },
-    "hkuspace": {
-     "university": "HKUSPACE",
-     "status": "ok",
-     "scraped": 26,
-     "expected": 26,
-     "kept_from_previous": 0
-    },
-    "cpce": {
-     "university": "CPCE",
-     "status": "ok",
-     "scraped": 28,
-     "expected": 26,
-     "kept_from_previous": 0
-    },
-    "chuhai": {
-     "university": "HKCHC",
-     "status": "ok",
-     "scraped": 5,
-     "expected": 5,
-     "kept_from_previous": 0
-    },
-    "thei": {
-     "university": "THEI",
-     "status": "ok",
-     "scraped": 26,
-     "expected": 28,
-     "kept_from_previous": 0
-    }
-   }
-  },
-  {
    "date": "2026-10-26",
    "run_at": "2026-10-25T20:13:14+00:00",
    "total_jobs": 1638,
@@ -3806,6 +3679,133 @@
      "status": "ok",
      "scraped": 27,
      "expected": 26,
+     "kept_from_previous": 0
+    }
+   }
+  },
+  {
+   "date": "2026-11-24",
+   "run_at": "2026-11-24T03:39:54+00:00",
+   "total_jobs": 1723,
+   "new_jobs": 38,
+   "results": {
+    "polyu": {
+     "university": "PolyU",
+     "status": "ok",
+     "scraped": 149,
+     "expected": 142,
+     "kept_from_previous": 0
+    },
+    "eduhk": {
+     "university": "EdUHK",
+     "status": "ok",
+     "scraped": 38,
+     "expected": 37,
+     "kept_from_previous": 0
+    },
+    "lingnan": {
+     "university": "LU",
+     "status": "ok",
+     "scraped": 100,
+     "expected": 98,
+     "kept_from_previous": 0
+    },
+    "hku": {
+     "university": "HKU",
+     "status": "ok",
+     "scraped": 405,
+     "expected": 398,
+     "kept_from_previous": 0
+    },
+    "hkust": {
+     "university": "HKUST",
+     "status": "ok",
+     "scraped": 156,
+     "expected": 157,
+     "kept_from_previous": 0
+    },
+    "cityu": {
+     "university": "CityU",
+     "status": "ok",
+     "scraped": 195,
+     "expected": 197,
+     "kept_from_previous": 0
+    },
+    "hkbu": {
+     "university": "HKBU",
+     "status": "ok",
+     "scraped": 179,
+     "expected": 178,
+     "kept_from_previous": 0
+    },
+    "cuhk": {
+     "university": "CUHK",
+     "status": "ok",
+     "scraped": 225,
+     "expected": 225,
+     "kept_from_previous": 0
+    },
+    "hkmu": {
+     "university": "HKMU",
+     "status": "ok",
+     "scraped": 56,
+     "expected": 54,
+     "kept_from_previous": 0
+    },
+    "hsu": {
+     "university": "HSU",
+     "status": "ok",
+     "scraped": 17,
+     "expected": 19,
+     "kept_from_previous": 0
+    },
+    "sfu": {
+     "university": "SFU",
+     "status": "ok",
+     "scraped": 42,
+     "expected": 40,
+     "kept_from_previous": 0
+    },
+    "hksyu": {
+     "university": "HKSYU",
+     "status": "ok",
+     "scraped": 44,
+     "expected": 48,
+     "kept_from_previous": 0
+    },
+    "vtc": {
+     "university": "VTC",
+     "status": "ok",
+     "scraped": 49,
+     "expected": 50,
+     "kept_from_previous": 0
+    },
+    "hkuspace": {
+     "university": "HKUSPACE",
+     "status": "ok",
+     "scraped": 34,
+     "expected": 33,
+     "kept_from_previous": 0
+    },
+    "cpce": {
+     "university": "CPCE",
+     "status": "ok",
+     "scraped": 26,
+     "expected": 26,
+     "kept_from_previous": 0
+    },
+    "chuhai": {
+     "university": "HKCHC",
+     "status": "ok",
+     "scraped": 3,
+     "expected": 3,
+     "kept_from_previous": 0
+    },
+    "thei": {
+     "university": "THEI",
+     "status": "ok",
+     "scraped": 28,
+     "expected": 27,
      "kept_from_previous": 0
     }
    }
